@@ -18,14 +18,6 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
-  # Use docker.io for Docker Hub if empty
-  REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
-  # just a name, but storing it separately as we're nice people
-  DOCKER_IMAGE_ARTIFACT_NAME: Docker image
-  DOCKER_IMAGE_OUTPUT_LOCATION: /tmp
-  DOCKER_IMAGE_TAR_LOCATION: /tmp/docker-image.tar # notice /tmp same as DOCKER_IMAGE_OUTPUT_LOCATION
 
 concurrency:
   # each new commit to a PR runs this workflow
@@ -49,54 +41,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filters: .github/file-filters.yml
-
-  calculate-version:
-    name: Calculate version
-    runs-on: ubuntu-latest
-    needs:
-      - changes
-    outputs:
-      version: ${{ steps.version.outputs.nextversion }}
-    if: |
-      (github.event_name == 'pull_request' && needs.changes.outputs.code == 'true')
-    permissions:
-      contents: write # for the dry run
-    steps:
-      - name: Checkout
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-        with:
-          # we cannot use the actual merge as it is not a real commit yet
-          # so we get the tip of the PR
-          # and we protect ourselves from other changes by enforcing
-          # the branch to be up to date with main before merging
-          ref: ${{ github.event.pull_request.head.sha }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@04c56d2f954f1e4c69436aa54cfef261a018f458
-        with:
-          node-version-file: ".nvmrc"
-          cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
-
-      - name: Install dependencies
-        shell: bash
-        run: |
-          npm ci --ignore-scripts
-
-      - name: Calculate next version
-        id: version
-        shell: bash
-        run: |
-
-          # semantic-release uses this to determine if we're on
-          # a PR, but we just want to calculate a version number, nothing more
-          # so we bypass it all
-          export GITHUB_EVENT_NAME=""
-          export GITHUB_REF="${{ github.head_ref }}"
-
-          npm run dump-version-number -- --branches '${{ github.head_ref }}'
-
-          echo "::set-output name=nextversion::$(cat NEXTVERSION)"
 
   cargo-build:
     name: Cargo build
@@ -270,119 +214,6 @@ jobs:
 
       # TODO upload clippy report for progress
 
-  docker-build:
-    name: Build docker container
-    runs-on: ubuntu-latest
-    needs:
-      - calculate-version
-    steps:
-      - name: Not a real step
-        run: |
-          echo "Just here to not have to restructure too much"
-
-      # - name: Checkout
-      #   uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-
-      # - name: Set the Cargo.toml version before we copy in the data into the docker container
-      #   shell: bash
-      #   run: |
-      #     ./.github/scripts/update-version.sh ${{ needs.calculate-version.outputs.version }}
-
-      # - name: Set up Docker Buildx
-      #   id: buildx
-      #   uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
-
-      # # TODO validate no changes between github.event.pull_request.head.sha and the actual current sha (representing the hypothetical merge)
-
-      # # Extract metadata (tags, labels) for Docker
-      # # https://github.com/docker/metadata-action
-      # - name: Extract Docker metadata
-      #   id: meta
-      #   uses: docker/metadata-action@548e2346a9987b56d8a4104fe776321ff8e23440
-      #   with:
-      #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      #     tags: |
-      #       type=ref,event=pr,suffix=-latest
-      #       type=raw,value=pr-${{ github.event.pull_request.base.sha }}-${{ github.event.pull_request.head.sha }}
-      #     labels: |
-      #       org.opencontainers.image.version=pr-${{ github.event.number }}
-      #       org.opencontainers.image.source=${{ github.event.pull_request.html_url }}
-
-      # - name: Cache Docker layers
-      #   uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353
-      #   env:
-      #     CACHE_NAME: docker-cache-dependencies
-      #   with:
-      #     path: /tmp/.buildx-cache
-      #     key: ${{ runner.os }}-build-${{ env.CACHE_NAME }}-${{ hashFiles('Dockerfile') }}
-      #     restore-keys: |
-      #       ${{ runner.os }}-build-${{ env.CACHE_NAME }}-
-
-      # - name: Build Docker image
-      #   uses: docker/build-push-action@a66e35b9cbcf4ad0ea91ffcaf7bbad63ad9e0229
-      #   with:
-      #     context: .
-      #     # this container is THE PR's artifact, and we will re-tag it
-      #     # once the PR has been accepted
-      #     tags: ${{ steps.meta.outputs.tags }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-      #     cache-from: type=local,src=/tmp/.buildx-cache
-      #     cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-      #     outputs: type=docker,dest=${{ env.DOCKER_IMAGE_TAR_LOCATION }}
-
-      #   # Temp fix
-      #   # https://github.com/docker/build-push-action/issues/252
-      #   # https://github.com/moby/buildkit/issues/1896
-      # - name: Move cache
-      #   run: |
-      #     rm -rf /tmp/.buildx-cache
-      #     mv /tmp/.buildx-cache-new /tmp/.buildx-cache
-
-      # - name: Upload artifact
-      #   uses: actions/upload-artifact@27121b0bdffd731efa15d66772be8dc71245d074
-      #   with:
-      #     name: ${{ env.DOCKER_IMAGE_ARTIFACT_NAME }}
-      #     path: ${{ env.DOCKER_IMAGE_TAR_LOCATION }}
-
-  docker-publish:
-    name: Publish Docker container
-    runs-on: ubuntu-latest
-    needs:
-      - cargo-build
-      - cargo-fmt
-      - cargo-test-and-report
-      - cargo-clippy-and-report
-      - docker-build
-    if: ${{ github.repository == 'kristof-mattei/advent-of-code-2020' && github.event_name == 'pull_request' }}
-    steps:
-      - name: Not a real step
-        run: |
-          echo "Just here to not have to restructure too much"
-    #   - name: Set up Docker Buildx
-    #     uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
-
-    #   - name: Download artifact
-    #     uses: actions/download-artifact@3be87be14a055c47b01d3bd88f8fe02320a9bb60
-    #     with:
-    #       name: ${{ env.DOCKER_IMAGE_ARTIFACT_NAME }}
-    #       path: ${{ env.DOCKER_IMAGE_OUTPUT_LOCATION }}
-
-    #   - name: Log into registry ${{ env.REGISTRY }}
-    #     uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-    #     with:
-    #       registry: ${{ env.REGISTRY }}
-    #       username: ${{ github.actor }}
-    #       password: ${{ secrets.GITHUB_TOKEN }}
-
-    #   - name: Load image from artifact
-    #     run: |
-    #       docker load --input ${{ env.DOCKER_IMAGE_TAR_LOCATION }}
-
-    #   - name: Push image with all tags
-    #     run: |
-    #       docker push ${REGISTRY,,}/${IMAGE_NAME,,} --all-tags
-
-  # human
   all-done:
     name: All done
     # this is the job that should be marked as required on GitHub. It's the only one that'll reliably trigger
@@ -392,13 +223,10 @@ jobs:
     # combination of upstream skip and success: success
     runs-on: ubuntu-latest
     needs:
-      - calculate-version
       - cargo-build
       - cargo-fmt
-      - cargo-clippy-and-report
       - cargo-test-and-report
-      - docker-build
-      - docker-publish
+      - cargo-clippy-and-report
     if: ${{ !failure() }}
     steps:
       - run: |

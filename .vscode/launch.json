@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'rust-end-to-end-application'",
+            "name": "Debug executable 'advent-of-code-2020'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=rust-end-to-end-application",
-                    "--package=rust-end-to-end-application"
+                    "--bin=advent-of-code-2020",
+                    "--package=advent-of-code-2020"
                 ],
                 "filter": {
-                    "name": "rust-end-to-end-application",
+                    "name": "advent-of-code-2020",
                     "kind": "bin"
                 }
             },
@@ -23,22 +23,22 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
-                "RUST_LOG": "rust_end_to_end_application=trace"
+                "RUST_LOG": "advent_of_code_2020=trace"
             }
         },
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'rust-end-to-end-application'",
+            "name": "Debug unit tests in executable 'advent-of-code-2020'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=rust-end-to-end-application",
-                    "--package=rust-end-to-end-application"
+                    "--bin=advent-of-code-2020",
+                    "--package=advent-of-code-2020"
                 ],
                 "filter": {
-                    "name": "rust-end-to-end-application",
+                    "name": "advent-of-code-2020",
                     "kind": "bin"
                 }
             },
