@@ -2,9 +2,8 @@
 
 mod day_1;
 mod day_2;
-
-use day_1::part_1::day_1_part_1;
-use day_1::part_2::day_1_part_2;
+mod error;
+mod utils;
 
 fn print_answer<T: std::fmt::Display, E: std::fmt::Display>(
     day: &u32,
@@ -24,7 +23,16 @@ fn print_answer<T: std::fmt::Display, E: std::fmt::Display>(
     }
 }
 fn main() {
-    let days = [(day_1_part_1(), day_1_part_2())];
+    let days = [
+        (
+            day_1::part_1::find_solution(),
+            day_1::part_2::find_solution(),
+        ),
+        (
+            day_2::part_1::find_solution(),
+            day_2::part_2::find_solution(),
+        ),
+    ];
 
     for (i, (part1, part2)) in days.iter().enumerate() {
         print_answer(&(i as u32 + 1), &1, part1);

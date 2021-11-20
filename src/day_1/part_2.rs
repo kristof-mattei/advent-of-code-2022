@@ -1,54 +1,58 @@
-use std::fs::File;
-use std::io::prelude::*;
+use std::collections::HashMap;
 
-#[path = "../error/error.rs"]
-mod error;
-use self::error::AoCError;
+use crate::error::AoCError;
+use crate::utils::read_file;
 
-fn read_file() -> Result<Vec<String>, std::io::Error> {
-    let mut file = File::open("./src/day_1/input.txt")?; // nasty path resolve
-    let mut contents = String::new();
+fn find_sum_of_2_is_2020(fixed: i32, rest: Vec<i32>) -> Option<(i32, i32)> {
+    let mut missing_to_value: HashMap<i32, i32> = HashMap::new();
 
-    file.read_to_string(&mut contents)?;
+    for n in rest {
+        match missing_to_value.get(&n) {
+            Some(x) => {
+                return Some((*x, n));
+            }
+            None => {
+                missing_to_value.insert(2020 - fixed - n, n);
+            }
+        }
+    }
 
-    let split: Vec<String> = contents
-        .split_ascii_whitespace()
-        .map(|f| f.to_owned())
-        .collect();
-
-    Ok(split)
+    None
 }
 
-fn find_sum_is_2020(_numbers: Vec<u32>) -> Option<(u32, u32, u32)> {
-    panic!();
-    // let mut missing_to_value: HashMap<u32, u32> = HashMap::new();
+fn find_sum_of_3_is_2020(numbers: Vec<i32>) -> Option<(i32, i32, i32)> {
+    for n in &numbers {
+        let mut vec_without_n = numbers.clone();
+        vec_without_n.retain(|r| *r != *n);
 
-    // for n in numbers {
-    //     match missing_to_value.get(&n) {
-    //         Some(x) => {
-    //             return Some((*x, n));
-    //         }
-    //         None => {
-    //             missing_to_value.insert(2020 - n, n);
-    //         }
-    //     }
-    // }
+        match find_sum_of_2_is_2020(*n, vec_without_n) {
+            None => (),
+            Some((part2, part3)) => {
+                return Some((*n, part2, part3));
+            }
+        }
+    }
 
-    // None
+    None
 }
 
 // https://adventofcode.com/2020/day/1
-pub fn day_1_part_2() -> Result<u32, Box<dyn std::error::Error>> {
-    let split = read_file()?;
+pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+    let split = read_file("./src/day_1/input.txt".into())?;
 
-    let numbers: Vec<u32> = split
+    let numbers: Vec<i32> = split
         .into_iter()
-        .map(|s| s.parse::<u32>().unwrap())
+        .map(|s| s.parse::<i32>().unwrap())
         .collect();
 
-    let (entry1, entry2, entry3) = find_sum_is_2020(numbers).ok_or(AoCError {
-        message: "Didn't find a sum of x + y = 2020".to_string(),
+    let (entry1, entry2, entry3) = find_sum_of_3_is_2020(numbers).ok_or(AoCError {
+        message: "Didn't find a sum of x + y + z = 2020".to_string(),
     })?;
 
-    Ok(entry1 * entry2 * entry3)
+    Ok((entry1 * entry2 * entry3) as u32)
+}
+
+#[test]
+fn outcome() {
+    assert_eq!(100655544, find_solution().unwrap());
 }

@@ -1,6 +1,4 @@
-use std::error::Error;
-use std::fmt;
-
+use std::{error, fmt};
 #[derive(Debug)]
 pub struct AoCError {
     pub message: String,
@@ -12,4 +10,4 @@ impl fmt::Display for AoCError {
     }
 }
 
-impl Error for AoCError {}
+impl error::Error for AoCError {}
