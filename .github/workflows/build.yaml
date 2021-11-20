@@ -276,69 +276,73 @@ jobs:
     needs:
       - calculate-version
     steps:
-      - name: Checkout
-        uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
-
-      - name: Set the Cargo.toml version before we copy in the data into the docker container
-        shell: bash
+      - name: Not a real step
         run: |
-          ./.github/scripts/update-version.sh ${{ needs.calculate-version.outputs.version }}
+          echo "Just here to not have to restructure too much"
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
+      # - name: Checkout
+      #   uses: actions/checkout@ec3a7ce113134d7a93b817d10a8272cb61118579
 
-      # TODO validate no changes between github.event.pull_request.head.sha and the actual current sha (representing the hypothetical merge)
+      # - name: Set the Cargo.toml version before we copy in the data into the docker container
+      #   shell: bash
+      #   run: |
+      #     ./.github/scripts/update-version.sh ${{ needs.calculate-version.outputs.version }}
 
-      # Extract metadata (tags, labels) for Docker
-      # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata
-        id: meta
-        uses: docker/metadata-action@e5622373a38e60fb6d795a4421e56882f2d7a681
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=pr,suffix=-latest
-            type=raw,value=pr-${{ github.event.pull_request.base.sha }}-${{ github.event.pull_request.head.sha }}
-          labels: |
-            org.opencontainers.image.version=pr-${{ github.event.number }}
-            org.opencontainers.image.source=${{ github.event.pull_request.html_url }}
+      # - name: Set up Docker Buildx
+      #   id: buildx
+      #   uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
 
-      - name: Cache Docker layers
-        uses: actions/cache@937d24475381cd9c75ae6db12cb4e79714b926ed
-        env:
-          CACHE_NAME: docker-cache-dependencies
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-build-${{ env.CACHE_NAME }}-${{ hashFiles('Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.CACHE_NAME }}-
+      # # TODO validate no changes between github.event.pull_request.head.sha and the actual current sha (representing the hypothetical merge)
 
-      - name: Build Docker image
-        uses: docker/build-push-action@a66e35b9cbcf4ad0ea91ffcaf7bbad63ad9e0229
-        with:
-          context: .
-          # this container is THE PR's artifact, and we will re-tag it
-          # once the PR has been accepted
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
-          outputs: type=docker,dest=${{ env.DOCKER_IMAGE_TAR_LOCATION }}
+      # # Extract metadata (tags, labels) for Docker
+      # # https://github.com/docker/metadata-action
+      # - name: Extract Docker metadata
+      #   id: meta
+      #   uses: docker/metadata-action@548e2346a9987b56d8a4104fe776321ff8e23440
+      #   with:
+      #     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+      #     tags: |
+      #       type=ref,event=pr,suffix=-latest
+      #       type=raw,value=pr-${{ github.event.pull_request.base.sha }}-${{ github.event.pull_request.head.sha }}
+      #     labels: |
+      #       org.opencontainers.image.version=pr-${{ github.event.number }}
+      #       org.opencontainers.image.source=${{ github.event.pull_request.html_url }}
 
-        # Temp fix
-        # https://github.com/docker/build-push-action/issues/252
-        # https://github.com/moby/buildkit/issues/1896
-      - name: Move cache
-        run: |
-          rm -rf /tmp/.buildx-cache
-          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+      # - name: Cache Docker layers
+      #   uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353
+      #   env:
+      #     CACHE_NAME: docker-cache-dependencies
+      #   with:
+      #     path: /tmp/.buildx-cache
+      #     key: ${{ runner.os }}-build-${{ env.CACHE_NAME }}-${{ hashFiles('Dockerfile') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-build-${{ env.CACHE_NAME }}-
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@da838ae9595ac94171fa2d4de5a2f117b3e7ac32
-        with:
-          name: ${{ env.DOCKER_IMAGE_ARTIFACT_NAME }}
-          path: ${{ env.DOCKER_IMAGE_TAR_LOCATION }}
+      # - name: Build Docker image
+      #   uses: docker/build-push-action@a66e35b9cbcf4ad0ea91ffcaf7bbad63ad9e0229
+      #   with:
+      #     context: .
+      #     # this container is THE PR's artifact, and we will re-tag it
+      #     # once the PR has been accepted
+      #     tags: ${{ steps.meta.outputs.tags }}
+      #     labels: ${{ steps.meta.outputs.labels }}
+      #     cache-from: type=local,src=/tmp/.buildx-cache
+      #     cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+      #     outputs: type=docker,dest=${{ env.DOCKER_IMAGE_TAR_LOCATION }}
+
+      #   # Temp fix
+      #   # https://github.com/docker/build-push-action/issues/252
+      #   # https://github.com/moby/buildkit/issues/1896
+      # - name: Move cache
+      #   run: |
+      #     rm -rf /tmp/.buildx-cache
+      #     mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      # - name: Upload artifact
+      #   uses: actions/upload-artifact@27121b0bdffd731efa15d66772be8dc71245d074
+      #   with:
+      #     name: ${{ env.DOCKER_IMAGE_ARTIFACT_NAME }}
+      #     path: ${{ env.DOCKER_IMAGE_TAR_LOCATION }}
 
   docker-publish:
     name: Publish Docker container
@@ -351,29 +355,32 @@ jobs:
       - docker-build
     if: ${{ github.repository == 'kristof-mattei/advent-of-code-2020' && github.event_name == 'pull_request' }}
     steps:
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
-
-      - name: Download artifact
-        uses: actions/download-artifact@f023be2c48cc18debc3bacd34cb396e0295e2869
-        with:
-          name: ${{ env.DOCKER_IMAGE_ARTIFACT_NAME }}
-          path: ${{ env.DOCKER_IMAGE_OUTPUT_LOCATION }}
-
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Load image from artifact
+      - name: Not a real step
         run: |
-          docker load --input ${{ env.DOCKER_IMAGE_TAR_LOCATION }}
+          echo "Just here to not have to restructure too much"
+    #   - name: Set up Docker Buildx
+    #     uses: docker/setup-buildx-action@94ab11c41e45d028884a99163086648e898eed25
 
-      - name: Push image with all tags
-        run: |
-          docker push ${REGISTRY,,}/${IMAGE_NAME,,} --all-tags
+    #   - name: Download artifact
+    #     uses: actions/download-artifact@3be87be14a055c47b01d3bd88f8fe02320a9bb60
+    #     with:
+    #       name: ${{ env.DOCKER_IMAGE_ARTIFACT_NAME }}
+    #       path: ${{ env.DOCKER_IMAGE_OUTPUT_LOCATION }}
+
+    #   - name: Log into registry ${{ env.REGISTRY }}
+    #     uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+    #     with:
+    #       registry: ${{ env.REGISTRY }}
+    #       username: ${{ github.actor }}
+    #       password: ${{ secrets.GITHUB_TOKEN }}
+
+    #   - name: Load image from artifact
+    #     run: |
+    #       docker load --input ${{ env.DOCKER_IMAGE_TAR_LOCATION }}
+
+    #   - name: Push image with all tags
+    #     run: |
+    #       docker push ${REGISTRY,,}/${IMAGE_NAME,,} --all-tags
 
   # human
   all-done:
