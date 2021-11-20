@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "rust-end-to-end-application"
+name = "advent-of-code-2020"
 version = "0.0.0-development"

@@ -1,101 +1,33 @@
-#![cfg_attr(not(debug_assertions), deny(warnings))]
+#![warn(clippy::all, clippy::nursery, clippy::cargo)]
 
-// use std::path::PathBuf;
+mod day_1;
+mod day_2;
 
-// use env_logger::Env;
-// use futures::{stream::FuturesUnordered, StreamExt};
-// use log::info;
+use day_1::part_1::day_1_part_1;
+use day_1::part_2::day_1_part_2;
 
-// use structopt::StructOpt;
-
-// #[derive(Debug, StructOpt)]
-// #[structopt(
-//     // name, // from Cargo.toml,
-//     about, // needed otherwise it doesn't show description from Cargo.toml,
-//     author // needed otherwise it doesn't show author from Cargo.toml
-// )]
-// struct Opt {
-//     #[structopt(
-//         // verbatim_doc_comment,
-//         help = "Some help",
-//         parse(from_os_str)
-//     )]
-//     some_value: PathBuf,
-// }
-
-fn foo() -> &'static str {
-    "Foo"
+fn print_answer<T: std::fmt::Display, E: std::fmt::Display>(
+    day: &u32,
+    part: &u32,
+    result: &Result<T, E>,
+) {
+    match result {
+        Ok(r) => {
+            println!("Answer to Day {}, part {} is ... {}", day, part, r);
+        }
+        Err(e) => {
+            println!(
+                "Whoops! Day {}, part {} gave an error of ... {}",
+                day, part, e
+            );
+        }
+    }
 }
-
-fn bar() -> &'static str {
-    "Bar"
-}
-
-fn quz() -> &'static str {
-    "Quz"
-}
-
-// async fn something_to_await(_: PathBuf) {
-//     println!("{}", foo());
-//     println!("{}", bar());
-//     todo!("TODO");
-// }
-
-// async fn run_app() {
-//     env_logger::Builder::from_env(Env::default().default_filter_or("INFO")).init();
-
-//     let Opt { some_value } = Opt::from_args();
-
-//     let mut tasks = FuturesUnordered::new();
-
-//     tasks.push(Box::pin(something_to_await(some_value)));
-
-//     loop {
-//         match tasks.next().await {
-//             None => {
-//                 info!("Done!");
-//                 return;
-//             }
-//             _ => {
-//                 info!("Waiting...")
-//             }
-//         }
-//     }
-// }
-
-// #[tokio::main]
-// async fn main() {
-//     run_app().await;
-// }
-
 fn main() {
-    println!("{}", foo());
-    println!("{}", bar());
-    println!("{}", quz());
-    todo!("TODO");
-}
+    let days = [(day_1_part_1(), day_1_part_2())];
 
-#[cfg(test)]
-mod tests {
-    use super::{bar, foo, quz};
-
-    #[test]
-    fn assert_foo() {
-        assert_eq!(foo(), "Foo");
-    }
-
-    #[test]
-    fn assert_bar() {
-        assert_eq!(bar(), "Bar");
-    }
-
-    #[test]
-    fn assert_quz() {
-        assert_eq!(quz(), "Quz");
-    }
-
-    #[test]
-    fn assert_combined() {
-        assert_eq!(format!("{}-{}-{}", foo(), bar(), quz()), "Foo-Bar-Quz");
+    for (i, (part1, part2)) in days.iter().enumerate() {
+        print_answer(&(i as u32 + 1), &1, part1);
+        print_answer(&(i as u32 + 1), &2, part2);
     }
 }

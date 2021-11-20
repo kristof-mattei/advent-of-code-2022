@@ -1,15 +1,15 @@
 [package]
-name = "rust-end-to-end-application"
+name = "advent-of-code-2020"
 # don't change this, it's updated before an actual build by update-version.sh
 version = "0.0.0-development"
 edition = "2021"
 rust-version = "1.56.1"
 authors = ["Kristof Mattei"]
-description = "Rust end-to-end application"
-license-file = "LICENSE"
-categories = ["starter", "end-to-end"]
-keywords = ["integrity", "end-to-end", "starter", "docker", "release"]
-repository = "https://github.com/kristof-mattei/rust-end-to-end-application"
+license = "MIT"
+description = "Advent of Code 2020"
+repository = "https://github.com/kristof-mattei/advent-of-code-2020"
+keywords = ["playground"]
+categories = ["playground"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
