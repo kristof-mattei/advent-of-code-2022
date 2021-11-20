@@ -1,8 +1,4 @@
 {
-    "cSpell.words": [
-        "clippy",
-        "reqwest",
-    ],
     "editor.renderFinalNewline": true,
     "editor.trimAutoWhitespace": true,
     "files.insertFinalNewline": true,
