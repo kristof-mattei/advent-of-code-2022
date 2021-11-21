@@ -66,6 +66,16 @@
 			"dependsOn": "rust: cargo clean",
 			"group": "build",
 			"label": "rust: cargo clippy"
+		},
+		{
+			"type": "cargo",
+			"command": "test",
+			"args": [],
+			"problemMatcher": [
+				"$rustc"
+			],
+			"group": "test",
+			"label": "rust: cargo test"
 		}
 	]
 }

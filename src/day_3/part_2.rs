@@ -1,58 +1,46 @@
-use std::collections::HashMap;
-
 use crate::utils::read_file;
 
-struct RuleWithPassword {
-    first_position: usize,
-    second_position: usize,
-    character: char,
-    password: String,
-}
+fn descent_and_go_right(
+    lines: &Vec<String>,
+    row: usize,
+    col: usize,
+    mut trees: u32,
+    down: usize,
+    right: usize,
+) -> u32 {
+    match lines.get(row) {
+        Some(line) => {
+            if line.chars().nth(col) == Some('#') {
+                trees += 1;
+            }
 
-impl RuleWithPassword {
-    pub fn is_valid(&self) -> bool {
-        let p1_valid = self.password.chars().nth(self.first_position - 1) == Some(self.character);
-        let p2_valid = self.password.chars().nth(self.second_position - 1) == Some(self.character);
-
-        p1_valid ^ p2_valid
-    }
-}
-
-fn parse_line(line: &str) -> RuleWithPassword {
-    // grammar:
-    // <min>-<max> char: <password>
-    let pieces: Vec<&str> = line.split(' ').collect();
-
-    let first_second_vec: Vec<usize> = pieces[0]
-        .split('-')
-        .map(|s| s.parse::<usize>().unwrap())
-        .collect();
-
-    let char_with_colon_piece = pieces[1];
-    let password = pieces[2];
-
-    RuleWithPassword {
-        first_position: *first_second_vec.get(0).unwrap(),
-        second_position: *first_second_vec.get(1).unwrap(),
-        character: char_with_colon_piece.chars().nth(0).unwrap(),
-        password: password.into(),
+            descent_and_go_right(
+                &lines,
+                row + down,
+                (col + right) % line.len(),
+                trees,
+                down,
+                right,
+            )
+        }
+        None => trees,
     }
 }
 
 // https://adventofcode.com/2020/day/2
 pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
-    let split = read_file("./src/day_2/input.txt".into())?;
+    let split = read_file("./src/day_3/input.txt".into())?;
 
-    let valid_passwords = split
-        .into_iter()
-        .map(|s| parse_line(&s))
-        .filter(|rwp| rwp.is_valid())
-        .count();
+    let result1 = descent_and_go_right(&split, 0, 0, 0, 1, 1);
+    let result2 = descent_and_go_right(&split, 0, 0, 0, 1, 3);
+    let result3 = descent_and_go_right(&split, 0, 0, 0, 1, 5);
+    let result4 = descent_and_go_right(&split, 0, 0, 0, 1, 7);
+    let result5 = descent_and_go_right(&split, 0, 0, 0, 2, 1);
 
-    Ok(valid_passwords as u32)
+    Ok(result1 * result2 * result3 * result4 * result5)
 }
 
 #[test]
 fn outcome() {
-    assert_eq!(620, find_solution().unwrap());
+    assert_eq!(1478615040, find_solution().unwrap());
 }
