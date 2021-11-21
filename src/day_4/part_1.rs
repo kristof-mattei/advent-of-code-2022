@@ -25,7 +25,7 @@ impl Passport {
     }
 }
 
-fn parse_passport(passport_pieces: Vec<&str>) -> Passport {
+fn parse_passport(passport_pieces: &Vec<&str>) -> Passport {
     let mut passport: Passport = Default::default();
 
     for piece in passport_pieces {
@@ -47,11 +47,10 @@ fn parse_passport(passport_pieces: Vec<&str>) -> Passport {
         }
     }
 
-    println!("{:?}, valid: {}", passport, passport.is_valid());
     passport
 }
 
-fn get_passports(lines: &Vec<String>) -> Vec<Passport> {
+fn parse_lines_into_passports(lines: &Vec<String>) -> Vec<Passport> {
     let mut passports: Vec<Passport> = Vec::new();
 
     let groups = lines.split(|l| l.len() == 0);
@@ -63,7 +62,9 @@ fn get_passports(lines: &Vec<String>) -> Vec<Passport> {
             line.split(' ').for_each(|p| passport_pieces.push(p))
         }
 
-        passports.push(parse_passport(passport_pieces));
+        let passport = parse_passport(&passport_pieces);
+
+        passports.push(passport);
     }
 
     passports
@@ -73,9 +74,9 @@ fn get_passports(lines: &Vec<String>) -> Vec<Passport> {
 pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_4/input.txt".into())?;
 
-    let valid_passports = get_passports(&split)
+    let valid_passports = parse_lines_into_passports(&split)
         .into_iter()
-        .map(|p| p.is_valid())
+        .filter(|p| p.is_valid())
         .count();
 
     Ok(valid_passports as u32)
@@ -83,5 +84,5 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
 #[test]
 fn outcome() {
-    assert_eq!(191, find_solution().unwrap());
+    assert_eq!(200, find_solution().unwrap());
 }
