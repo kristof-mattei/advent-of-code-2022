@@ -329,7 +329,7 @@ mod tests {
     }
 
     fn arr_of_amp_str_to_vec_of_string(arr: &[&str]) -> Vec<String> {
-        arr.into_iter().map(|s| s.to_string()).collect()
+        arr.iter().map(|s| (*s).to_string()).collect()
     }
 
     #[test]
