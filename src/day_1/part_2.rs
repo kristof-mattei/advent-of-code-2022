@@ -49,7 +49,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
         message: "Didn't find a sum of x + y + z = 2020".to_string(),
     })?;
 
-    Ok((entry1 * entry2 * entry3) as u32)
+    Ok((entry1 * entry2 * entry3).try_into().unwrap())
 }
 
 #[test]

@@ -79,7 +79,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
         .filter(Passport::is_valid)
         .count();
 
-    Ok(valid_passports as u32)
+    Ok(valid_passports.try_into().unwrap())
 }
 
 #[test]

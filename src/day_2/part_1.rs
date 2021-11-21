@@ -57,7 +57,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
         .filter(RuleWithPassword::is_valid)
         .count();
 
-    Ok(valid_passwords as u32)
+    Ok(valid_passwords.try_into().unwrap())
 }
 
 #[test]

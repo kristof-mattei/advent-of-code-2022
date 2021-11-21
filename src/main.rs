@@ -40,7 +40,9 @@ fn main() {
     ];
 
     for (i, (part1, part2)) in days.iter().enumerate() {
-        print_answer(i as u32 + 1, 1, part1);
-        print_answer(i as u32 + 1, 2, part2);
+        let day_index: u32 = i.try_into().unwrap();
+
+        print_answer(day_index + 1, 1, part1);
+        print_answer(day_index + 1, 2, part2);
     }
 }
