@@ -113,9 +113,9 @@ impl Passport {
         }
     }
 
-    fn is_cid_valid(&self) -> bool {
-        true // shhh
-    }
+    // fn is_cid_valid(&self) -> bool {
+    //     true // shhh
+    // }
     fn is_valid(&self) -> bool {
         self.is_byr_valid()
             && self.is_iyr_valid()
@@ -124,7 +124,7 @@ impl Passport {
             && self.is_hcl_valid()
             && self.is_ecl_valid()
             && self.is_pid_valid()
-            && self.is_cid_valid()
+        //&& self.is_cid_valid()
     }
 }
 
