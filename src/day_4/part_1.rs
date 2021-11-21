@@ -70,7 +70,7 @@ fn parse_lines_into_passports(lines: &[String]) -> Vec<Passport> {
     passports
 }
 
-// https://adventofcode.com/2020/day/2
+// https://adventofcode.com/2020/day/4
 pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_4/input.txt".into())?;
 

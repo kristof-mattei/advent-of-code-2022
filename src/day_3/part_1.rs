@@ -13,7 +13,7 @@ fn descent_and_go_right(lines: &[String], row: usize, col: usize, mut trees: u32
     }
 }
 
-// https://adventofcode.com/2020/day/2
+// https://adventofcode.com/2020/day/3
 pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_3/input.txt".into())?;
 
