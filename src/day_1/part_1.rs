@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::error::AoCError;
+use crate::errors::AoCError;
 use crate::utils::read_file;
 
 fn find_sum_of_2_is_2020(numbers: Vec<u32>) -> Option<(u32, u32)> {
@@ -38,5 +38,5 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
 #[test]
 fn outcome() {
-    assert_eq!(1019571, find_solution().unwrap());
+    assert_eq!(1_019_571, find_solution().unwrap());
 }

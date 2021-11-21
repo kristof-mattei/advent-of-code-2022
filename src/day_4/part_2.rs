@@ -1,4 +1,4 @@
-use crate::error::AoCError;
+use crate::errors::AoCError;
 
 // https://adventofcode.com/2020/day/2
 pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {

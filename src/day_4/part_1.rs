@@ -25,8 +25,8 @@ impl Passport {
     }
 }
 
-fn parse_passport(passport_pieces: &Vec<&str>) -> Passport {
-    let mut passport: Passport = Default::default();
+fn parse_passport(passport_pieces: &[&str]) -> Passport {
+    let mut passport: Passport = Passport::default();
 
     for piece in passport_pieces {
         let split: Vec<&str> = piece.split(':').collect();
@@ -50,16 +50,16 @@ fn parse_passport(passport_pieces: &Vec<&str>) -> Passport {
     passport
 }
 
-fn parse_lines_into_passports(lines: &Vec<String>) -> Vec<Passport> {
+fn parse_lines_into_passports(lines: &[String]) -> Vec<Passport> {
     let mut passports: Vec<Passport> = Vec::new();
 
-    let groups = lines.split(|l| l.len() == 0);
+    let groups = lines.split(String::is_empty);
 
     for group in groups {
         let mut passport_pieces = Vec::new();
 
         for line in group {
-            line.split(' ').for_each(|p| passport_pieces.push(p))
+            line.split(' ').for_each(|p| passport_pieces.push(p));
         }
 
         let passport = parse_passport(&passport_pieces);
@@ -76,7 +76,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
     let valid_passports = parse_lines_into_passports(&split)
         .into_iter()
-        .filter(|p| p.is_valid())
+        .filter(Passport::is_valid)
         .count();
 
     Ok(valid_passports as u32)

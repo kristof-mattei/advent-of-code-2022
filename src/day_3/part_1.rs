@@ -1,13 +1,13 @@
 use crate::utils::read_file;
 
-fn descent_and_go_right(lines: &Vec<String>, row: usize, col: usize, mut trees: u32) -> u32 {
+fn descent_and_go_right(lines: &[String], row: usize, col: usize, mut trees: u32) -> u32 {
     match lines.get(row) {
         Some(line) => {
             if line.chars().nth(col) == Some('#') {
                 trees += 1;
             }
 
-            descent_and_go_right(&lines, row + 1, (col + 3) % line.len(), trees)
+            descent_and_go_right(lines, row + 1, (col + 3) % line.len(), trees)
         }
         None => trees,
     }

@@ -42,7 +42,7 @@ fn parse_line(line: &str) -> RuleWithPassword {
     RuleWithPassword {
         min: *min_max_vec.get(0).unwrap(),
         max: *min_max_vec.get(1).unwrap(),
-        character: char_with_colon_piece.chars().nth(0).unwrap(),
+        character: char_with_colon_piece.chars().next().unwrap(),
         password: password.into(),
     }
 }
@@ -54,7 +54,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     let valid_passwords = split
         .into_iter()
         .map(|s| parse_line(&s))
-        .filter(|rwp| rwp.is_valid())
+        .filter(RuleWithPassword::is_valid)
         .count();
 
     Ok(valid_passwords as u32)

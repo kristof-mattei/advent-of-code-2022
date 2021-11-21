@@ -1,21 +1,21 @@
 use crate::utils::read_file;
 
 fn descent_and_go_right(
-    lines: &Vec<String>,
+    lines: &[String],
     row: usize,
     col: usize,
     mut trees: u32,
     down: usize,
     right: usize,
 ) -> u32 {
-    match lines.get(row) {
+    match &lines.get(row) {
         Some(line) => {
             if line.chars().nth(col) == Some('#') {
                 trees += 1;
             }
 
             descent_and_go_right(
-                &lines,
+                lines,
                 row + down,
                 (col + right) % line.len(),
                 trees,
@@ -42,5 +42,5 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
 #[test]
 fn outcome() {
-    assert_eq!(1478615040, find_solution().unwrap());
+    assert_eq!(1_478_615_040, find_solution().unwrap());
 }

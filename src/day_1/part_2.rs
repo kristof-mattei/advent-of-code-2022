@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::error::AoCError;
+use crate::errors::AoCError;
 use crate::utils::read_file;
 
 fn find_sum_of_2_is_2020(fixed: i32, rest: Vec<i32>) -> Option<(i32, i32)> {
@@ -20,9 +20,9 @@ fn find_sum_of_2_is_2020(fixed: i32, rest: Vec<i32>) -> Option<(i32, i32)> {
     None
 }
 
-fn find_sum_of_3_is_2020(numbers: Vec<i32>) -> Option<(i32, i32, i32)> {
-    for n in &numbers {
-        let mut vec_without_n = numbers.clone();
+fn find_sum_of_3_is_2020(numbers: &[i32]) -> Option<(i32, i32, i32)> {
+    for n in numbers {
+        let mut vec_without_n = numbers.to_owned();
         vec_without_n.retain(|r| *r != *n);
 
         match find_sum_of_2_is_2020(*n, vec_without_n) {
@@ -45,7 +45,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
         .map(|s| s.parse::<i32>().unwrap())
         .collect();
 
-    let (entry1, entry2, entry3) = find_sum_of_3_is_2020(numbers).ok_or(AoCError {
+    let (entry1, entry2, entry3) = find_sum_of_3_is_2020(&numbers).ok_or(AoCError {
         message: "Didn't find a sum of x + y + z = 2020".to_string(),
     })?;
 
@@ -54,5 +54,5 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
 #[test]
 fn outcome() {
-    assert_eq!(100655544, find_solution().unwrap());
+    assert_eq!(100_655_544, find_solution().unwrap());
 }
