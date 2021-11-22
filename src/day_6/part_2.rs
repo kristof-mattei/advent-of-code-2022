@@ -1,62 +1,61 @@
-use crate::{errors::AoCError, utils::read_file};
+use std::collections::HashMap;
 
-fn parse_seat(seat_line: &str) -> (u32, u32) {
-    const LOWER_BITS_ROW: u32 = 0;
-    const UPPER_BITS_ROW: u32 = LOWER_BITS_ROW + 6;
-    const LOWER_BITS_COL: u32 = UPPER_BITS_ROW + 1;
-    const UPPER_BITS_COL: u32 = LOWER_BITS_COL + 2;
+use crate::utils::read_file;
 
-    let mut pieces = seat_line.chars();
+fn count_of_questions_answered_by_everybody(group: &[String]) -> u32 {
+    let mut count_of_answers: HashMap<char, u32> = HashMap::new();
 
-    let mut row: u32 = 0;
-    let mut column: u32 = 0;
+    for line in group {
+        let mut duplicate_answer_per_line_check: Vec<char> = line.chars().into_iter().collect();
+        duplicate_answer_per_line_check.sort();
+        duplicate_answer_per_line_check.dedup();
 
-    for i in 0..=UPPER_BITS_ROW {
-        match pieces.next().unwrap() {
-            'F' => (),
-            'B' => row |= 0b1 << (UPPER_BITS_ROW - i),
-            _ => panic!("Not F or B"),
+        assert_eq!(duplicate_answer_per_line_check.len(), line.len());
+
+        duplicate_answer_per_line_check.into_iter().for_each(|c| {
+            let count = *(count_of_answers.get(&c).unwrap_or(&0));
+
+            let _ = count_of_answers.insert(c, count + 1);
+        });
+    }
+
+    let mut total_answers_that_everybody_answered: u32 = 0;
+    let people_in_group: u32 = group.len().try_into().unwrap();
+
+    for (_, value) in count_of_answers {
+        if value == people_in_group {
+            total_answers_that_everybody_answered += 1;
         }
     }
 
-    for i in 7..=UPPER_BITS_COL {
-        match pieces.next().unwrap() {
-            'L' => (),
-            'R' => column |= 0b1 << (UPPER_BITS_COL - i),
-            _ => panic!("Not L or R"),
-        }
-    }
-
-    (row, column)
+    total_answers_that_everybody_answered
 }
 
-// https://adventofcode.com/2020/day/5
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
-    let split = read_file("./src/day_5/input.txt".into())?;
+fn parse_lines_into_questionaires(lines: &[String]) -> Vec<u32> {
+    let mut all_answers: Vec<u32> = Vec::new();
 
-    let mut items: Vec<u32> = split
-        .iter()
-        .map(|l| parse_seat(l))
-        .map(|(r, c)| r * 8 + c)
-        .collect();
+    let groups = lines.split(String::is_empty);
 
-    items.sort_unstable();
+    for group in groups {
+        let unique_answers_in_group = count_of_questions_answered_by_everybody(group);
 
-    let mut previous = None;
-
-    // let's find the gap
-    for i in items {
-        match previous {
-            Some(p) if (i - p) > 1 => {
-                return Ok(p + 1);
-            }
-            _ => previous = Some(i),
-        }
+        all_answers.push(unique_answers_in_group);
     }
 
-    Err(Box::new(AoCError {
-        message: "Couldn't find item".into(),
-    }))
+    all_answers
+}
+
+// https://adventofcode.com/2020/day/6
+pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+    let split = read_file("./src/day_6/input.txt".into())?;
+
+    let answers: u32 = parse_lines_into_questionaires(&split)
+        .into_iter()
+        .sum::<u32>()
+        .try_into()
+        .unwrap();
+
+    Ok(answers)
 }
 
 #[cfg(test)]
@@ -65,33 +64,46 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(653, find_solution().unwrap());
+        assert_eq!(3305, find_solution().unwrap());
     }
 
     #[test]
-    fn seat_id_1() {
-        let seat = "FBFBBFFRLR";
+    fn answer_set_1() {
+        let answer_set = ["abc".to_string()];
 
-        assert_eq!(parse_seat(seat), (44, 5));
+        assert_eq!(count_of_questions_answered_by_everybody(&answer_set), 3);
     }
 
     #[test]
-    fn seat_id_2() {
-        let seat = "BFFFBBFRRR";
+    fn answer_set_2() {
+        let answer_set = ["a".to_string(), "b".to_string(), "c".to_string()];
 
-        assert_eq!(parse_seat(seat), (70, 7));
+        assert_eq!(count_of_questions_answered_by_everybody(&answer_set), 0);
     }
 
     #[test]
-    fn seat_id_3() {
-        let seat = "FFFBBBFRRR";
+    fn answer_set_3() {
+        let answer_set = ["ab".to_string(), "ac".to_string()];
 
-        assert_eq!(parse_seat(seat), (14, 7));
+        assert_eq!(count_of_questions_answered_by_everybody(&answer_set), 1);
     }
-    #[test]
-    fn seat_id_4() {
-        let seat = "BBFFBBFRLL";
 
-        assert_eq!(parse_seat(seat), (102, 4));
+    #[test]
+    fn answer_set_4() {
+        let answer_set = [
+            "a".to_string(),
+            "a".to_string(),
+            "a".to_string(),
+            "a".to_string(),
+        ];
+
+        assert_eq!(count_of_questions_answered_by_everybody(&answer_set), 1);
+    }
+
+    #[test]
+    fn answer_set_5() {
+        let answer_set = ["b".to_string()];
+
+        assert_eq!(count_of_questions_answered_by_everybody(&answer_set), 1);
     }
 }
