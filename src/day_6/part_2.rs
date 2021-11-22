@@ -7,16 +7,16 @@ fn count_of_questions_answered_by_everybody(group: &[String]) -> u32 {
 
     for line in group {
         let mut duplicate_answer_per_line_check: Vec<char> = line.chars().into_iter().collect();
-        duplicate_answer_per_line_check.sort();
+        duplicate_answer_per_line_check.sort_unstable();
         duplicate_answer_per_line_check.dedup();
 
         assert_eq!(duplicate_answer_per_line_check.len(), line.len());
 
-        duplicate_answer_per_line_check.into_iter().for_each(|c| {
+        for c in duplicate_answer_per_line_check {
             let count = *(count_of_answers.get(&c).unwrap_or(&0));
 
             let _ = count_of_answers.insert(c, count + 1);
-        });
+        }
     }
 
     let mut total_answers_that_everybody_answered: u32 = 0;
@@ -51,9 +51,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
     let answers: u32 = parse_lines_into_questionaires(&split)
         .into_iter()
-        .sum::<u32>()
-        .try_into()
-        .unwrap();
+        .sum::<u32>();
 
     Ok(answers)
 }

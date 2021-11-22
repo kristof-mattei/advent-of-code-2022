@@ -7,11 +7,10 @@ fn parse_group_of_answers(group: &[String]) -> u32 {
         line.chars().for_each(|p| answers.push(p));
     }
 
-    let mut vec = answers.to_vec();
-    vec.sort();
-    vec.dedup();
+    answers.sort_unstable();
+    answers.dedup();
 
-    vec.into_iter().count().try_into().unwrap()
+    answers.len().try_into().unwrap()
 }
 
 fn parse_lines_into_questionaires(lines: &[String]) -> Vec<u32> {
@@ -34,9 +33,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
     let answers: u32 = parse_lines_into_questionaires(&split)
         .into_iter()
-        .sum::<u32>()
-        .try_into()
-        .unwrap();
+        .sum::<u32>();
 
     Ok(answers)
 }
