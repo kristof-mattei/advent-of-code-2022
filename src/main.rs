@@ -4,6 +4,7 @@ mod day_2;
 mod day_3;
 mod day_4;
 mod day_5;
+mod day_6;
 mod errors;
 mod utils;
 
@@ -41,6 +42,10 @@ fn main() {
         (
             day_5::part_1::find_solution(),
             day_5::part_2::find_solution(),
+        ),
+        (
+            day_6::part_1::find_solution(),
+            day_6::part_2::find_solution(),
         ),
     ];
 
