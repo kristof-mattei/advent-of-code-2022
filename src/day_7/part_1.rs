@@ -38,7 +38,7 @@ fn map_bag_color_with_count(bag_color_with_count: &str) -> (u32, String) {
 
     let _test: Vec<char> = bag_color_with_count.chars().into_iter().collect();
 
-    return (split.0.parse().unwrap(), split.1.to_string());
+    (split.0.parse().unwrap(), split.1.to_string())
 }
 
 fn parse_bag_line(bag_line: &str) -> (String, Vec<(u32, String)>) {
@@ -58,11 +58,11 @@ fn parse_bag_line(bag_line: &str) -> (String, Vec<(u32, String)>) {
     }
 
     let inside_bags_with_count = inside_bags
-        .split(",")
+        .split(',')
         .map(map_bag_color_with_count)
         .collect();
 
-    return (bag_name.to_string(), inside_bags_with_count);
+    (bag_name.to_string(), inside_bags_with_count)
 }
 
 fn parse_bags(bag_lines: &[String]) -> HashMap<String, Rc<Bag>> {
@@ -95,15 +95,13 @@ fn parse_bags(bag_lines: &[String]) -> HashMap<String, Rc<Bag>> {
 
         let mut bag_children = bag.children.borrow_mut();
 
-        parsed_child_bags_current_line
-            .into_iter()
-            .for_each(|(count, child_bag)| {
-                let mut child_bag_parents = child_bag.parents.borrow_mut();
+        for (count, child_bag) in parsed_child_bags_current_line {
+            let mut child_bag_parents = child_bag.parents.borrow_mut();
 
-                child_bag_parents.push(Rc::clone(bag));
+            child_bag_parents.push(Rc::clone(bag));
 
-                bag_children.push((count, Rc::clone(&child_bag)))
-            });
+            bag_children.push((count, Rc::clone(&child_bag)));
+        }
     }
 
     bag_parsed
@@ -114,7 +112,7 @@ fn get_parent_names_recursive(bag: &Rc<Bag>) -> Vec<String> {
         .parents
         .borrow()
         .iter()
-        .map(|b| b.name.to_owned())
+        .map(|b| b.name.clone())
         .collect();
 
     bag.parents
@@ -125,8 +123,8 @@ fn get_parent_names_recursive(bag: &Rc<Bag>) -> Vec<String> {
     my_parent_names
 }
 
-fn count_parents(bag_parsed: HashMap<String, Rc<Bag>>, start: String) -> u32 {
-    let start_bag = bag_parsed.get(&start).unwrap();
+fn count_parents(bag_parsed: &HashMap<String, Rc<Bag>>, start: &str) -> u32 {
+    let start_bag = bag_parsed.get(start).unwrap();
 
     let mut parent_names = get_parent_names_recursive(start_bag);
 
@@ -138,13 +136,12 @@ fn count_parents(bag_parsed: HashMap<String, Rc<Bag>>, start: String) -> u32 {
 
 // https://adventofcode.com/2020/day/7
 pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
-    let split = read_file("./src/day_7/input.txt".into())?;
-
     const BAG_NAME: &str = "shiny gold";
+    let split = read_file("./src/day_7/input.txt".into())?;
 
     let bags = parse_bags(&split);
 
-    Ok(count_parents(bags, BAG_NAME.into()))
+    Ok(count_parents(&bags, BAG_NAME))
 }
 
 #[cfg(test)]
@@ -310,7 +307,7 @@ mod tests {
 
         let lines: Vec<String> = input.map(|s| s.into()).into();
 
-        let rst = count_parents(parse_bags(&lines), "shiny gold".into());
+        let rst = count_parents(&parse_bags(&lines), "shiny gold");
 
         assert_eq!(rst, 4);
     }
