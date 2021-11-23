@@ -2,12 +2,14 @@
 #![warn(clippy::pedantic)]
 #![warn(clippy::cargo)]
 use std::fmt;
+
 mod day_1;
 mod day_2;
 mod day_3;
 mod day_4;
 mod day_5;
 mod day_6;
+mod day_7;
 mod errors;
 mod utils;
 
@@ -49,6 +51,10 @@ fn main() {
         (
             day_6::part_1::find_solution(),
             day_6::part_2::find_solution(),
+        ),
+        (
+            day_7::part_1::find_solution(),
+            day_7::part_2::find_solution(),
         ),
     ];
 

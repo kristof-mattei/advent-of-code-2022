@@ -60,7 +60,13 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     Ok(valid_passwords.try_into().unwrap())
 }
 
-#[test]
-fn outcome() {
-    assert_eq!(620, find_solution().unwrap());
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+
+    fn outcome() {
+        assert_eq!(620, find_solution().unwrap());
+    }
 }

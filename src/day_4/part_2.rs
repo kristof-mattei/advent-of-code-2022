@@ -190,7 +190,6 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 }
 
 #[cfg(test)]
-
 mod tests {
     use super::*;
 

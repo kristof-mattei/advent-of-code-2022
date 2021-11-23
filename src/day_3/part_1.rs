@@ -22,7 +22,12 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     Ok(result)
 }
 
-#[test]
-fn outcome() {
-    assert_eq!(191, find_solution().unwrap());
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn outcome() {
+        assert_eq!(191, find_solution().unwrap());
+    }
 }

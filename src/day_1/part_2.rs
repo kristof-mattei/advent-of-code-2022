@@ -51,8 +51,13 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
 
     Ok((entry1 * entry2 * entry3).try_into().unwrap())
 }
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-#[test]
-fn outcome() {
-    assert_eq!(100_655_544, find_solution().unwrap());
+    #[test]
+
+    fn outcome() {
+        assert_eq!(100_655_544, find_solution().unwrap());
+    }
 }

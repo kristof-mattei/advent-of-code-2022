@@ -40,7 +40,12 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     Ok(result1 * result2 * result3 * result4 * result5)
 }
 
-#[test]
-fn outcome() {
-    assert_eq!(1_478_615_040, find_solution().unwrap());
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn outcome() {
+        assert_eq!(1_478_615_040, find_solution().unwrap());
+    }
 }
