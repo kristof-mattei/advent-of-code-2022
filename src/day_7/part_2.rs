@@ -11,7 +11,7 @@ fn count_bags_recursive(bag: &Rc<Bag>) -> u32 {
     children
         .iter()
         .map(|(c, b)| {
-            let sum_of_children = count_bags_recursive(&b);
+            let sum_of_children = count_bags_recursive(b);
             println!("Child {}*{} has {} children", c, b.name, sum_of_children);
 
             c + c * sum_of_children
@@ -37,7 +37,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(172246, find_solution().unwrap());
+        assert_eq!(172_246, find_solution().unwrap());
     }
 
     #[test]
@@ -180,6 +180,8 @@ mod tests {
 
     #[test]
     fn big_test() {
+        const BAG_NAME: &str = "shiny gold";
+
         let input = [
             "shiny gold bags contain 2 dark red bags.",
             "dark red bags contain 2 dark orange bags.",
@@ -191,7 +193,6 @@ mod tests {
         ];
 
         let lines: Vec<String> = input.map(|s| s.into()).into();
-        const BAG_NAME: &str = "shiny gold";
 
         let bags = parse_bags(&lines);
 
