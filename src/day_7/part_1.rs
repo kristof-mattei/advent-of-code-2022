@@ -3,10 +3,10 @@ use core::fmt;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 #[derive(Default, Debug)]
-struct Bag {
-    name: String,
-    parents: RefCell<Vec<Rc<Bag>>>,
-    children: RefCell<Vec<(u32, Rc<Bag>)>>,
+pub struct Bag {
+    pub name: String,
+    pub parents: RefCell<Vec<Rc<Bag>>>,
+    pub children: RefCell<Vec<(u32, Rc<Bag>)>>,
 }
 
 impl fmt::Display for Bag {
@@ -33,7 +33,7 @@ impl fmt::Display for Bag {
     }
 }
 
-fn map_bag_color_with_count(bag_color_with_count: &str) -> (u32, String) {
+pub fn map_bag_color_with_count(bag_color_with_count: &str) -> (u32, String) {
     let split = bag_color_with_count.trim().split_once(" ").unwrap();
 
     let _test: Vec<char> = bag_color_with_count.chars().into_iter().collect();
@@ -41,7 +41,7 @@ fn map_bag_color_with_count(bag_color_with_count: &str) -> (u32, String) {
     (split.0.parse().unwrap(), split.1.to_string())
 }
 
-fn parse_bag_line(bag_line: &str) -> (String, Vec<(u32, String)>) {
+pub fn parse_bag_line(bag_line: &str) -> (String, Vec<(u32, String)>) {
     let cleaned_up = bag_line
         .replace("bags", "")
         .replace("bag", "")
@@ -65,7 +65,7 @@ fn parse_bag_line(bag_line: &str) -> (String, Vec<(u32, String)>) {
     (bag_name.to_string(), inside_bags_with_count)
 }
 
-fn parse_bags(bag_lines: &[String]) -> HashMap<String, Rc<Bag>> {
+pub fn parse_bags(bag_lines: &[String]) -> HashMap<String, Rc<Bag>> {
     let mut bag_parsed: HashMap<String, Rc<Bag>> = HashMap::new();
 
     for bag_line in bag_lines {
