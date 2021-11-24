@@ -11,7 +11,7 @@ mod day_5;
 mod day_6;
 mod day_7;
 mod day_8;
-mod errors;
+mod shared;
 mod utils;
 
 fn print_answer<T: fmt::Display, E: fmt::Display>(day: u32, part: u32, result: &Result<T, E>) {

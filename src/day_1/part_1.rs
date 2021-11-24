@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::errors::AoCError;
+use crate::shared::{AoCError, AoCResult};
 use crate::utils::read_file;
 
 fn find_sum_of_2_is_2020(numbers: Vec<u32>) -> Option<(u32, u32)> {
@@ -21,7 +21,7 @@ fn find_sum_of_2_is_2020(numbers: Vec<u32>) -> Option<(u32, u32)> {
 }
 
 // https://adventofcode.com/2020/day/1
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_1/input.txt".into())?;
 
     let numbers: Vec<u32> = split
@@ -33,7 +33,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
         message: "Didn't find a sum of x + y = 2020".to_string(),
     })?;
 
-    Ok(entry1 * entry2)
+    Ok(AoCResult::Ofu32(entry1 * entry2))
 }
 #[cfg(test)]
 mod tests {
@@ -41,6 +41,6 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(1_019_571, find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu32(1_019_571), find_solution().unwrap());
     }
 }

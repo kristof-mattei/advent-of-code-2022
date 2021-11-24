@@ -1,4 +1,4 @@
-use crate::utils::read_file;
+use crate::{shared::AoCResult, utils::read_file};
 
 fn descent_and_go_right(
     lines: &[String],
@@ -28,7 +28,7 @@ fn descent_and_go_right(
 }
 
 // https://adventofcode.com/2020/day/3
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_3/input.txt".into())?;
 
     let result1 = descent_and_go_right(&split, 0, 0, 0, 1, 1);
@@ -37,7 +37,9 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     let result4 = descent_and_go_right(&split, 0, 0, 0, 1, 7);
     let result5 = descent_and_go_right(&split, 0, 0, 0, 2, 1);
 
-    Ok(result1 * result2 * result3 * result4 * result5)
+    Ok(AoCResult::Ofu32(
+        result1 * result2 * result3 * result4 * result5,
+    ))
 }
 
 #[cfg(test)]
@@ -46,6 +48,6 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(1_478_615_040, find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu32(1_478_615_040), find_solution().unwrap());
     }
 }

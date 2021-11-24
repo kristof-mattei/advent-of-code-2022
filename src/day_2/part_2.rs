@@ -1,4 +1,4 @@
-use crate::utils::read_file;
+use crate::{shared::AoCResult, utils::read_file};
 
 struct RuleWithPassword {
     first_position: usize,
@@ -38,7 +38,7 @@ fn parse_line(line: &str) -> RuleWithPassword {
 }
 
 // https://adventofcode.com/2020/day/2
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_2/input.txt".into())?;
 
     let valid_passwords = split
@@ -47,7 +47,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
         .filter(RuleWithPassword::is_valid)
         .count();
 
-    Ok(valid_passwords.try_into().unwrap())
+    Ok(AoCResult::Ofu32(valid_passwords.try_into().unwrap()))
 }
 
 #[cfg(test)]
@@ -56,6 +56,6 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(727, find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu32(727), find_solution().unwrap());
     }
 }

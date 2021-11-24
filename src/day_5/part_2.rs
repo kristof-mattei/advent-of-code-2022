@@ -1,4 +1,7 @@
-use crate::{errors::AoCError, utils::read_file};
+use crate::{
+    shared::{AoCError, AoCResult},
+    utils::read_file,
+};
 
 fn parse_seat(seat_line: &str) -> (u32, u32) {
     const LOWER_BITS_ROW: u32 = 0;
@@ -31,7 +34,7 @@ fn parse_seat(seat_line: &str) -> (u32, u32) {
 }
 
 // https://adventofcode.com/2020/day/5
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_5/input.txt".into())?;
 
     let mut items: Vec<u32> = split
@@ -48,7 +51,7 @@ pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     for i in items {
         match previous {
             Some(p) if (i - p) > 1 => {
-                return Ok(p + 1);
+                return Ok(AoCResult::Ofu32(p + 1));
             }
             _ => previous = Some(i),
         }
@@ -65,7 +68,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(653, find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu32(653), find_solution().unwrap());
     }
 
     #[test]

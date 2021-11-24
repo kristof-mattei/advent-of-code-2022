@@ -1,18 +1,18 @@
 use std::collections::HashMap;
 
-use crate::errors::AoCError;
+use crate::shared::{AoCError, AoCResult};
 use crate::utils::read_file;
 
-fn find_sum_of_2_is_2020(fixed: i32, rest: Vec<i32>) -> Option<(i32, i32)> {
+fn find_sum_of_2_is_2020(fixed: u32, rest: Vec<u32>) -> Option<(u32, u32)> {
     let mut missing_to_value: HashMap<i32, i32> = HashMap::new();
 
     for n in rest {
-        match missing_to_value.get(&n) {
+        match missing_to_value.get(&(n as i32)) {
             Some(x) => {
-                return Some((*x, n));
+                return Some(((*x) as u32, n));
             }
             None => {
-                missing_to_value.insert(2020 - fixed - n, n);
+                missing_to_value.insert(2020_i32 - fixed as i32 - n as i32, n as i32);
             }
         }
     }
@@ -20,7 +20,7 @@ fn find_sum_of_2_is_2020(fixed: i32, rest: Vec<i32>) -> Option<(i32, i32)> {
     None
 }
 
-fn find_sum_of_3_is_2020(numbers: &[i32]) -> Option<(i32, i32, i32)> {
+fn find_sum_of_3_is_2020(numbers: &[u32]) -> Option<(u32, u32, u32)> {
     for n in numbers {
         let mut vec_without_n = numbers.to_owned();
         vec_without_n.retain(|r| *r != *n);
@@ -37,19 +37,21 @@ fn find_sum_of_3_is_2020(numbers: &[i32]) -> Option<(i32, i32, i32)> {
 }
 
 // https://adventofcode.com/2020/day/1
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_1/input.txt".into())?;
 
-    let numbers: Vec<i32> = split
+    let numbers: Vec<u32> = split
         .into_iter()
-        .map(|s| s.parse::<i32>().unwrap())
+        .map(|s| s.parse::<u32>().unwrap())
         .collect();
 
     let (entry1, entry2, entry3) = find_sum_of_3_is_2020(&numbers).ok_or(AoCError {
         message: "Didn't find a sum of x + y + z = 2020".to_string(),
     })?;
 
-    Ok((entry1 * entry2 * entry3).try_into().unwrap())
+    Ok(AoCResult::Ofu32(
+        (entry1 * entry2 * entry3).try_into().unwrap(),
+    ))
 }
 #[cfg(test)]
 mod tests {
@@ -58,6 +60,6 @@ mod tests {
     #[test]
 
     fn outcome() {
-        assert_eq!(100_655_544, find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu32(100_655_544), find_solution().unwrap());
     }
 }

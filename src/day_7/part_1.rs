@@ -1,4 +1,4 @@
-use crate::utils::read_file;
+use crate::{shared::AoCResult, utils::read_file};
 use core::fmt;
 use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
@@ -135,13 +135,13 @@ fn count_parents(bag_parsed: &HashMap<String, Rc<Bag>>, start: &str) -> u32 {
 }
 
 // https://adventofcode.com/2020/day/7
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
+pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     const BAG_NAME: &str = "shiny gold";
     let split = read_file("./src/day_7/input.txt".into())?;
 
     let bags = parse_bags(&split);
 
-    Ok(count_parents(&bags, BAG_NAME))
+    Ok(AoCResult::Ofu32(count_parents(&bags, BAG_NAME)))
 }
 
 #[cfg(test)]
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(272, find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu32(272), find_solution().unwrap());
     }
 
     #[test]
