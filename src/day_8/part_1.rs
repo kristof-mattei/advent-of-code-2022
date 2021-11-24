@@ -163,7 +163,7 @@ mod tests {
             "acc +6",
         ]
         .iter()
-        .map(|s| s.to_string())
+        .map(|s| (*s).to_string())
         .collect();
 
         let parsed = parse_lines(&input);
