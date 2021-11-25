@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use crate::{shared::AoCResult, utils::read_file};
 
 #[derive(PartialEq, Debug)]
-enum Operation {
+pub enum Operation {
     Acc(i32),
     Jmp(i32),
     Nop(i32),
@@ -18,7 +18,7 @@ fn map_operation(operation: &str, argument: i32) -> Operation {
     }
 }
 
-fn parse_lines(lines: &[String]) -> Vec<Operation> {
+pub fn parse_lines(lines: &[String]) -> Vec<Operation> {
     let mut instructions = Vec::new();
     for line in lines {
         let split: Vec<&str> = line.split(' ').collect();
