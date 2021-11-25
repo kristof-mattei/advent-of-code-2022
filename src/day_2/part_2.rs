@@ -47,7 +47,7 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
         .filter(RuleWithPassword::is_valid)
         .count();
 
-    Ok(AoCResult::Ofu32(valid_passwords.try_into().unwrap()))
+    Ok(AoCResult::Ofu32(valid_passwords as u32))
 }
 
 #[cfg(test)]

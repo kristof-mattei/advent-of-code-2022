@@ -131,7 +131,7 @@ fn count_parents(bag_parsed: &HashMap<String, Rc<Bag>>, start: &str) -> u32 {
     parent_names.sort();
     parent_names.dedup();
 
-    parent_names.len().try_into().unwrap()
+    parent_names.len() as u32
 }
 
 // https://adventofcode.com/2020/day/7

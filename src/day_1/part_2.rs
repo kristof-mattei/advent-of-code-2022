@@ -49,9 +49,7 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
         message: "Didn't find a sum of x + y + z = 2020".to_string(),
     })?;
 
-    Ok(AoCResult::Ofu32(
-        (entry1 * entry2 * entry3).try_into().unwrap(),
-    ))
+    Ok(AoCResult::Ofu32(entry1 * entry2 * entry3))
 }
 #[cfg(test)]
 mod tests {

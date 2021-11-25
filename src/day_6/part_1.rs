@@ -10,7 +10,7 @@ fn parse_group_of_answers(group: &[String]) -> u32 {
     answers.sort_unstable();
     answers.dedup();
 
-    answers.len().try_into().unwrap()
+    answers.len() as u32
 }
 
 fn parse_lines_into_questionaires(lines: &[String]) -> Vec<u32> {

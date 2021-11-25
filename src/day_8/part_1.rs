@@ -18,7 +18,7 @@ fn map_operation(operation: &str, argument: i32) -> Operation {
     }
 }
 
-fn parse_lines(lines: &Vec<String>) -> Vec<Operation> {
+fn parse_lines(lines: &[String]) -> Vec<Operation> {
     let mut instructions = Vec::new();
     for line in lines {
         let split: Vec<&str> = line.split(' ').collect();
@@ -32,7 +32,7 @@ fn parse_lines(lines: &Vec<String>) -> Vec<Operation> {
     instructions
 }
 
-fn execute_until_same_line_reached(operations: Vec<Operation>) -> i32 {
+fn execute_until_same_line_reached(operations: &[Operation]) -> i32 {
     let length = operations.len();
 
     let mut has_visited: HashSet<usize> = HashSet::new();
@@ -71,7 +71,7 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
 
     let operations = parse_lines(&split);
 
-    let accumulator = execute_until_same_line_reached(operations);
+    let accumulator = execute_until_same_line_reached(&operations);
 
     Ok(AoCResult::Ofi32(accumulator))
 }
@@ -149,8 +149,10 @@ mod tests {
     fn modulo_test() {
         let items: Vec<char> = ('a'..='j').into_iter().collect();
 
-        for i in -10..=(items.len() as i32) {
-            let index = (i as i32).wrapping_rem_euclid(items.len() as i32);
+        let length = items.len() as i32;
+
+        for i in -10..=length {
+            let index = (i as i32).wrapping_rem_euclid(length);
 
             println!("{} ({}): {}", i, index, items[index as usize]);
         }
@@ -166,9 +168,9 @@ mod tests {
         .map(|s| (*s).to_string())
         .collect();
 
-        let parsed = parse_lines(&input);
+        let operations = parse_lines(&input);
 
-        let acc = execute_until_same_line_reached(parsed);
+        let acc = execute_until_same_line_reached(&operations);
 
         assert_eq!(5, acc);
     }

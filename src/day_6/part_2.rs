@@ -20,7 +20,7 @@ fn count_of_questions_answered_by_everybody(group: &[String]) -> u32 {
     }
 
     let mut total_answers_that_everybody_answered: u32 = 0;
-    let people_in_group: u32 = group.len().try_into().unwrap();
+    let people_in_group = group.len() as u32;
 
     for (_, value) in count_of_answers {
         if value == people_in_group {

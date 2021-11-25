@@ -1,6 +1,9 @@
 #![deny(clippy::all)]
 #![warn(clippy::pedantic)]
 #![warn(clippy::cargo)]
+#![allow(clippy::cast_possible_truncation)]
+#![allow(clippy::cast_possible_wrap)]
+#![allow(clippy::cast_sign_loss)]
 use std::fmt;
 
 mod day_1;
@@ -64,7 +67,7 @@ fn main() {
     ];
 
     for (i, (part1, part2)) in days.iter().enumerate() {
-        let day_index: u32 = i.try_into().unwrap();
+        let day_index = i as u32;
 
         print_answer(day_index + 1, 1, part1);
         print_answer(day_index + 1, 2, part2);

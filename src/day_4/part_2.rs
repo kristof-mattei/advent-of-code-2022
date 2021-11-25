@@ -186,7 +186,7 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
         .filter(Passport::is_valid)
         .count();
 
-    Ok(AoCResult::Ofu32(valid_passports.try_into().unwrap()))
+    Ok(AoCResult::Ofu32(valid_passports as u32))
 }
 
 #[cfg(test)]
