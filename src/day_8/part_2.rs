@@ -57,7 +57,7 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
         .enumerate()
         .filter_map(|(index, f)| match f {
             Operation::Nop(_) | Operation::Jmp(_) => Some(index),
-            _ => None,
+            Operation::Acc(_) => None,
         })
         .collect();
 
@@ -77,17 +77,13 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
 
 fn build_new_vector(operations: &[Operation], to_swap_index: usize) -> Vec<Operation> {
     // take the part up to the index
-    let mut copy: Vec<_> = operations
-        .iter()
-        .take(to_swap_index)
-        .map(|o| o.clone())
-        .collect();
+    let mut copy: Vec<_> = operations.iter().take(to_swap_index).copied().collect();
 
     let mut rest: Vec<_> = operations
         .iter()
         .skip(to_swap_index + 1)
         .take(operations.len() - to_swap_index - 1)
-        .map(|o| o.clone())
+        .copied()
         .collect();
 
     let flipped_operation = match operations[to_swap_index] {
@@ -135,15 +131,9 @@ mod tests {
 
     #[test]
     fn pieces() {
-        let vec1: Vec<i32> = (0..=10).into_iter().collect();
-
-        println!("{:?}", vec1);
-
         const SPLIT_AT: usize = 5;
-
+        let vec1: Vec<i32> = (0..=10).into_iter().collect();
         let vec2: Vec<&i32> = vec1.iter().take(SPLIT_AT).collect();
-
-        println!("{:?}", vec2);
 
         let vec3: Vec<&i32> = vec1
             .iter()
@@ -151,6 +141,8 @@ mod tests {
             .take(vec1.len() - SPLIT_AT - 1)
             .collect();
 
+        println!("{:?}", vec1);
+        println!("{:?}", vec2);
         println!("{:?}", vec3);
     }
 }
