@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{shared::AoCResult, utils::read_file};
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone, Copy)]
 pub enum Operation {
     Acc(i32),
     Jmp(i32),
