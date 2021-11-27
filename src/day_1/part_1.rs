@@ -3,16 +3,16 @@ use std::collections::HashMap;
 use crate::shared::{AoCError, AoCResult};
 use crate::utils::read_file;
 
-fn find_sum_of_2_is_2020(numbers: Vec<u32>) -> Option<(u32, u32)> {
+fn find_sum_of_2_is_2020(numbers: &[u32]) -> Option<(u32, u32)> {
     let mut missing_to_value: HashMap<u32, u32> = HashMap::new();
 
     for n in numbers {
         match missing_to_value.get(&n) {
             Some(x) => {
-                return Some((*x, n));
+                return Some((*x, *n));
             }
             None => {
-                missing_to_value.insert(2020 - n, n);
+                missing_to_value.insert(2020 - n, *n);
             }
         }
     }
@@ -29,7 +29,7 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
         .map(|s| s.parse::<u32>().unwrap())
         .collect();
 
-    let (entry1, entry2) = find_sum_of_2_is_2020(numbers).ok_or(AoCError {
+    let (entry1, entry2) = find_sum_of_2_is_2020(&numbers).ok_or(AoCError {
         message: "Didn't find a sum of x + y = 2020".to_string(),
     })?;
 

@@ -16,6 +16,7 @@ impl error::Error for AoCError {}
 pub enum AoCResult {
     Ofi32(i32),
     Ofu32(u32),
+    Ofu64(u64),
 }
 
 impl fmt::Display for AoCResult {
@@ -23,6 +24,7 @@ impl fmt::Display for AoCResult {
         match &self {
             AoCResult::Ofi32(x) => write!(f, "{}", x),
             AoCResult::Ofu32(x) => write!(f, "{}", x),
+            AoCResult::Ofu64(x) => write!(f, "{}", x),
         }
     }
 }
