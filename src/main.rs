@@ -7,6 +7,7 @@
 use std::fmt;
 
 mod day_1;
+mod day_10;
 mod day_2;
 mod day_3;
 mod day_4;
@@ -68,6 +69,10 @@ fn main() {
         (
             day_9::part_1::find_solution(),
             day_9::part_2::find_solution(),
+        ),
+        (
+            day_10::part_1::find_solution(),
+            day_10::part_2::find_solution(),
         ),
     ];
 
