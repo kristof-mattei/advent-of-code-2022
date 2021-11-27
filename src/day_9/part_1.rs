@@ -35,23 +35,24 @@ fn slide_until_sum_of_any_2_in_last_x_is_not_current_value(input: &[u64], last_x
     loop {
         let to_test: Vec<u64> = input.iter().skip(offset).take(last_x).map(|x| *x).collect();
 
-        let target_sum_iter = input
-            .iter()
-            .skip(offset + last_x + 1)
-            .collect::<Vec<&u64>>();
+        let target_sum_iter = input.iter().skip(offset + last_x).collect::<Vec<&u64>>();
 
         let target_sum = target_sum_iter.get(0).unwrap().deref();
 
         match find_sum_of_2_is_x(&to_test, *target_sum) {
             Ok(_) => {
+                println!("Sum found {} in {:?}", target_sum, to_test);
+
+                offset += 1
+            }
+            Err(_) => {
                 println!(
                     "Couln't find matching sum of {} in {:?}",
                     target_sum, to_test
                 );
 
-                offset += 1
+                return *target_sum;
             }
-            Err(_) => return *target_sum,
         }
     }
 }
@@ -71,7 +72,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(AoCResult::Ofu64(7), find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu64(138879426), find_solution().unwrap());
     }
 
     #[test]
