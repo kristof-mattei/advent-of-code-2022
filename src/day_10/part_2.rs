@@ -2,7 +2,17 @@ use core::panic;
 
 use crate::{shared::AoCResult, utils::read_file};
 
-fn calculate_step_up_differences(input: &[u32]) -> (u32, u32, u32) {
+fn calculate_permutations(input: &[u32]) -> u64 {
+    let mut copy: Vec<u32> = input.iter().copied().collect();
+
+    copy.sort_unstable();
+
+    copy.reverse();
+
+    calculate_permutations_r(&copy, 0)
+}
+
+fn calculate_permutations_r(input: &[u32], index: u64) -> u64 {
     let mut stepup_1 = 0;
     let mut stepup_2 = 0;
     let mut stepup_3 = 0;
@@ -15,17 +25,15 @@ fn calculate_step_up_differences(input: &[u32]) -> (u32, u32, u32) {
 
     let mut previous = 0;
 
+    let permutations = 0;
+
     loop {
         match copy.pop() {
             Some(next) => {
-                println!(
-                    "Previous: {}, next: {}, diff: {}",
-                    previous,
-                    next,
-                    (next - previous)
-                );
+                let diff = next - previous;
+                println!("Previous: {}, next: {}, diff: {}", previous, next, diff);
 
-                match next - previous {
+                match diff {
                     1 => stepup_1 += 1,
                     2 => stepup_2 += 1,
                     3 => stepup_3 += 1,
@@ -36,8 +44,10 @@ fn calculate_step_up_differences(input: &[u32]) -> (u32, u32, u32) {
 
                 previous = next;
             }
-            None => return (stepup_1, stepup_2, stepup_3 + 1),
+            None => return permutations,
         }
+
+        permutations
     }
 }
 
@@ -46,8 +56,8 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_10/input.txt".into())?;
     let input: Vec<u32> = split.iter().map(|s| s.parse::<u32>().unwrap()).collect();
 
-    let (s1, _, s3) = calculate_step_up_differences(&input);
-    Ok(AoCResult::Ofu32(s1 * s3))
+    let permutations = calculate_permutations(&input);
+    Ok(AoCResult::Ofu64(permutations))
 }
 
 #[cfg(test)]
@@ -66,10 +76,9 @@ mod tests {
             .map(|s| s.parse::<u32>().unwrap())
             .collect();
 
-        let (stepup_1, _stepup_2, stepup_3) = calculate_step_up_differences(&input);
+        let permutations = calculate_permutations(&input);
 
-        assert_eq!(7, stepup_1);
-        assert_eq!(5, stepup_3);
+        assert_eq!(8, permutations);
     }
 
     #[test]
@@ -83,9 +92,8 @@ mod tests {
         .map(|s| s.parse::<u32>().unwrap())
         .collect();
 
-        let (stepup_1, _stepup_2, stepup_3) = calculate_step_up_differences(&input);
+        let permutations = calculate_permutations(&input);
 
-        assert_eq!(22, stepup_1);
-        assert_eq!(10, stepup_3);
+        assert_eq!(19208, permutations);
     }
 }
