@@ -7,7 +7,7 @@ fn find_sum_of_2_is_2020(numbers: &[u32]) -> Option<(u32, u32)> {
     let mut missing_to_value: HashMap<u32, u32> = HashMap::new();
 
     for n in numbers {
-        match missing_to_value.get(&n) {
+        match missing_to_value.get(n) {
             Some(x) => {
                 return Some((*x, *n));
             }

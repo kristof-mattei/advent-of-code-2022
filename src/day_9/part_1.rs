@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ops::Deref};
+use std::collections::HashMap;
 
 use crate::{
     shared::{AoCError, AoCResult},
@@ -23,7 +23,7 @@ fn find_sum_of_2_is_x(numbers: &[u64], target: u64) -> Result<(), AoCError> {
     Err(AoCError {
         message: format!(
             "No combination found in the last {} that equals {}",
-            numbers.iter().count(),
+            numbers.len(),
             target
         ),
     })
@@ -33,26 +33,23 @@ fn slide_until_sum_of_any_2_in_last_x_is_not_current_value(input: &[u64], last_x
     let mut offset = 0;
 
     loop {
-        let to_test: Vec<u64> = input.iter().skip(offset).take(last_x).map(|x| *x).collect();
+        let to_test: Vec<u64> = input.iter().skip(offset).take(last_x).copied().collect();
 
         let target_sum_iter = input.iter().skip(offset + last_x).collect::<Vec<&u64>>();
 
-        let target_sum = target_sum_iter.get(0).unwrap().deref();
+        let target_sum = *target_sum_iter.get(0).unwrap();
 
-        match find_sum_of_2_is_x(&to_test, *target_sum) {
-            Ok(_) => {
-                println!("Sum found {} in {:?}", target_sum, to_test);
+        if find_sum_of_2_is_x(&to_test, *target_sum).is_ok() {
+            println!("Sum found {} in {:?}", target_sum, to_test);
 
-                offset += 1
-            }
-            Err(_) => {
-                println!(
-                    "Couln't find matching sum of {} in {:?}",
-                    target_sum, to_test
-                );
+            offset += 1;
+        } else {
+            println!(
+                "Couln't find matching sum of {} in {:?}",
+                target_sum, to_test
+            );
 
-                return *target_sum;
-            }
+            return *target_sum;
         }
     }
 }
