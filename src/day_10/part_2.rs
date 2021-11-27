@@ -1,54 +1,43 @@
-use core::panic;
-
 use crate::{shared::AoCResult, utils::read_file};
 
 fn calculate_permutations(input: &[u32]) -> u64 {
-    let mut copy: Vec<u32> = input.iter().copied().collect();
+    let mut copy: Vec<u32> = vec![0];
+    copy.append(&mut input.iter().copied().collect());
 
     copy.sort_unstable();
 
-    copy.reverse();
+    copy.push(input.iter().max().unwrap() + 3);
 
+    println!("Max index {}", input.len());
     calculate_permutations_r(&copy, 0)
 }
 
-fn calculate_permutations_r(input: &[u32], index: u64) -> u64 {
-    let mut stepup_1 = 0;
-    let mut stepup_2 = 0;
-    let mut stepup_3 = 0;
+fn calculate_permutations_r(input: &[u32], index: usize) -> u64 {
+    let current = input.get(index).unwrap();
 
-    let mut copy: Vec<u32> = input.iter().copied().collect();
+    let mut possible_permutations: u64 = 0;
 
-    copy.sort_unstable();
-
-    copy.reverse();
-
-    let mut previous = 0;
-
-    let permutations = 0;
-
-    loop {
-        match copy.pop() {
-            Some(next) => {
-                let diff = next - previous;
-                println!("Previous: {}, next: {}, diff: {}", previous, next, diff);
-
-                match diff {
-                    1 => stepup_1 += 1,
-                    2 => stepup_2 += 1,
-                    3 => stepup_3 += 1,
-                    _ => {
-                        panic!("This really shouldn't happen")
-                    }
-                }
-
-                previous = next;
-            }
-            None => return permutations,
-        }
-
-        permutations
+    if input.get(index + 1).is_none() {
+        // end of the line, valid
+        return 1;
     }
+
+    for i in 1..=3 {
+        let next_possible_index = index + i;
+
+        match input.get(next_possible_index) {
+            Some(next) => {
+                if next - current <= 3 {
+                    possible_permutations += calculate_permutations_r(input, next_possible_index);
+                }
+            }
+            None => (),
+        }
+    }
+
+    println!("possible_permutations: {}", possible_permutations);
+
+    possible_permutations
 }
 
 // https://adventofcode.com/2020/day/9
