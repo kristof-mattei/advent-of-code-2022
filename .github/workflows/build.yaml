@@ -153,7 +153,41 @@ jobs:
 
       - name: Install cargo2junit for formatting
         run: |
-          cargo install --locked cargo2junit;
+          cargo install cargo2junit;
+
+      - name: Setup Node.js
+        uses: actions/setup-node@04c56d2f954f1e4c69436aa54cfef261a018f458
+        with:
+          node-version: "lts/*"
+          cache: "npm"
+          cache-dependency-path: "**/package-lock.json"
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          npm ci --ignore-scripts
+
+      - name: Download tarpulin tar, extract, and add folder to path
+        uses: actions/github-script@441359b1a30438de65712c2fbca0abe4816fa667
+        with:
+          script: |
+            const tc = require("@actions/tool-cache");
+
+            const release = await github.rest.repos.getLatestRelease({
+                owner: "xd009642",
+                repo: "tarpaulin"
+            });
+
+            const asset = release.data.assets.find(asset => {
+                return asset["content_type"] === "application/gzip" && asset.name === `cargo-tarpaulin-${release.data.tag_name}-travis.tar.gz`;
+            });
+
+            const urlToTarpualinTar = asset.browser_download_url;
+
+            const tarpaulinTarPath = await tc.downloadTool(urlToTarpualinTar);
+            const tarpaulinExtractedFolder = await tc.extractTar(tarpaulinTarPath, null, ["--extract", "--gzip"]);
+
+            core.addPath(tarpaulinExtractedFolder);
 
       - name: Run tarpaulin
         run: |
