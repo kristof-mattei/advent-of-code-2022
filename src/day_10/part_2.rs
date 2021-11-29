@@ -28,13 +28,10 @@ fn calculate_permutations_r(input: &[u32], index: usize) -> u64 {
     for i in 1..=3 {
         let next_possible_index = index + i;
 
-        match input.get(next_possible_index) {
-            Some(next) => {
-                if next - current <= 3 {
-                    possible_permutations += calculate_permutations_r(input, next_possible_index);
-                }
+        if let Some(next) = input.get(next_possible_index) {
+            if next - current <= 3 {
+                possible_permutations += calculate_permutations_r(input, next_possible_index);
             }
-            None => (),
         }
     }
 
@@ -48,7 +45,7 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_10/input.txt".into())?;
     let _input: Vec<u32> = split.iter().map(|s| s.parse::<u32>().unwrap()).collect();
 
-    // let permutations = calculate_permutations(&input);
+    let _permutations = calculate_permutations(&Vec::new());
     Err(Box::new(AoCError {
         message: "We need to find a better way to loop through it all".to_string(),
     }))

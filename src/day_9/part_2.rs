@@ -42,7 +42,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(AoCResult::Ofu64(23761694), find_solution().unwrap());
+        assert_eq!(AoCResult::Ofu64(23_761_694), find_solution().unwrap());
     }
 
     #[test]
