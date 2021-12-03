@@ -1,27 +1,17 @@
-use std::collections::HashMap;
-
-use crate::shared::{AoCError, AoCResult};
 use crate::utils::read_file;
 
-fn find_sum_of_2_is_2020(numbers: &[u32]) -> Option<(u32, u32)> {
-    let mut missing_to_value: HashMap<u32, u32> = HashMap::new();
-
-    for n in numbers {
-        match missing_to_value.get(n) {
-            Some(x) => {
-                return Some((*x, *n));
-            }
-            None => {
-                missing_to_value.insert(2020 - n, *n);
-            }
+pub fn count_increments(list: &[u32]) -> u32 {
+    let mut count = 0;
+    for i in list.windows(2) {
+        if i[1] > i[0] {
+            count += 1;
         }
     }
 
-    None
+    count
 }
 
-// https://adventofcode.com/2020/day/1
-pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
+pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
     let split = read_file("./src/day_1/input.txt".into())?;
 
     let numbers: Vec<u32> = split
@@ -29,18 +19,22 @@ pub fn find_solution() -> Result<AoCResult, Box<dyn std::error::Error>> {
         .map(|s| s.parse::<u32>().unwrap())
         .collect();
 
-    let (entry1, entry2) = find_sum_of_2_is_2020(&numbers).ok_or(AoCError {
-        message: "Didn't find a sum of x + y = 2020".to_string(),
-    })?;
-
-    Ok(AoCResult::Ofu32(entry1 * entry2))
+    Ok(count_increments(&numbers))
 }
 #[cfg(test)]
 mod tests {
+
     use super::*;
 
     #[test]
     fn outcome() {
-        assert_eq!(AoCResult::Ofu32(1_019_571), find_solution().unwrap());
+        assert!(matches!(find_solution(), Ok(1722)));
+    }
+
+    #[test]
+    fn playground() {
+        let t = vec![199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+
+        assert_eq!(count_increments(&t), 7);
     }
 }

@@ -1,13 +1,13 @@
 [package]
-name = "advent-of-code-2020"
+name = "advent-of-code-2021"
 # don't change this, it's updated before an actual build by update-version.sh
 version = "0.0.0-development"
 edition = "2021"
-rust-version = "1.56.1"
+rust-version = "1.57.0"
 authors = ["Kristof Mattei"]
-license = "MIT"
-description = "Advent of Code 2020"
-repository = "https://github.com/kristof-mattei/advent-of-code-2020"
+license-file = "LICENSE"
+description = "Advent of Code 2021"
+repository = "https://github.com/kristof-mattei/advent-of-code-2021"
 keywords = ["playground"]
 categories = ["playground"]
 
