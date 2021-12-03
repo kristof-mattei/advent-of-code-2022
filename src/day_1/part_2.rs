@@ -35,7 +35,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert!(matches!(find_solution(), Ok(1748)));
+        assert_eq!(1748, find_solution().unwrap());
     }
 
     #[test]

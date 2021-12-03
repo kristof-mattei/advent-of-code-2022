@@ -28,7 +28,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert!(matches!(find_solution(), Ok(1722)));
+        assert_eq!(1722, find_solution().unwrap());
     }
 
     #[test]
