@@ -11,7 +11,7 @@ fn determine_direction(directions: &[Direction]) -> (u32, u32) {
             Direction::Down(x) => aim += x,
             Direction::Forward(x) => {
                 forward += x;
-                depth += aim * x
+                depth += aim * x;
             }
         }
     }
@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(find_solution().unwrap(), 2078985210);
+        assert_eq!(find_solution().unwrap(), 2_078_985_210);
     }
 
     #[test]
