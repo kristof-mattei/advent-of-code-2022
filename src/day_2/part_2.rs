@@ -3,12 +3,16 @@ use crate::utils::read_file;
 fn determine_direction(directions: &[Direction]) -> (u32, u32) {
     let mut forward = 0;
     let mut depth = 0;
+    let mut aim = 0;
 
     for direction in directions {
         match direction {
-            Direction::Up(x) => depth -= x,
-            Direction::Down(x) => depth += x,
-            Direction::Forward(x) => forward += x,
+            Direction::Up(x) => aim -= x,
+            Direction::Down(x) => aim += x,
+            Direction::Forward(x) => {
+                forward += x;
+                depth += aim * x
+            }
         }
     }
     (forward, depth)
@@ -54,7 +58,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(find_solution().unwrap(), 2070300);
+        assert_eq!(find_solution().unwrap(), 2078985210);
     }
 
     #[test]
@@ -76,6 +80,6 @@ mod tests {
         let (horizontal_position, depth) = determine_direction(&instructions);
 
         assert_eq!(horizontal_position, 15);
-        assert_eq!(depth, 10);
+        assert_eq!(depth, 60);
     }
 }
