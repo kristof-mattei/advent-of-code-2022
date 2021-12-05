@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(find_solution().unwrap(), 4125600);
+        assert_eq!(find_solution().unwrap(), 4_125_600);
     }
 
     #[test]
