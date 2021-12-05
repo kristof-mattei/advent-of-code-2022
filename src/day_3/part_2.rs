@@ -46,7 +46,7 @@ fn move_and_reduce(
     let mut new_set: Vec<u32> = Vec::new();
 
     let most_or_least_common =
-        find_common(&filtered_lines, bits_to_consider - bit_index - 1, common);
+        find_common(filtered_lines, bits_to_consider - bit_index - 1, common);
 
     for line in filtered_lines {
         if (line >> (bits_to_consider - bit_index - 1) & 0b01) == most_or_least_common as u32 {
@@ -54,7 +54,7 @@ fn move_and_reduce(
         }
     }
 
-    return move_and_reduce(&new_set, bits_to_consider, bit_index + 1, &common);
+    move_and_reduce(&new_set, bits_to_consider, bit_index + 1, common)
 }
 
 fn parse_diagnostic_report(diagnostic_report_lines: &[u32], bits_to_consider: usize) -> (u32, u32) {
