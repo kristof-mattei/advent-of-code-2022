@@ -11,6 +11,7 @@ mod utils;
 
 mod day_1;
 mod day_2;
+mod day_3;
 
 fn print_answer(day: u32, part: u32, result: &Result<String, Box<dyn Error>>) {
     match result {
@@ -27,18 +28,26 @@ fn print_answer(day: u32, part: u32, result: &Result<String, Box<dyn Error>>) {
 }
 
 fn main() {
-    let solutions: Vec<Result<String, Box<dyn Error>>> = vec![
-        day_1::part_1::find_solution().map(|r| r.to_string()),
-        day_1::part_2::find_solution().map(|r| r.to_string()),
-        day_2::part_1::find_solution().map(|r| r.to_string()),
-        day_2::part_2::find_solution().map(|r| r.to_string()),
+    let solutions = vec![
+        (
+            day_1::part_1::find_solution().map(|r| r.to_string()),
+            day_1::part_2::find_solution().map(|r| r.to_string()),
+        ),
+        (
+            day_2::part_1::find_solution().map(|r| r.to_string()),
+            day_2::part_2::find_solution().map(|r| r.to_string()),
+        ),
+        (
+            day_3::part_1::find_solution().map(|r| r.to_string()),
+            day_3::part_2::find_solution().map(|r| r.to_string()),
+        ),
     ];
 
     let mut day: u32 = 1;
 
-    for day_solution in solutions.windows(2) {
-        print_answer(day, 1, &day_solution[0]);
-        print_answer(day, 2, &day_solution[1]);
+    for (day_solution_part_1, day_solution_part_2) in solutions {
+        print_answer(day, 1, &day_solution_part_1);
+        print_answer(day, 2, &day_solution_part_2);
 
         day += 1;
     }
