@@ -10,15 +10,25 @@ fn parse_lines(lines: &[String]) -> (Vec<u32>, Vec<Playfield>) {
         .map(|s| s.parse::<u32>().unwrap())
         .collect();
 
-    for chunk in lines
-        .to_vec()
-        .iter()
-        .skip(2)
-        .collect::<Vec<&String>>()
-        .chunks(5)
-    {
-        println!("{:?}", chunk);
-    }
+    // top line is our drawings
+    let rest: Vec<_> = lines[1..lines.len()]
+        .split(String::is_empty)
+        .filter(|f| !f.is_empty())
+        .collect();
+
+    println!("{:?}", rest);
+
+    // for chunk in lines
+    //     .to_vec()
+    //     .iter()
+    //     .skip(2)
+    //     .into_iter()
+    //     .split(|piece| piece == "")
+    //     .collect::<Vec<&String>>()
+    //     .chunks(5)
+    // {
+    //     println!("{:?}", chunk);
+    // }
 
     let playfield1: Playfield = [
         [0, 1, 2, 3, 4],
