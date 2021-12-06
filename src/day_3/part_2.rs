@@ -1,5 +1,3 @@
-use crate::utils::read_file;
-
 enum Common {
     Least,
     Most,
@@ -79,14 +77,14 @@ fn parse_lines(lines: &[String]) -> (Vec<u32>, usize) {
     (parsed, bits_to_consider)
 }
 
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
-    let lines = read_file("./src/day_3/input.txt".into())?;
+pub fn find_solution() -> u32 {
+    let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
     let (diagnostic_report_lines, bits_to_consider) = parse_lines(&lines);
 
     let (oxygen, co2) = parse_diagnostic_report(&diagnostic_report_lines, bits_to_consider);
 
-    Ok(oxygen * co2)
+    oxygen * co2
 }
 #[cfg(test)]
 mod tests {
@@ -95,7 +93,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(find_solution().unwrap(), 4_125_600);
+        assert_eq!(find_solution(), 4_125_600);
     }
 
     #[test]

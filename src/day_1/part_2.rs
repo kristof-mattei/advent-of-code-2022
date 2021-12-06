@@ -1,4 +1,6 @@
-use crate::utils::read_file;
+fn parse_lines(lines: &[String]) -> Vec<u32> {
+    lines.iter().map(|s| s.parse::<u32>().unwrap()).collect()
+}
 
 pub fn count_window_of_3_increments(list: &[u32]) -> u32 {
     let mut count = 0;
@@ -17,15 +19,12 @@ pub fn count_window_of_3_increments(list: &[u32]) -> u32 {
     count - 1
 }
 
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
-    let split = read_file("./src/day_1/input.txt".into())?;
+pub fn find_solution() -> u32 {
+    let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
-    let numbers: Vec<u32> = split
-        .into_iter()
-        .map(|s| s.parse::<u32>().unwrap())
-        .collect();
+    let numbers = parse_lines(&lines);
 
-    Ok(count_window_of_3_increments(&numbers))
+    count_window_of_3_increments(&numbers)
 }
 
 #[cfg(test)]
@@ -35,7 +34,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(1748, find_solution().unwrap());
+        assert_eq!(1748, find_solution());
     }
 
     #[test]

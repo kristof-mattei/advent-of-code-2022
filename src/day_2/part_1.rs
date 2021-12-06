@@ -1,5 +1,3 @@
-use crate::utils::read_file;
-
 fn determine_direction(directions: &[Direction]) -> (u32, u32) {
     let mut forward = 0;
     let mut depth = 0;
@@ -38,14 +36,14 @@ fn parse_lines(lines: &[String]) -> Vec<Direction> {
     instructions
 }
 
-pub fn find_solution() -> Result<u32, Box<dyn std::error::Error>> {
-    let lines = read_file("./src/day_2/input.txt".into())?;
+pub fn find_solution() -> u32 {
+    let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
     let instructions = parse_lines(&lines);
 
     let (horizontal_position, depth) = determine_direction(&instructions);
 
-    Ok(horizontal_position * depth)
+    horizontal_position * depth
 }
 #[cfg(test)]
 mod tests {
@@ -54,7 +52,7 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(find_solution().unwrap(), 2_070_300);
+        assert_eq!(find_solution(), 2_070_300);
     }
 
     #[test]
