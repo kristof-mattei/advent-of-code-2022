@@ -52,13 +52,6 @@
 				"--workspace",
 				"--all-targets",
 				"--all-features",
-				"--",
-				"--deny",
-				"clippy::all",
-				"--warn",
-				"clippy::pedantic",
-				"--warn",
-				"clippy::cargo",
 			],
 			"problemMatcher": [
 				"$rustc"

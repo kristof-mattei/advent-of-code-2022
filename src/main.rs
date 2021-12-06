@@ -4,6 +4,7 @@
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
+#![allow(clippy::too_many_lines)]
 
 mod shared;
 mod utils;
