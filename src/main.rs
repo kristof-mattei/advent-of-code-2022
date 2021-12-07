@@ -5,6 +5,7 @@
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::too_many_lines)]
+#![allow(clippy::let_and_return)]
 
 mod shared;
 mod utils;
@@ -13,6 +14,7 @@ mod day_1;
 mod day_2;
 mod day_3;
 mod day_4;
+mod day_5;
 
 fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {}, part {} is ... {}", day, part, result);
@@ -35,6 +37,10 @@ fn main() {
         (
             day_4::part_1::find_solution().to_string(),
             day_4::part_2::find_solution().to_string(),
+        ),
+        (
+            day_5::part_1::find_solution().to_string(),
+            day_5::part_2::find_solution().to_string(),
         ),
     ];
 
