@@ -16,6 +16,7 @@ mod day_3;
 mod day_4;
 mod day_5;
 mod day_6;
+mod day_7;
 
 fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {}, part {} is ... {}", day, part, result);
@@ -46,6 +47,10 @@ fn main() {
         (
             day_6::part_1::find_solution().to_string(),
             day_6::part_2::find_solution().to_string(),
+        ),
+        (
+            day_7::part_1::find_solution().to_string(),
+            day_7::part_2::find_solution().to_string(),
         ),
     ];
 
