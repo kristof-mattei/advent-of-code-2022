@@ -16,19 +16,14 @@ pub fn find_solution() -> u32 {
     find_minimum(&crabs)
 }
 
-fn calculate_fuel_needed(steps: u32, cache: &mut HashMap<u32, u32>) -> u32 {
-    // cache distances
-    if let Some(fuel_needed) = cache.get(&steps) {
-        *fuel_needed
-    } else {
+fn calculate_fuel_needed(distance: u32, cache: &mut HashMap<u32, u32>) -> u32 {
+    *cache.entry(distance).or_insert_with(|| {
         let mut fuel_needed: u32 = 0;
-        for i in 1..=steps {
+        for i in 1..=distance {
             fuel_needed += i;
         }
-
-        cache.insert(steps, fuel_needed);
         fuel_needed
-    }
+    })
 }
 
 fn find_minimum(crabs: &[u32]) -> u32 {
