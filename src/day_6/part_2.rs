@@ -1,41 +1,52 @@
-fn parse_lines(lines: &[String]) -> Vec<u32> {
-    let fishes_nearby = lines[0]
+use std::collections::HashMap;
+
+fn parse_lines(lines: &[String]) -> HashMap<u8, u64> {
+    let fishes_nearby: Vec<u8> = lines[0]
         .split(',')
-        .map(|f| f.parse::<u32>().unwrap())
+        .map(|f| f.parse::<u8>().unwrap())
         .collect();
 
-    fishes_nearby
-}
+    let mut fish_counts: HashMap<u8, u64> = HashMap::new();
 
-fn age_fishes(fishes: Vec<u32>) -> Vec<u32> {
-    let mut new_fishes_to_append: usize = 0;
+    for fish in fishes_nearby {
+        let fish_count = *fish_counts.get(&fish).unwrap_or(&0);
 
-    let mut new_fishes = Vec::new();
-
-    for fish in fishes {
-        match fish {
-            0 => {
-                new_fishes.push(6);
-                new_fishes_to_append += 1;
-            }
-            x => new_fishes.push(x - 1),
-        }
+        fish_counts.insert(fish, fish_count + 1);
     }
 
-    new_fishes.resize(new_fishes.len() + new_fishes_to_append, 8);
+    println!("{:?}", fish_counts);
 
-    new_fishes
+    fish_counts
 }
 
-pub fn find_solution() -> usize {
+fn age_fishes(fishes: &mut HashMap<u8, u64>) {
+    let fishes_to_be_reset = *fishes.get(&0).unwrap_or(&0);
+
+    for i in 1..=8 {
+        let current = *fishes.get(&i).unwrap_or(&0);
+
+        fishes.insert(i - 1, current);
+    }
+
+    // all fishes reset create 1 offspring
+    fishes.insert(8, fishes_to_be_reset);
+
+    if let Some(x) = fishes.get_mut(&6) {
+        *x += fishes_to_be_reset;
+    } else {
+        fishes.insert(6, fishes_to_be_reset);
+    }
+}
+
+pub fn find_solution() -> u64 {
     let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
     let mut fishes = parse_lines(&lines);
-    for _ in 0..80 {
-        fishes = age_fishes(fishes);
+    for _ in 1..=256 {
+        age_fishes(&mut fishes);
     }
 
-    fishes.len()
+    fishes.iter().map(|(_, v)| v).sum::<u64>()
 }
 
 #[cfg(test)]
@@ -44,48 +55,48 @@ mod tests {
 
     #[test]
     fn outcome() {
-        assert_eq!(find_solution(), 395_627);
+        assert_eq!(find_solution(), 1_767_323_539_209);
     }
 
     #[test]
     fn playground() {
         let lines: Vec<String> = vec!["3,4,3,1,2"].iter().map(ToString::to_string).collect();
 
-        let mut fishes: Vec<u32> = parse_lines(&lines);
+        let mut fishes = parse_lines(&lines);
 
-        for i in 0..18 {
-            fishes = age_fishes(fishes);
-            println!("After day {}", (i + 1));
+        for i in 1..=18 {
+            age_fishes(&mut fishes);
+            println!("After day {}", i);
         }
 
-        assert_eq!(26, fishes.len());
+        assert_eq!(26, fishes.iter().map(|(_, v)| v).sum::<u64>());
     }
 
     #[test]
     fn playground_2() {
         let lines: Vec<String> = vec!["3,4,3,1,2"].iter().map(ToString::to_string).collect();
 
-        let mut fishes: Vec<u32> = parse_lines(&lines);
+        let mut fishes = parse_lines(&lines);
 
-        for i in 0..80 {
-            fishes = age_fishes(fishes);
-            println!("After day {}", (i + 1));
+        for i in 1..=80 {
+            age_fishes(&mut fishes);
+            println!("After day {}", i);
         }
 
-        assert_eq!(5934, fishes.len());
+        assert_eq!(5934, fishes.iter().map(|(_, v)| v).sum::<u64>());
     }
 
     #[test]
     fn playground_3() {
         let lines: Vec<String> = vec!["3,4,3,1,2"].iter().map(ToString::to_string).collect();
 
-        let mut fishes: Vec<u32> = parse_lines(&lines);
+        let mut fishes = parse_lines(&lines);
 
-        for i in 0..256 {
-            fishes = age_fishes(fishes);
-            println!("After day {}", (i + 1));
+        for i in 1..=256 {
+            age_fishes(&mut fishes);
+            println!("After day {}", i);
         }
 
-        assert_eq!(26_984_457_539, fishes.len());
+        assert_eq!(26_984_457_539, fishes.iter().map(|(_, v)| v).sum::<u64>());
     }
 }

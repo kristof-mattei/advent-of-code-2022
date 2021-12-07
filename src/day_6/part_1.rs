@@ -7,10 +7,10 @@ fn parse_lines(lines: &[String]) -> Vec<u32> {
     fishes_nearby
 }
 
-fn age_fishes(mut fishes: Vec<u32>) -> Vec<u32> {
+fn age_fishes(fishes: &mut Vec<u32>) {
     let mut new_fishes_to_append: usize = 0;
 
-    for fish in &mut fishes {
+    for fish in fishes.iter_mut() {
         if *fish == 0 {
             *fish = 6;
             new_fishes_to_append += 1;
@@ -20,8 +20,6 @@ fn age_fishes(mut fishes: Vec<u32>) -> Vec<u32> {
     }
 
     fishes.resize(fishes.len() + new_fishes_to_append, 8);
-
-    fishes
 }
 
 pub fn find_solution() -> usize {
@@ -29,7 +27,7 @@ pub fn find_solution() -> usize {
 
     let mut fishes = parse_lines(&lines);
     for _ in 0..80 {
-        fishes = age_fishes(fishes);
+        age_fishes(&mut fishes);
     }
 
     fishes.len()
@@ -51,7 +49,7 @@ mod tests {
         let mut fishes: Vec<u32> = parse_lines(&lines);
 
         for _ in 0..18 {
-            fishes = age_fishes(fishes);
+            age_fishes(&mut fishes);
             println!("{:?}", fishes);
         }
 
@@ -65,7 +63,7 @@ mod tests {
         let mut fishes: Vec<u32> = parse_lines(&lines);
 
         for _ in 0..80 {
-            fishes = age_fishes(fishes);
+            age_fishes(&mut fishes);
         }
 
         assert_eq!(5934, fishes.len());
