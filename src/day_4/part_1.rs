@@ -18,19 +18,22 @@ impl PlayfieldCell {
 }
 
 #[derive(PartialEq, Debug)]
-
-struct Playfield {
+pub(super) struct Playfield {
     inner: [[PlayfieldCell; PLAYFIELD_SIZE]; PLAYFIELD_SIZE],
+    pub(super) dont_consider_anymore: Cell<bool>,
 }
 
 impl Playfield {
     fn new(playfield: [[PlayfieldCell; PLAYFIELD_SIZE]; PLAYFIELD_SIZE]) -> Playfield {
-        Playfield { inner: playfield }
+        Playfield {
+            inner: playfield,
+            dont_consider_anymore: Cell::new(false),
+        }
     }
 }
 
 impl Playfield {
-    fn mark_number(&self, number: u32) {
+    pub(super) fn mark_number(&self, number: u32) {
         for row in &self.inner {
             for c in row {
                 if c.number == number {
@@ -42,7 +45,7 @@ impl Playfield {
         }
     }
 
-    fn is_winner(&self) -> bool {
+    pub(super) fn is_winner(&self) -> bool {
         // for row in &self.inner {
         //     if row.iter().all(|f| f.drawn.get()) {
         //         return true;
@@ -82,7 +85,7 @@ impl Playfield {
         false
     }
 
-    fn unmarked_sum(&self) -> u32 {
+    pub(super) fn unmarked_sum(&self) -> u32 {
         self.inner.iter().fold(0, |acc, row| {
             acc + row
                 .iter()
@@ -105,7 +108,7 @@ fn calculate_winnings(drawings: &[u32], playfields: &[Playfield]) -> (u32, u32) 
     (0, 0)
 }
 
-fn parse_lines(lines: &[String]) -> (Vec<u32>, Vec<Playfield>) {
+pub(super) fn parse_lines(lines: &[String]) -> (Vec<u32>, Vec<Playfield>) {
     let drawings = lines[0]
         .split(',')
         .map(|s| s.parse::<u32>().unwrap())
