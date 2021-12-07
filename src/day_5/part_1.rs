@@ -54,7 +54,7 @@ fn calculate_overlap_of_2(vent_lines: &[VentLine]) -> u32 {
         .max()
         .unwrap();
 
-    println!("x max: {}, y max: {}", x_max, y_max);
+    // println!("x max: {}, y max: {}", x_max, y_max);
 
     let mut field: Vec<Vec<u32>> = Vec::new();
 
@@ -74,16 +74,16 @@ fn calculate_overlap_of_2(vent_lines: &[VentLine]) -> u32 {
         }
     }
 
-    for row in &field {
-        for c in row {
-            match c {
-                0 => print!("."),
-                x => print!("{}", x),
-            }
-        }
+    // for row in &field {
+    //     for c in row {
+    //         match c {
+    //             0 => print!("."),
+    //             x => print!("{}", x),
+    //         }
+    //     }
 
-        println!();
-    }
+    //     println!();
+    // }
 
     let count_of_2: usize = (&field)
         .iter()

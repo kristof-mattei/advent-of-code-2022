@@ -49,7 +49,7 @@ fn calculate_overlap_of_2(vent_lines: &[VentLine]) -> u32 {
         .max()
         .unwrap();
 
-    println!("x max: {}, y max: {}", x_max, y_max);
+    // println!("x max: {}, y max: {}", x_max, y_max);
 
     let mut field: Vec<Vec<u32>> = Vec::new();
 
@@ -69,16 +69,16 @@ fn calculate_overlap_of_2(vent_lines: &[VentLine]) -> u32 {
         }
     }
 
-    for row in &field {
-        for c in row {
-            match c {
-                0 => print!("."),
-                x => print!("{}", x),
-            }
-        }
+    // for row in &field {
+    //     for c in row {
+    //         match c {
+    //             0 => print!("."),
+    //             x => print!("{}", x),
+    //         }
+    //     }
 
-        println!();
-    }
+    //     println!();
+    // }
 
     let count_of_2: usize = (&field)
         .iter()
@@ -94,7 +94,7 @@ fn generate_coordinates_in_between(vent_line: &VentLine) -> Vec<(u32, u32)> {
     // let x_diff = cmp::max(vent_line.x1, vent_line.x2) - cmp::min(vent_line.x1, vent_line.x2);
     // let y_diff = cmp::max(vent_line.y1, vent_line.y2) - cmp::min(vent_line.y1, vent_line.y2);
 
-    println!("Vec: {:?}", vent_line);
+    // println!("Vec: {:?}", vent_line);
 
     let x_range: Vec<u32> = if vent_line.x1 <= vent_line.x2 {
         (vent_line.x1..=vent_line.x2).collect()
@@ -102,7 +102,7 @@ fn generate_coordinates_in_between(vent_line: &VentLine) -> Vec<(u32, u32)> {
         (vent_line.x2..=vent_line.x1).rev().collect()
     };
 
-    println!("x_range: {:?}", x_range);
+    // println!("x_range: {:?}", x_range);
 
     let y_range: Vec<u32> = if vent_line.y1 <= vent_line.y2 {
         (vent_line.y1..=vent_line.y2).collect()
@@ -110,7 +110,7 @@ fn generate_coordinates_in_between(vent_line: &VentLine) -> Vec<(u32, u32)> {
         (vent_line.y2..=vent_line.y1).rev().collect()
     };
 
-    println!("y_range: {:?}", y_range);
+    // println!("y_range: {:?}", y_range);
 
     // diagonal
     if x_range.len() == y_range.len() {
