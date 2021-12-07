@@ -20,7 +20,8 @@ fn parse_lines(lines: &[String]) -> HashMap<u8, u64> {
 }
 
 fn age_fishes(fishes: &mut HashMap<u8, u64>) {
-    let fishes_to_be_reset = *fishes.get(&0).unwrap_or(&0);
+    // fishes age 0 will be reset to age 6, and will spawn new fishes aged 8
+    let fishes_which_will_spawn_new_fishes = *fishes.get(&0).unwrap_or(&0);
 
     for i in 1..=8 {
         let current = *fishes.get(&i).unwrap_or(&0);
@@ -29,13 +30,11 @@ fn age_fishes(fishes: &mut HashMap<u8, u64>) {
     }
 
     // all fishes reset create 1 offspring
-    fishes.insert(8, fishes_to_be_reset);
+    fishes.insert(8, fishes_which_will_spawn_new_fishes);
 
-    if let Some(x) = fishes.get_mut(&6) {
-        *x += fishes_to_be_reset;
-    } else {
-        fishes.insert(6, fishes_to_be_reset);
-    }
+    // and add the ones at age 0 back to the pool, but they start back at 6
+    let entry_6 = fishes.entry(6).or_default();
+    *entry_6 += fishes_which_will_spawn_new_fishes;
 }
 
 pub fn find_solution() -> u64 {
