@@ -2,16 +2,16 @@ use std::collections::HashMap;
 
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines(lines: &[String]) -> Vec<u32> {
+fn parse_lines(lines: &[String]) -> Vec<u8> {
     let fishes_nearby = lines[0]
         .split(',')
-        .map(|f| f.parse::<u32>().unwrap())
+        .map(|f| f.parse::<u8>().unwrap())
         .collect();
 
     fishes_nearby
 }
 
-fn age_fishes(fishes: &mut Vec<u32>) {
+fn age_fishes(fishes: &mut Vec<u8>) {
     let mut new_fishes_to_append: usize = 0;
 
     for fish in fishes.iter_mut() {
@@ -26,18 +26,13 @@ fn age_fishes(fishes: &mut Vec<u32>) {
     fishes.resize(fishes.len() + new_fishes_to_append, 8);
 }
 
-fn parse_lines_fast(lines: &[String]) -> HashMap<u8, u64> {
-    let fishes_nearby: Vec<u8> = lines[0]
-        .split(',')
-        .map(|f| f.parse::<u8>().unwrap())
-        .collect();
-
+fn speed_up_fishes(fishes_nearby: &[u8]) -> HashMap<u8, u64> {
     let mut fish_counts: HashMap<u8, u64> = HashMap::new();
 
     for fish in fishes_nearby {
-        let fish_count = *fish_counts.get(&fish).unwrap_or(&0);
+        let fish_count = *fish_counts.get(fish).unwrap_or(&0);
 
-        fish_counts.insert(fish, fish_count + 1);
+        fish_counts.insert(*fish, fish_count + 1);
     }
 
     fish_counts
@@ -78,12 +73,14 @@ impl Day for Solution {
     fn part_2(&self) -> PartSolution {
         let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
-        let mut fishes = parse_lines_fast(&lines);
+        let fishes = parse_lines(&lines);
+
+        let mut fast_fishes = speed_up_fishes(&fishes);
         for _ in 1..=256 {
-            age_fishes_fast(&mut fishes);
+            age_fishes_fast(&mut fast_fishes);
         }
 
-        PartSolution::U64(fishes.iter().map(|(_, v)| v).sum::<u64>())
+        PartSolution::U64(fast_fishes.iter().map(|(_, v)| v).sum::<u64>())
     }
 }
 
@@ -111,7 +108,7 @@ mod test {
         fn example() {
             let lines: Vec<String> = get_example();
 
-            let mut fishes: Vec<u32> = parse_lines(&lines);
+            let mut fishes: Vec<u8> = parse_lines(&lines);
 
             for _ in 0..18 {
                 age_fishes(&mut fishes);
@@ -125,7 +122,7 @@ mod test {
         fn example_2() {
             let lines: Vec<String> = get_example();
 
-            let mut fishes: Vec<u32> = parse_lines(&lines);
+            let mut fishes: Vec<u8> = parse_lines(&lines);
 
             for _ in 0..80 {
                 age_fishes(&mut fishes);
@@ -137,7 +134,7 @@ mod test {
 
     mod part_2 {
         use crate::{
-            day_6::{age_fishes_fast, parse_lines_fast, test::get_example, Solution},
+            day_6::{age_fishes_fast, parse_lines, speed_up_fishes, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -150,39 +147,48 @@ mod test {
         fn example() {
             let lines: Vec<String> = get_example();
 
-            let mut fishes = parse_lines_fast(&lines);
+            let fishes = parse_lines(&lines);
+
+            let mut fast_fishes = speed_up_fishes(&fishes);
 
             for _ in 1..=18 {
-                age_fishes_fast(&mut fishes);
+                age_fishes_fast(&mut fast_fishes);
             }
 
-            assert_eq!(26, fishes.iter().map(|(_, v)| v).sum::<u64>());
+            assert_eq!(26, fast_fishes.iter().map(|(_, v)| v).sum::<u64>());
         }
 
         #[test]
         fn example_2() {
             let lines: Vec<String> = get_example();
 
-            let mut fishes = parse_lines_fast(&lines);
+            let fishes = parse_lines(&lines);
+
+            let mut fast_fishes = speed_up_fishes(&fishes);
 
             for _ in 1..=80 {
-                age_fishes_fast(&mut fishes);
+                age_fishes_fast(&mut fast_fishes);
             }
 
-            assert_eq!(5934, fishes.iter().map(|(_, v)| v).sum::<u64>());
+            assert_eq!(5934, fast_fishes.iter().map(|(_, v)| v).sum::<u64>());
         }
 
         #[test]
         fn example_3() {
             let lines: Vec<String> = get_example();
 
-            let mut fishes = parse_lines_fast(&lines);
+            let fishes = parse_lines(&lines);
+
+            let mut fast_fishes = speed_up_fishes(&fishes);
 
             for _ in 1..=256 {
-                age_fishes_fast(&mut fishes);
+                age_fishes_fast(&mut fast_fishes);
             }
 
-            assert_eq!(26_984_457_539, fishes.iter().map(|(_, v)| v).sum::<u64>());
+            assert_eq!(
+                26_984_457_539,
+                fast_fishes.iter().map(|(_, v)| v).sum::<u64>()
+            );
         }
     }
 }
