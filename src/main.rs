@@ -7,6 +7,8 @@
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::let_and_return)]
 
+use shared::Day;
+
 mod shared;
 mod utils;
 
@@ -24,47 +26,30 @@ fn print_answer(day: u32, part: u32, result: &str) {
 }
 
 fn main() {
-    let solutions = vec![
-        (
-            day_1::part_1::find_solution().to_string(),
-            day_1::part_2::find_solution().to_string(),
-        ),
-        (
-            day_2::part_1::find_solution().to_string(),
-            day_2::part_2::find_solution().to_string(),
-        ),
-        (
-            day_3::part_1::find_solution().to_string(),
-            day_3::part_2::find_solution().to_string(),
-        ),
-        (
-            day_4::part_1::find_solution().to_string(),
-            day_4::part_2::find_solution().to_string(),
-        ),
-        (
-            day_5::part_1::find_solution().to_string(),
-            day_5::part_2::find_solution().to_string(),
-        ),
-        (
-            day_6::part_1::find_solution().to_string(),
-            day_6::part_2::find_solution().to_string(),
-        ),
-        (
-            day_7::part_1::find_solution().to_string(),
-            day_7::part_2::find_solution().to_string(),
-        ),
-        (
-            day_8::part_1::find_solution().to_string(),
-            day_8::part_2::find_solution().to_string(),
-        ),
-    ];
-
     let mut day: u32 = 1;
 
-    for (day_solution_part_1, day_solution_part_2) in solutions {
-        print_answer(day, 1, &day_solution_part_1);
-        print_answer(day, 2, &day_solution_part_2);
+    let solutions_2: Vec<Box<dyn Day>> = vec![
+        Box::new(day_1::Solution {}),
+        Box::new(day_2::Solution {}),
+        Box::new(day_3::Solution {}),
+        Box::new(day_4::Solution {}),
+        Box::new(day_5::Solution {}),
+        Box::new(day_6::Solution {}),
+        Box::new(day_7::Solution {}),
+        Box::new(day_8::Solution {}),
+    ];
+
+    for solution in solutions_2 {
+        print_answer(day, 1, &solution.part_1().to_string());
+        print_answer(day, 2, &solution.part_2().to_string());
 
         day += 1;
     }
+
+    // for (day_solution_part_1, day_solution_part_2) in solutions {
+    //     print_answer(day, 1, &day_solution_part_1);
+    //     print_answer(day, 2, &day_solution_part_2);
+
+    //     day += 1;
+    // }
 }
