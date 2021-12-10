@@ -180,7 +180,7 @@ mod test {
         }
 
         #[test]
-        fn playground() {
+        fn example() {
             let lines: Vec<String> = get_example();
 
             let vent_lines: Vec<VentLine> = parse_lines(&lines, false);

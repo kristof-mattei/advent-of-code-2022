@@ -120,7 +120,7 @@ mod test {
         }
 
         #[test]
-        fn playground() {
+        fn example() {
             let lines = get_example();
 
             let crabs: Vec<u32> = parse_lines(&lines);
