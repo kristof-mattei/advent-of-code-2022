@@ -2,17 +2,26 @@ use std::{collections::HashSet, ops::Sub};
 
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines(input: &[String]) -> Vec<Vec<LetterCombination>> {
+fn parse_into_lettercombinations(line: &str) -> Vec<LetterCombination> {
+    line.split(' ')
+        .filter(|x| *x != "|")
+        .map(|f| HashSet::from_iter(f.trim().chars().collect::<LetterCombination>()))
+        .collect()
+}
+
+fn parse_lines(input: &[String]) -> Vec<(Vec<LetterCombination>, Vec<LetterCombination>)> {
     let mut into_pieces = Vec::new();
 
     for line in input {
-        let pieces = line
-            .split(' ')
-            .filter(|x| *x != "|")
-            .map(|f| HashSet::from_iter(f.trim().chars().collect::<LetterCombination>()))
-            .collect();
+        let split: Vec<&str> = line.split('|').collect();
 
-        into_pieces.push(pieces);
+        assert_eq!(split.len(), 2);
+
+        let left = parse_into_lettercombinations(split.get(0).unwrap().trim());
+
+        let right = parse_into_lettercombinations(split.get(1).unwrap().trim());
+
+        into_pieces.push((left, right));
     }
 
     into_pieces
@@ -20,12 +29,12 @@ fn parse_lines(input: &[String]) -> Vec<Vec<LetterCombination>> {
 
 type LetterCombination = HashSet<char>;
 
-fn count_digits_1_4_7_8(input: &[Vec<LetterCombination>]) -> usize {
+fn count_digits_1_4_7_8(lines: &[(Vec<LetterCombination>, Vec<LetterCombination>)]) -> usize {
     let mut digits = Vec::new();
 
-    for vecs in input {
-        for unparsed_number in vecs {
-            let number: Option<u32> = match unparsed_number.len() {
+    for (_, right) in lines {
+        for letter in right {
+            let number: Option<u32> = match letter.len() {
                 2 => Some(1),
                 3 => Some(7),
                 4 => Some(4),
@@ -43,17 +52,19 @@ fn count_digits_1_4_7_8(input: &[Vec<LetterCombination>]) -> usize {
 }
 
 fn single_piece(input: &HashSet<char>) -> char {
+    assert_eq!(input.len(), 1);
+
     *input.iter().next().unwrap()
 }
 
-fn calculate_signal_patterns(x: &[LetterCombination]) -> u32 {
-    let input: Vec<&LetterCombination> = x.iter().take(10).collect();
+fn calculate_signal_patterns(encoded_line: &(Vec<HashSet<char>>, Vec<HashSet<char>>)) -> u32 {
+    let (encoded_key, encoded_solution) = encoded_line;
 
     // these are fixed by length
-    let one: &LetterCombination = input.iter().find(|x| x.len() == 2).unwrap();
-    let seven: &LetterCombination = input.iter().find(|x| x.len() == 3).unwrap();
-    let four: &LetterCombination = input.iter().find(|x| x.len() == 4).unwrap();
-    let eight: &LetterCombination = input.iter().find(|x| x.len() == 7).unwrap();
+    let one: &LetterCombination = encoded_key.iter().find(|x| x.len() == 2).unwrap();
+    let seven: &LetterCombination = encoded_key.iter().find(|x| x.len() == 3).unwrap();
+    let four: &LetterCombination = encoded_key.iter().find(|x| x.len() == 4).unwrap();
+    let eight: &LetterCombination = encoded_key.iter().find(|x| x.len() == 7).unwrap();
 
     assert_eq!(one.len(), 2);
     assert_eq!(seven.len(), 3);
@@ -62,7 +73,7 @@ fn calculate_signal_patterns(x: &[LetterCombination]) -> u32 {
 
     // these are all a length of six
     let zero_six_nine: Vec<&LetterCombination> =
-        input.iter().filter(|x| x.len() == 6).copied().collect();
+        encoded_key.iter().filter(|x| x.len() == 6).collect();
 
     assert_eq!(zero_six_nine.len(), 3);
 
@@ -92,7 +103,7 @@ fn calculate_signal_patterns(x: &[LetterCombination]) -> u32 {
     assert_eq!(six_nine.len(), 2);
 
     // zero is what is in zero_six_nine after we remove six and nine
-    let zero: &LetterCombination = zero_six_nine
+    let zero: &LetterCombination = *zero_six_nine
         .iter()
         .find(|x| !six_nine.contains(x))
         .unwrap();
@@ -162,8 +173,8 @@ fn calculate_signal_patterns(x: &[LetterCombination]) -> u32 {
     let right_bottom_part = single_piece(&right_bottom);
     let bottom_part = single_piece(&bottom);
 
-    println!(
-        "     {}{}{}{}\n{}    {}\n{}    {}\n{}{}{}{}\n{}    {}\n{}    {}\n{}{}{}{}",
+    print!(
+        " {}{}{}{}\n{}    {}\n{}    {}\n {}{}{}{}\n{}    {}\n{}    {}\n {}{}{}{}",
         top_part,
         top_part,
         top_part,
@@ -185,6 +196,8 @@ fn calculate_signal_patterns(x: &[LetterCombination]) -> u32 {
         bottom_part,
         bottom_part
     );
+
+    println!("   {:?} | {:?}", encoded_key, encoded_solution);
 
     let two: HashSet<char> = HashSet::from_iter(vec![
         top_part,
@@ -210,23 +223,26 @@ fn calculate_signal_patterns(x: &[LetterCombination]) -> u32 {
         bottom_part,
     ]);
 
-    let key = vec![
+    let decoded_key: Vec<&HashSet<char>> = vec![
         zero, one, &two, &three, four, &five, six, seven, eight, nine,
     ];
 
-    let encoded_solution: Vec<&LetterCombination> = x.iter().skip(10).collect();
+    let enso: Vec<&LetterCombination> = encoded_solution.iter().collect();
 
-    decode_solution(&key, &encoded_solution)
+    decode_solution(&decoded_key, &enso)
 }
 
-fn decode_solution(key: &[&LetterCombination], numbers: &[&LetterCombination]) -> u32 {
+fn decode_solution(key: &[&LetterCombination], encoded_solution: &[&LetterCombination]) -> u32 {
     let mut result = 0;
 
     // to calculate the power
-    let length = numbers.len() - 1;
+    let length = encoded_solution.len() - 1;
 
-    for (index, n) in numbers.iter().enumerate() {
-        let decoded = key.iter().position(|x| x == n).unwrap();
+    for (index, n) in encoded_solution.iter().enumerate() {
+        let decoded = match key.iter().position(|x| x == n) {
+            Some(t) => t,
+            None => panic!(),
+        };
 
         // now based on the index we need to add it to result
         // letter at index zero is actually the higest
@@ -244,17 +260,7 @@ impl Day for Solution {
 
         let split = parse_lines(&lines);
 
-        let last_4: Vec<Vec<LetterCombination>> = split
-            .iter()
-            .map(|l| {
-                l.iter()
-                    .skip(l.len() - 4)
-                    .map(|x: &LetterCombination| x.iter().copied().collect())
-                    .collect()
-            })
-            .collect();
-
-        PartSolution::USize(count_digits_1_4_7_8(&last_4))
+        PartSolution::USize(count_digits_1_4_7_8(&split))
     }
 
     fn part_2(&self) -> PartSolution {
