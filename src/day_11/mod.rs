@@ -2,18 +2,8 @@ use std::{cell::Cell, collections::HashSet};
 
 use crate::shared::{Day, PartSolution};
 
-#[derive(Default)]
-struct Octopus {
-    energy: Cell<u8>,
-}
-
-impl Octopus {
-    fn new(energy: u8) -> Octopus {
-        Octopus {
-            energy: Cell::new(energy),
-        }
-    }
-}
+type Octopus = Cell<u8>;
+type Coordinates = (usize, usize);
 
 fn parse_lines(lines: &[String]) -> Vec<Vec<Octopus>> {
     let mut field = Vec::new();
@@ -22,7 +12,7 @@ fn parse_lines(lines: &[String]) -> Vec<Vec<Octopus>> {
         field.push(
             line.chars()
                 .map(|x| x.to_digit(10).unwrap() as u8)
-                .map(|x| Octopus::new(x))
+                .map(Cell::new)
                 .collect(),
         );
     }
@@ -30,170 +20,121 @@ fn parse_lines(lines: &[String]) -> Vec<Vec<Octopus>> {
     field
 }
 
-// type Coordinates = (usize, usize);
+fn get_neighbors<T>(
+    octopus_field: &[Vec<T>],
+    row_index: usize,
+    column_index: usize,
+) -> HashSet<Coordinates> {
+    let mut neighbors = HashSet::new();
 
-// fn get_neighbors<T>(
-//     heatmap: &[Vec<T>],
-//     row_index: usize,
-//     column_index: usize,
-// ) -> HashSet<Coordinates> {
-//     let mut coordinates = HashSet::new();
+    let rows = octopus_field.len();
+    let columns = octopus_field.get(0).map(Vec::len).unwrap_or_default();
 
-//     if column_index != 0 {
-//         coordinates.insert((column_index - 1, row_index));
-//     }
+    // clockwise:
+    // left up
+    // up
+    // right up
+    // right
+    // right down
+    // bottom
+    // left down
+    // left
 
-//     if column_index + 1 < heatmap[row_index].len() {
-//         coordinates.insert((column_index + 1, row_index));
-//     }
+    let can_go_left = column_index > 0;
+    let can_go_up = row_index > 0;
 
-//     if row_index != 0 {
-//         coordinates.insert((column_index, row_index - 1));
-//     }
+    let can_go_right = column_index + 1 < columns;
+    let can_go_down = row_index + 1 < rows;
 
-//     if row_index + 1 < heatmap.len() {
-//         coordinates.insert((column_index, row_index + 1));
-//     }
+    // left up
+    if can_go_left && can_go_up {
+        neighbors.insert((row_index - 1, column_index - 1));
+    }
 
-//     coordinates
-// }
+    // up
+    if can_go_up {
+        neighbors.insert((row_index - 1, column_index));
+    }
 
-// fn visit_neighbors_that_are_not_nine(
-//     heatmap: &[Vec<u32>],
-//     row_index: usize,
-//     column_index: usize,
-//     mut visited_neighbors: HashSet<Coordinates>,
-// ) -> HashSet<Coordinates> {
-//     let neighbors = get_neighbors(heatmap, row_index, column_index);
+    // right up
+    if can_go_up && can_go_right {
+        neighbors.insert((row_index - 1, column_index + 1));
+    }
 
-//     for (x, y) in neighbors {
-//         if heatmap[y][x] != 9 && !visited_neighbors.contains(&(x, y)) {
-//             // let mut clone = visited_neighbors.clone();
-//             visited_neighbors.insert((x, y));
+    // right
+    if can_go_right {
+        neighbors.insert((row_index, column_index + 1));
+    }
 
-//             visited_neighbors = visit_neighbors_that_are_not_nine(heatmap, y, x, visited_neighbors);
-//         }
-//     }
+    // right down
+    if can_go_down && can_go_right {
+        neighbors.insert((row_index + 1, column_index + 1));
+    }
 
-//     visited_neighbors
-// }
+    // down
+    if can_go_down {
+        neighbors.insert((row_index + 1, column_index));
+    }
 
-// fn get_basins(heatmap: &[Vec<u32>], low_points: &[(usize, usize)]) -> Vec<Vec<u32>> {
-//     let mut basins: Vec<Vec<u32>> = Vec::new();
+    // left down
+    if can_go_down && can_go_left {
+        neighbors.insert((row_index + 1, column_index - 1));
+    }
 
-//     for (column_index, row_index) in low_points {
-//         let basin_coordinates = visit_neighbors_that_are_not_nine(
-//             heatmap,
-//             *row_index,
-//             *column_index,
-//             HashSet::<Coordinates>::new(),
-//         );
+    // left
+    if can_go_left {
+        neighbors.insert((row_index, column_index - 1));
+    }
 
-//         let basin_values = basin_coordinates
-//             .iter()
-//             .map(|(x, y)| heatmap[*y][*x])
-//             .collect();
+    neighbors
+}
 
-//         println!("We started with low point {} at x: {}, y: {} and got a set of neighbors with values {:?}", heatmap[*row_index][*column_index], column_index, row_index,  basin_values);
+fn process_flash(octopus_field: &[Vec<Octopus>], row_index: usize, column_index: usize) -> u32 {
+    let mut flashed = 0;
+    let octopus = &octopus_field[row_index][column_index];
 
-//         basins.push(basin_values);
-//     }
+    if octopus.get() > 9 {
+        octopus.set(0);
 
-//     println!("Basins 1: {:?}", basins);
+        let neighbors = get_neighbors(octopus_field, row_index, column_index);
 
-//     basins
-// }
+        for (neightbor_row_index, neighbor_column_index) in neighbors {
+            let neighbor_octopus = &octopus_field[neightbor_row_index][neighbor_column_index];
 
-// fn visit_neighbors_that_are_not_nine_2(
-//     heatmap: &[Vec<Octopus>],
-//     row_index: usize,
-//     column_index: usize,
-// ) {
-//     let neighbors = get_neighbors(heatmap, row_index, column_index);
+            let new_neighbor_energy = match neighbor_octopus.get() {
+                0 => 0, // once flashed, we don't flash until next round
+                x => x + 1,
+            };
 
-//     for (x, y) in neighbors {
-//         if heatmap[y][x].value != 9 && !heatmap[y][x].visisted.get() {
-//             // let mut clone = visited_neighbors.clone();
-//             heatmap[y][x].visisted.set(true);
+            neighbor_octopus.set(new_neighbor_energy);
 
-//             visit_neighbors_that_are_not_nine_2(heatmap, y, x);
-//         }
-//     }
-// }
+            flashed += process_flash(octopus_field, neightbor_row_index, neighbor_column_index);
+        }
 
-// fn heatmap_u32_heatmap_cell(heatmap: &[Vec<u32>]) -> Vec<Vec<HeatMapCell>> {
-//     let mut new_heatmap = Vec::new();
+        flashed += 1;
+    }
 
-//     for line in heatmap {
-//         new_heatmap.push(
-//             line.iter()
-//                 .map(|value| HeatMapCell {
-//                     value: *value,
-//                     ..HeatMapCell::default()
-//                 })
-//                 .collect(),
-//         );
-//     }
-
-//     new_heatmap
-// }
-
-// fn get_visisted_values(visisted_heatmap: &[Vec<HeatMapCell>]) -> Vec<u32> {
-//     let mut visited_values = Vec::new();
-
-//     for line in visisted_heatmap {
-//         for cell in line {
-//             if cell.visisted.get() {
-//                 visited_values.push(cell.value);
-//             }
-//         }
-//     }
-
-//     visited_values
-// }
-
-// fn get_basins_2(heatmap: &[Vec<u32>], low_points: &[(usize, usize)]) -> Vec<Vec<u32>> {
-//     let mut basins: Vec<Vec<u32>> = Vec::new();
-
-//     for (column_index, row_index) in low_points {
-//         let visitable_heatmap = heatmap_u32_heatmap_cell(heatmap);
-
-//         visit_neighbors_that_are_not_nine_2(&visitable_heatmap, *row_index, *column_index);
-
-//         let basin_values = get_visisted_values(&visitable_heatmap);
-
-//         println!("We started with low point {} at x: {}, y: {} and got a set of neighbors with values {:?}", heatmap[*row_index][*column_index], column_index, row_index,  basin_values);
-
-//         basins.push(basin_values);
-//     }
-
-//     println!("Basins 2: {:?}", basins);
-
-//     basins
-// }
-
-// fn calculate_basin_scores(basins: &[Vec<u32>]) -> Vec<usize> {
-//     let mut basin_values_added: Vec<usize> = basins.iter().map(Vec::len).collect();
-
-//     basin_values_added.sort_by(|a, b| b.cmp(a)); // largest to smallest
-
-//     basin_values_added
-// }
-
-fn blow_above_nine(octopus_field: &[Vec<Octopus>]) -> u32 {
-    0
+    flashed
 }
 
 fn step(octopus_field: &[Vec<Octopus>]) -> u32 {
     for row in octopus_field {
         for octopus in row {
-            let val = octopus.energy.get();
+            let val = octopus.get();
 
-            octopus.energy.set(val + 1);
+            octopus.set(val + 1);
         }
     }
 
-    blow_above_nine(octopus_field)
+    let mut flashed: u32 = 0;
+
+    for row_index in 0..octopus_field.len() {
+        for column_index in 0..octopus_field[row_index].len() {
+            flashed += process_flash(octopus_field, row_index, column_index);
+        }
+    }
+
+    flashed
 }
 
 pub struct Solution {}
@@ -202,25 +143,33 @@ impl Day for Solution {
     fn part_1(&self) -> PartSolution {
         let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
-        // let heatmap = parse_lines(&lines);
+        let octopus_field = parse_lines(&lines);
 
-        // let low_points = get_low_points(&heatmap);
+        let mut flashes = 0;
 
-        // let basins = get_basins(&heatmap, &low_points);
-        // let basin_scores = calculate_basin_scores(&basins);
+        for _ in 0..100 {
+            flashes += step(&octopus_field);
+        }
 
-        // let basins_2 = get_basins_2(&heatmap, &low_points);
-        // let basin_scores_2 = calculate_basin_scores(&basins_2);
-
-        // assert_eq!(basin_scores, basin_scores_2);
-
-        // PartSolution::USize(basin_scores.iter().take(3).product::<usize>())
-
-        PartSolution::None
+        PartSolution::U32(flashes)
     }
 
     fn part_2(&self) -> PartSolution {
-        PartSolution::USize(0)
+        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+
+        let octopus_field = parse_lines(&lines);
+        let field_size =
+            octopus_field.len() * octopus_field.get(0).map(Vec::len).unwrap_or_default();
+
+        let mut steps: u32 = 0;
+        loop {
+            let flashes = step(&octopus_field);
+
+            steps += 1;
+            if flashes == field_size as u32 {
+                return PartSolution::U32(steps);
+            }
+        }
     }
 }
 
@@ -253,7 +202,7 @@ mod test {
                 lines.push(
                     octopus_line
                         .iter()
-                        .map(|x| x.energy.get().to_string())
+                        .map(|x| x.get().to_string())
                         .collect::<Vec<_>>()
                         .join(""),
                 );
@@ -264,7 +213,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_2(), PartSolution::USize(827_904));
+            assert_eq!((Solution {}).part_1(), PartSolution::U32(1_755));
         }
 
         #[test]
@@ -272,12 +221,19 @@ mod test {
             let lines = get_example();
 
             let octopus_field = parse_lines(&lines);
+
+            let mut flashes = 0;
+
+            for _ in 0..100 {
+                flashes += step(&octopus_field);
+            }
+
+            assert_eq!(1656, flashes);
         }
 
         #[test]
         fn example_step_by_step() {
-            let lines: Vec<String> =
-                to_vec_string(&vec!["11111", "19991", "19191", "19991", "11111"]);
+            let lines: Vec<String> = to_vec_string(&["11111", "19991", "19191", "19991", "11111"]);
 
             let octopus_field = parse_lines(&lines);
 
@@ -294,6 +250,42 @@ mod test {
                 vec!["45654", "51115", "61116", "51115", "45654",],
                 back_to_vec_string(&octopus_field)
             );
+        }
+    }
+
+    mod part_2 {
+
+        use crate::{
+            day_11::{parse_lines, step, Solution},
+            shared::{Day, PartSolution},
+        };
+
+        use super::get_example;
+
+        #[test]
+        fn outcome() {
+            assert_eq!((Solution {}).part_2(), PartSolution::U32(212));
+        }
+
+        #[test]
+        fn example() {
+            let lines = get_example();
+
+            let octopus_field = parse_lines(&lines);
+
+            let field_size =
+                octopus_field.len() * octopus_field.get(0).map(Vec::len).unwrap_or_default();
+
+            let mut steps: u32 = 0;
+            loop {
+                let flashes = step(&octopus_field);
+
+                steps += 1;
+                if flashes == field_size as u32 {
+                    assert_eq!(steps, 195);
+                    break;
+                }
+            }
         }
     }
 }

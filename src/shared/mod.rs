@@ -8,6 +8,7 @@ pub enum PartSolution {
     U32(u32),
     U64(u64),
     USize(usize),
+    #[allow(dead_code)]
     None,
 }
 
