@@ -13,7 +13,7 @@ enum Symbol {
 }
 
 impl Symbol {
-    fn is_open(&self) -> bool {
+    fn is_open(self) -> bool {
         match self {
             Symbol::OpenParentese
             | Symbol::OpenBracket
@@ -26,16 +26,16 @@ impl Symbol {
         }
     }
 
-    fn get_opposite(&self) -> Symbol {
+    fn get_opposite(self) -> Symbol {
         match self {
             Symbol::OpenParentese => Symbol::CloseParentese,
             Symbol::CloseParentese => Symbol::OpenParentese,
             Symbol::OpenBracket => Symbol::CloseBracket,
-            Symbol::CloseBracket => Symbol::CloseBracket,
+            Symbol::CloseBracket => Symbol::OpenBracket,
             Symbol::OpenBrace => Symbol::CloseBrace,
-            Symbol::CloseBrace => Symbol::CloseBrace,
+            Symbol::CloseBrace => Symbol::OpenBrace,
             Symbol::OpenChevron => Symbol::CloseChevron,
-            Symbol::CloseChevron => Symbol::CloseChevron,
+            Symbol::CloseChevron => Symbol::OpenChevron,
         }
     }
 }
@@ -91,10 +91,10 @@ fn calculate_completion(symbols: &[Symbol]) -> Vec<Symbol> {
 
     opens.reverse();
 
-    opens.iter().map(Symbol::get_opposite).collect()
+    opens.iter().map(|x| x.get_opposite()).collect()
 }
 
-fn get_closing_score(symbol: &Symbol) -> u64 {
+fn get_closing_score(symbol: Symbol) -> u64 {
     match symbol {
         Symbol::CloseParentese => 1,
         Symbol::CloseBracket => 2,
@@ -109,7 +109,7 @@ fn calculate_score(completion: &[Symbol]) -> u64 {
 
     for s in completion {
         score *= 5;
-        score += get_closing_score(s);
+        score += get_closing_score(*s);
     }
 
     score
@@ -142,12 +142,10 @@ impl Day for Solution {
 
         let mut scores: Vec<u64> = Vec::new();
 
-        for valid_line in into_symbols.iter().filter_map(|line_into_symbols| {
-            match find_first_illegal_character(line_into_symbols) {
-                Some(_) => None,
-                None => Some(line_into_symbols),
-            }
-        }) {
+        for valid_line in into_symbols
+            .iter()
+            .filter(|line_into_symbols| find_first_illegal_character(line_into_symbols).is_none())
+        {
             let completion: Vec<Symbol> = calculate_completion(valid_line);
 
             scores.push(calculate_score(&completion));
@@ -202,7 +200,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_1(), PartSolution::U32(392139));
+            assert_eq!((Solution {}).part_1(), PartSolution::U32(392_139));
         }
 
         #[test]
@@ -220,7 +218,7 @@ mod test {
                 };
             }
 
-            assert_eq!(26397, calculate_winnings(&first_illegal_characters))
+            assert_eq!(26397, calculate_winnings(&first_illegal_characters));
         }
     }
 
@@ -237,7 +235,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_2(), PartSolution::U64(4001832844));
+            assert_eq!((Solution {}).part_2(), PartSolution::U64(4_001_832_844));
         }
 
         #[test]
@@ -248,11 +246,8 @@ mod test {
 
             let mut scores: Vec<u64> = Vec::new();
 
-            for valid_line in into_symbols.iter().filter_map(|line_into_symbols| {
-                match find_first_illegal_character(&line_into_symbols) {
-                    Some(_) => None,
-                    None => Some(line_into_symbols),
-                }
+            for valid_line in into_symbols.iter().filter(|line_into_symbols| {
+                find_first_illegal_character(line_into_symbols).is_none()
             }) {
                 let completion: Vec<Symbol> = calculate_completion(valid_line);
 
@@ -261,7 +256,7 @@ mod test {
 
             scores.sort_unstable();
 
-            assert_eq!(288957, scores[scores.len() / 2]);
+            assert_eq!(288_957, scores[scores.len() / 2]);
         }
     }
 }
