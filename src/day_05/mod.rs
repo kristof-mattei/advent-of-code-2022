@@ -170,7 +170,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_5::{calculate_overlap_of_2, parse_lines, test::get_example, Solution, VentLine},
+            day_05::{calculate_overlap_of_2, parse_lines, test::get_example, Solution, VentLine},
             shared::{Day, PartSolution},
         };
 
@@ -193,7 +193,7 @@ mod test {
 
     mod part_2 {
         use crate::{
-            day_5::{calculate_overlap_of_2, parse_lines, test::get_example, Solution, VentLine},
+            day_05::{calculate_overlap_of_2, parse_lines, test::get_example, Solution, VentLine},
             shared::{Day, PartSolution},
         };
 

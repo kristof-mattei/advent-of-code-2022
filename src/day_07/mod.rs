@@ -110,7 +110,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_7::{find_minimum, parse_lines, test::get_example, Solution},
+            day_07::{find_minimum, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -133,7 +133,7 @@ mod test {
         use std::collections::HashMap;
 
         use crate::{
-            day_7::{
+            day_07::{
                 calculate_fuel_needed_2, find_minimum_2, parse_lines, test::get_example, Solution,
             },
             shared::{Day, PartSolution},

@@ -90,7 +90,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_2::{determine_direction, parse_lines, test::get_example, Solution},
+            day_02::{determine_direction, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -113,7 +113,7 @@ mod test {
     }
     mod part_2 {
         use crate::{
-            day_2::{determine_direction_2, parse_lines, test::get_example, Solution},
+            day_02::{determine_direction_2, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 

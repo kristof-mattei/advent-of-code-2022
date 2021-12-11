@@ -143,7 +143,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_3::{parse_diagnostic_report, parse_lines, test::get_example, Solution},
+            day_03::{parse_diagnostic_report, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -166,7 +166,7 @@ mod test {
     }
     mod part_2 {
         use crate::{
-            day_3::{parse_diagnostic_report_2, parse_lines, test::get_example, Solution},
+            day_03::{parse_diagnostic_report_2, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
         #[test]

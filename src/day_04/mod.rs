@@ -220,7 +220,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_4::{
+            day_04::{
                 calculate_winnings, parse_lines, test::get_example, Playfield, PlayfieldCell,
                 Solution,
             },
@@ -387,7 +387,7 @@ mod test {
 
     mod part_2 {
         use crate::{
-            day_4::{calculate_last_winning_board_2, parse_lines, test::get_example, Solution},
+            day_04::{calculate_last_winning_board_2, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 

@@ -12,14 +12,15 @@ use shared::Day;
 mod shared;
 mod utils;
 
-mod day_1;
-mod day_2;
-mod day_3;
-mod day_4;
-mod day_5;
-mod day_6;
-mod day_7;
-mod day_8;
+mod day_01;
+mod day_02;
+mod day_03;
+mod day_04;
+mod day_05;
+mod day_06;
+mod day_07;
+mod day_08;
+mod day_09;
 
 fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {}, part {} is ... {}", day, part, result);
@@ -29,14 +30,15 @@ fn main() {
     let mut day: u32 = 1;
 
     let solutions: Vec<Box<dyn Day>> = vec![
-        Box::new(day_1::Solution {}),
-        Box::new(day_2::Solution {}),
-        Box::new(day_3::Solution {}),
-        Box::new(day_4::Solution {}),
-        Box::new(day_5::Solution {}),
-        Box::new(day_6::Solution {}),
-        Box::new(day_7::Solution {}),
-        Box::new(day_8::Solution {}),
+        Box::new(day_01::Solution {}),
+        Box::new(day_02::Solution {}),
+        Box::new(day_03::Solution {}),
+        Box::new(day_04::Solution {}),
+        Box::new(day_05::Solution {}),
+        Box::new(day_06::Solution {}),
+        Box::new(day_07::Solution {}),
+        Box::new(day_08::Solution {}),
+        Box::new(day_09::Solution {}),
     ];
 
     for solution in solutions {

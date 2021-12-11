@@ -95,7 +95,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_6::{age_fishes, parse_lines, test::get_example, Solution},
+            day_06::{age_fishes, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -134,7 +134,7 @@ mod test {
 
     mod part_2 {
         use crate::{
-            day_6::{age_fishes_fast, parse_lines, speed_up_fishes, test::get_example, Solution},
+            day_06::{age_fishes_fast, parse_lines, speed_up_fishes, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 

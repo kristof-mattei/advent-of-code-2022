@@ -291,7 +291,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_8::{count_digits_1_4_7_8, parse_lines, test::get_example, Solution},
+            day_08::{count_digits_1_4_7_8, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -312,7 +312,7 @@ mod test {
 
     mod part_2 {
         use crate::{
-            day_8::{calculate_signal_patterns, parse_lines, test::get_example, Solution},
+            day_08::{calculate_signal_patterns, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
