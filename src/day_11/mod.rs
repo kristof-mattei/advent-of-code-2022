@@ -4,7 +4,15 @@ use crate::shared::{Day, PartSolution};
 
 #[derive(Default)]
 struct Octopus {
-    energy: u8,
+    energy: Cell<u8>,
+}
+
+impl Octopus {
+    fn new(energy: u8) -> Octopus {
+        Octopus {
+            energy: Cell::new(energy),
+        }
+    }
 }
 
 fn parse_lines(lines: &[String]) -> Vec<Vec<Octopus>> {
@@ -14,7 +22,7 @@ fn parse_lines(lines: &[String]) -> Vec<Vec<Octopus>> {
         field.push(
             line.chars()
                 .map(|x| x.to_digit(10).unwrap() as u8)
-                .map(|x| Octopus { energy: x })
+                .map(|x| Octopus::new(x))
                 .collect(),
         );
     }
@@ -172,8 +180,20 @@ fn parse_lines(lines: &[String]) -> Vec<Vec<Octopus>> {
 //     basin_values_added
 // }
 
-fn step(octopus_field: &[Vec<Octopus>]) -> u32 {
+fn blow_above_nine(octopus_field: &[Vec<Octopus>]) -> u32 {
     0
+}
+
+fn step(octopus_field: &[Vec<Octopus>]) -> u32 {
+    for row in octopus_field {
+        for octopus in row {
+            let val = octopus.energy.get();
+
+            octopus.energy.set(val + 1);
+        }
+    }
+
+    blow_above_nine(octopus_field)
 }
 
 pub struct Solution {}
@@ -233,7 +253,7 @@ mod test {
                 lines.push(
                     octopus_line
                         .iter()
-                        .map(|x| x.energy.to_string())
+                        .map(|x| x.energy.get().to_string())
                         .collect::<Vec<_>>()
                         .join(""),
                 );
