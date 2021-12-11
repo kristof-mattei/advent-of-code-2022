@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::{cell::Cell, collections::HashSet};
 
 use crate::shared::{Day, PartSolution};
 
@@ -56,8 +56,8 @@ fn get_low_points(heatmap: &[Vec<u32>]) -> Vec<(usize, usize)> {
 
 type Coordinates = (usize, usize);
 
-fn get_neighbors(
-    heatmap: &[Vec<u32>],
+fn get_neighbors<T>(
+    heatmap: &[Vec<T>],
     row_index: usize,
     column_index: usize,
 ) -> HashSet<Coordinates> {
@@ -92,15 +92,10 @@ fn visit_neighbors_that_are_not_nine(
 
     for (x, y) in neighbors {
         if heatmap[y][x] != 9 && !visited_neighbors.contains(&(x, y)) {
-            let mut clone = visited_neighbors.clone();
-            clone.insert((x, y));
+            // let mut clone = visited_neighbors.clone();
+            visited_neighbors.insert((x, y));
 
-            let visited_neighbors_that_are_not_nine =
-                visit_neighbors_that_are_not_nine(heatmap, y, x, clone);
-
-            for x in visited_neighbors_that_are_not_nine {
-                visited_neighbors.insert(x);
-            }
+            visited_neighbors = visit_neighbors_that_are_not_nine(heatmap, y, x, visited_neighbors);
         }
     }
 
@@ -128,7 +123,91 @@ fn get_basins(heatmap: &[Vec<u32>], low_points: &[(usize, usize)]) -> Vec<Vec<u3
         basins.push(basin_values);
     }
 
+    println!("Basins 1: {:?}", basins);
+
     basins
+}
+
+#[derive(Default)]
+struct HeatMapCell {
+    value: u32,
+    visisted: Cell<bool>,
+}
+
+fn visit_neighbors_that_are_not_nine_2(
+    heatmap: &[Vec<HeatMapCell>],
+    row_index: usize,
+    column_index: usize,
+) {
+    let neighbors = get_neighbors(heatmap, row_index, column_index);
+
+    for (x, y) in neighbors {
+        if heatmap[y][x].value != 9 && !heatmap[y][x].visisted.get() {
+            // let mut clone = visited_neighbors.clone();
+            heatmap[y][x].visisted.set(true);
+
+            visit_neighbors_that_are_not_nine_2(heatmap, y, x);
+        }
+    }
+}
+
+fn heatmap_u32_heatmap_cell(heatmap: &[Vec<u32>]) -> Vec<Vec<HeatMapCell>> {
+    let mut new_heatmap = Vec::new();
+
+    for line in heatmap {
+        new_heatmap.push(
+            line.iter()
+                .map(|value| HeatMapCell {
+                    value: *value,
+                    ..HeatMapCell::default()
+                })
+                .collect(),
+        );
+    }
+
+    new_heatmap
+}
+
+fn get_visisted_values(visisted_heatmap: &[Vec<HeatMapCell>]) -> Vec<u32> {
+    let mut visited_values = Vec::new();
+
+    for line in visisted_heatmap {
+        for cell in line {
+            if cell.visisted.get() {
+                visited_values.push(cell.value);
+            }
+        }
+    }
+
+    visited_values
+}
+
+fn get_basins_2(heatmap: &[Vec<u32>], low_points: &[(usize, usize)]) -> Vec<Vec<u32>> {
+    let mut basins: Vec<Vec<u32>> = Vec::new();
+
+    for (column_index, row_index) in low_points {
+        let visitable_heatmap = heatmap_u32_heatmap_cell(heatmap);
+
+        visit_neighbors_that_are_not_nine_2(&visitable_heatmap, *row_index, *column_index);
+
+        let basin_values = get_visisted_values(&visitable_heatmap);
+
+        println!("We started with low point {} at x: {}, y: {} and got a set of neighbors with values {:?}", heatmap[*row_index][*column_index], column_index, row_index,  basin_values);
+
+        basins.push(basin_values);
+    }
+
+    println!("Basins 2: {:?}", basins);
+
+    basins
+}
+
+fn calculate_basin_scores(basins: &[Vec<u32>]) -> Vec<usize> {
+    let mut basin_values_added: Vec<usize> = basins.iter().map(Vec::len).collect();
+
+    basin_values_added.sort_by(|a, b| b.cmp(a)); // largest to smallest
+
+    basin_values_added
 }
 
 pub struct Solution {}
@@ -152,12 +231,14 @@ impl Day for Solution {
         let low_points = get_low_points(&heatmap);
 
         let basins = get_basins(&heatmap, &low_points);
+        let basin_scores = calculate_basin_scores(&basins);
 
-        let mut basin_values_added: Vec<usize> = basins.iter().map(Vec::len).collect();
+        let basins_2 = get_basins_2(&heatmap, &low_points);
+        let basin_scores_2 = calculate_basin_scores(&basins_2);
 
-        basin_values_added.sort_by(|a, b| b.cmp(a)); // largest to smallest
+        assert_eq!(basin_scores, basin_scores_2);
 
-        PartSolution::USize(basin_values_added.iter().take(3).product::<usize>())
+        PartSolution::USize(basin_scores.iter().take(3).product::<usize>())
     }
 }
 
@@ -196,8 +277,12 @@ mod test {
     }
 
     mod part_2 {
+
         use crate::{
-            day_09::{get_basins, get_low_points, parse_lines, Solution},
+            day_09::{
+                calculate_basin_scores, get_basins, get_basins_2, get_low_points, parse_lines,
+                Solution,
+            },
             shared::{Day, PartSolution},
         };
 
@@ -217,12 +302,15 @@ mod test {
             let low_points = get_low_points(&heatmap);
 
             let basins = get_basins(&heatmap, &low_points);
+            let basin_scores = calculate_basin_scores(&basins);
 
-            let mut basin_values_added: Vec<usize> = basins.iter().map(Vec::len).collect();
+            let basins_2 = get_basins_2(&heatmap, &low_points);
+            let basin_scores_2 = calculate_basin_scores(&basins_2);
 
-            basin_values_added.sort_by(|a, b| b.cmp(a)); // largest to smallest
+            assert_eq!(basin_scores, basin_scores_2);
 
-            assert_eq!(1134, basin_values_added.iter().take(3).product::<usize>());
+            assert_eq!(1134, basin_scores.iter().take(3).product::<usize>());
+            assert_eq!(1134, basin_scores_2.iter().take(3).product::<usize>());
         }
     }
 }
