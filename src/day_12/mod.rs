@@ -1,5 +1,14 @@
 use crate::shared::{Day, PartSolution};
 
+struct CaveSystem {}
+
+fn build_cave_system(lines: &[String]) -> CaveSystem {
+    todo!()
+}
+
+fn calculate_all_paths(cave_system: &CaveSystem) -> u32 {
+    0
+}
 pub struct Solution {}
 
 impl Day for Solution {
@@ -28,7 +37,7 @@ mod test {
     mod part_1 {
 
         use crate::{
-            day_12::Solution,
+            day_12::{build_cave_system, calculate_all_paths, CaveSystem, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -43,7 +52,11 @@ mod test {
         fn example() {
             let lines = get_example();
 
-            assert!(!lines.is_empty());
+            let cave_system: CaveSystem = build_cave_system(&lines);
+
+            let paths: u32 = calculate_all_paths(&cave_system);
+
+            assert_eq!(paths, 10);
         }
     }
 
