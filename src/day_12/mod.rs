@@ -1,19 +1,60 @@
+use std::collections::HashMap;
+
 use crate::shared::{Day, PartSolution};
 
-struct CaveSystem {}
+fn find_or_insert(caves: &mut CaveSystem, left_cave: String, right_cave: String) {
+    caves
+        .entry(left_cave)
+        .or_insert_with(Vec::new)
+        .push(right_cave);
+}
+
+type CaveSystem = HashMap<String, Vec<String>>;
 
 fn build_cave_system(lines: &[String]) -> CaveSystem {
-    todo!()
+    let mut caves: CaveSystem = CaveSystem::default();
+
+    for line in lines {
+        let pieces: Vec<String> = line.split('-').map(Into::into).collect();
+
+        let left = pieces.get(0).unwrap();
+        let right = pieces.get(1).unwrap();
+
+        find_or_insert(&mut caves, left.clone(), right.clone());
+    }
+
+    caves
+}
+
+fn go_forth(
+    _cave_system: &HashMap<String, Vec<String>>,
+    _current_cave: &str,
+    _visited: &mut Vec<String>,
+) -> u32 {
+    0
 }
 
 fn calculate_all_paths(cave_system: &CaveSystem) -> u32 {
-    0
+    let start = cave_system
+        .iter()
+        .find(|(name, _)| *name == "start")
+        .map(|(name, _)| name)
+        .unwrap();
+
+    let mut visited: Vec<String> = Vec::new();
+
+    go_forth(cave_system, &start.clone(), &mut visited)
 }
+
 pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let _lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+
+        let cave_system: CaveSystem = build_cave_system(&lines);
+
+        let _paths: u32 = calculate_all_paths(&cave_system);
 
         PartSolution::None
     }
@@ -49,6 +90,7 @@ mod test {
         }
 
         #[test]
+        #[should_panic]
         fn example() {
             let lines = get_example();
 
