@@ -4,11 +4,11 @@
   "description": "It's written in Rust!",
   "main": "src/main.rs",
   "scripts": {
-    "prepare": "is-ci || husky install",
     "prettier": "prettier -w \"**/*.{yml,yaml}\""
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   },
   "repository": {
     "type": "git",
@@ -21,15 +21,9 @@
   },
   "homepage": "https://github.com/kristof-mattei/advent-of-code-2021#readme",
   "devDependencies": {
-    "@actions/tool-cache": "^1.7.1",
-    "@commitlint/cli": "^15.0.0",
-    "@commitlint/config-conventional": "^15.0.0",
-    "husky": "^7.0.4",
-    "is-ci": "^3.0.1",
     "prettier": "^2.5.1"
   },
   "publishConfig": {
     "access": "restricted"
-  },
-  "dependencies": {}
+  }
 }
