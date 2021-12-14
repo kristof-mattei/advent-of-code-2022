@@ -1,18 +1,75 @@
-use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
+use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use crate::shared::{Day, PartSolution};
 
-fn find_or_insert(caves: &mut CaveSystem, left_cave: String, right_cave: String) {
-    caves
-        .entry(left_cave)
-        .or_insert_with(Vec::new)
-        .push(right_cave);
+#[derive(Eq, Default)]
+struct Cave {
+    name: String,
+    targets: RefCell<Caves>,
 }
 
-type CaveSystem = HashMap<String, Vec<String>>;
+impl Cave {
+    fn is_end(&self) -> bool {
+        self.name == "end"
+    }
+}
 
-fn build_cave_system(lines: &[String]) -> CaveSystem {
-    let mut caves: CaveSystem = CaveSystem::default();
+impl PartialEq for Cave {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+impl Hash for Cave {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
+
+struct VisitableCave {
+    cave: Rc<Cave>,
+    visits: u32,
+}
+
+// impl VisitableCave {
+
+//     fn visit(&self) {
+
+//     }
+// }
+
+type Caves = HashSet<Rc<Cave>>;
+
+#[allow(clippy::mutable_key_type)]
+fn get_or_insert_cave(caves: &mut Caves, cave_name: String) -> Rc<Cave> {
+    let cave = Rc::new(Cave {
+        name: cave_name,
+        ..Cave::default()
+    });
+
+    if let Some(found_cave) = caves.get(&cave) {
+        found_cave.clone()
+    } else {
+        caves.insert(cave.clone());
+
+        cave
+    }
+}
+
+#[allow(clippy::mutable_key_type)]
+fn add_path(caves: &mut Caves, from: String, to: String) {
+    let from_cave = get_or_insert_cave(caves, from);
+    let to_cave = get_or_insert_cave(caves, to);
+
+    from_cave.targets.borrow_mut().insert(to_cave.clone());
+    to_cave.targets.borrow_mut().insert(from_cave);
+}
+
+#[allow(clippy::mutable_key_type)]
+fn build_cave_system(lines: &[String]) -> Caves {
+    #[allow(clippy::mutable_key_type)]
+    let mut caves: Caves = HashSet::default();
 
     for line in lines {
         let pieces: Vec<String> = line.split('-').map(Into::into).collect();
@@ -20,30 +77,47 @@ fn build_cave_system(lines: &[String]) -> CaveSystem {
         let left = pieces.get(0).unwrap();
         let right = pieces.get(1).unwrap();
 
-        find_or_insert(&mut caves, left.clone(), right.clone());
+        add_path(&mut caves, left.clone(), right.clone());
     }
 
     caves
 }
 
-fn go_forth(
-    _cave_system: &HashMap<String, Vec<String>>,
-    _current_cave: &str,
-    _visited: &mut Vec<String>,
-) -> u32 {
-    0
+fn navigate_caves(cave: &Rc<Cave>, mut visited: Vec<String>) -> Vec<Vec<String>> {
+    let mut solutions = Vec::new();
+    visited.push(cave.name.clone());
+
+    if cave.is_end() {
+        println!("The end, we visited {:?} to get here.", visited);
+
+        solutions.push(visited);
+    } else {
+        for target_cave in cave.targets.borrow().iter() {
+            if target_cave.name.to_lowercase() != *target_cave.name
+                || !visited.contains(&target_cave.name)
+            {
+                let visited_new: Vec<String> = visited.clone();
+
+                println!("Visiting {} -> {}", cave.name, target_cave.name);
+                for solution in navigate_caves(target_cave, visited_new) {
+                    solutions.push(solution);
+                }
+            }
+        }
+    }
+
+    solutions
 }
 
-fn calculate_all_paths(cave_system: &CaveSystem) -> u32 {
-    let start = cave_system
-        .iter()
-        .find(|(name, _)| *name == "start")
-        .map(|(name, _)| name)
-        .unwrap();
+#[allow(clippy::mutable_key_type)]
+fn calculate_all_paths(cave_system: &Caves) -> usize {
+    let start = cave_system.iter().find(|c| c.name == "start").unwrap();
 
-    let mut visited: Vec<String> = Vec::new();
+    let solutions = navigate_caves(start, Vec::new());
 
-    go_forth(cave_system, &start.clone(), &mut visited)
+    println!("{:?}", solutions);
+
+    solutions.len()
 }
 
 pub struct Solution {}
@@ -52,11 +126,12 @@ impl Day for Solution {
     fn part_1(&self) -> PartSolution {
         let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
-        let cave_system: CaveSystem = build_cave_system(&lines);
+        #[allow(clippy::mutable_key_type)]
+        let cave_system = build_cave_system(&lines);
 
-        let _paths: u32 = calculate_all_paths(&cave_system);
+        let paths: usize = calculate_all_paths(&cave_system);
 
-        PartSolution::None
+        PartSolution::USize(paths)
     }
 
     fn part_2(&self) -> PartSolution {
@@ -75,30 +150,70 @@ mod test {
             .collect()
     }
 
+    fn get_example_slightly_larger() -> Vec<String> {
+        include_str!("example_slightly_larger.txt")
+            .lines()
+            .map(Into::into)
+            .collect()
+    }
+
+    fn get_example_even_larger() -> Vec<String> {
+        include_str!("example_even_larger.txt")
+            .lines()
+            .map(Into::into)
+            .collect()
+    }
+
     mod part_1 {
 
         use crate::{
-            day_12::{build_cave_system, calculate_all_paths, CaveSystem, Solution},
+            day_12::{build_cave_system, calculate_all_paths, Solution},
             shared::{Day, PartSolution},
         };
 
         use super::get_example;
+        use super::get_example_even_larger;
+        use super::get_example_slightly_larger;
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_1(), PartSolution::None);
+            assert_eq!((Solution {}).part_1(), PartSolution::USize(4495));
         }
 
         #[test]
-        #[should_panic]
         fn example() {
             let lines = get_example();
 
-            let cave_system: CaveSystem = build_cave_system(&lines);
+            #[allow(clippy::mutable_key_type)]
+            let cave_system = build_cave_system(&lines);
 
-            let paths: u32 = calculate_all_paths(&cave_system);
+            let paths: usize = calculate_all_paths(&cave_system);
 
             assert_eq!(paths, 10);
+        }
+
+        #[test]
+        fn example_slightly_larger() {
+            let lines = get_example_slightly_larger();
+
+            #[allow(clippy::mutable_key_type)]
+            let cave_system = build_cave_system(&lines);
+
+            let paths: usize = calculate_all_paths(&cave_system);
+
+            assert_eq!(paths, 19);
+        }
+
+        #[test]
+        fn example_even_larger() {
+            let lines = get_example_even_larger();
+
+            #[allow(clippy::mutable_key_type)]
+            let cave_system = build_cave_system(&lines);
+
+            let paths: usize = calculate_all_paths(&cave_system);
+
+            assert_eq!(paths, 226);
         }
     }
 
