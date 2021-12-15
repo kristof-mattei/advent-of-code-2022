@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::Hash};
+use std::{collections::HashMap, hash::Hash, ops::AddAssign};
 
 use crate::shared::{Day, PartSolution};
 
@@ -31,7 +31,7 @@ struct Key {
     c1: char,
 }
 
-fn parse_lines_part_2(input: &[char]) -> HashMap<Key, u32> {
+fn parse_lines_part_2(input: &[char]) -> HashMap<Key, u64> {
     let mut map = HashMap::new();
 
     for cc in input.windows(2) {
@@ -65,35 +65,24 @@ fn parse_polymer(input: &[char], pair_insertion_rules: &HashMap<Key, char>) -> V
 }
 
 fn parse_polymer_part_2(
-    input: &HashMap<Key, u32>,
+    input: &HashMap<Key, u64>,
     pair_insertion_rules: &HashMap<Key, char>,
-) -> HashMap<Key, u32> {
-    let mut part_2 = HashMap::new();
+) -> HashMap<Key, u64> {
+    let mut new_counts = HashMap::new();
 
     for (key, value) in input.iter().filter(|(_, v)| **v > 0) {
         let c_new = pair_insertion_rules.get(key).unwrap();
 
-        // *value -= 1;
+        let chars_vec = key;
 
-        for _ in 0..*value {
-            let chars_vec = key;
+        let c0 = chars_vec.c0;
+        let c1 = chars_vec.c1;
 
-            let c0 = chars_vec.c0;
-            let c1 = chars_vec.c1;
-
-            part_2
-                .entry(Key { c0, c1: *c_new })
-                .and_modify(|c| *c += 1)
-                .or_insert(1);
-
-            part_2
-                .entry(Key { c0: *c_new, c1 })
-                .and_modify(|c| *c += 1)
-                .or_insert(1);
-        }
+        insert_or_add(&mut new_counts, Key { c0, c1: *c_new }, *value);
+        insert_or_add(&mut new_counts, Key { c0: *c_new, c1 }, *value);
     }
 
-    part_2
+    new_counts
 }
 
 fn count_min_and_max<T>(input: &[T]) -> (u64, u64)
@@ -102,40 +91,44 @@ where
 {
     let mut counts: HashMap<T, u64> = HashMap::new();
     for i in input {
-        let c = counts.entry(*i).or_insert(0);
-
-        *c += 1;
+        insert_or_add(&mut counts, *i, 1);
     }
 
+    count_min_and_max_part_2(&counts)
+}
+
+fn count_min_and_max_part_2<T, U: Ord + Copy>(hashmap: &HashMap<T, U>) -> (U, U) {
     (
-        counts.iter().map(|(_, v)| *v).min().unwrap(),
-        counts.iter().map(|(_, v)| *v).max().unwrap(),
+        hashmap.iter().map(|(_, v)| *v).min().unwrap(),
+        hashmap.iter().map(|(_, v)| *v).max().unwrap(),
     )
 }
 
-fn dump_string(polymer: &[char], polymer_groups_set: &HashMap<Key, u32>) -> Vec<char> {
+fn insert_or_add<T: Eq + Hash, U: AddAssign + Default>(
+    hashmap: &mut HashMap<T, U>,
+    key: T,
+    value: U,
+) {
+    let entry = hashmap.entry(key).or_default();
+
+    *entry += value;
+}
+
+fn count_chars(polymer: &[char], polymer_groups_set: &HashMap<Key, u64>) -> HashMap<char, u64> {
     let first_char = polymer[0];
     let last_char = polymer[polymer.len() - 1];
 
-    // // polymer_groups_set
-    // //     .entry((vec![first_char, last_char]).iter().collect::<String>())
-    // //     .and_modify(|c| *c += 1)
-    // //     .or_insert(1);
-
-    let mut min_max_string = Vec::new();
+    let mut counts = HashMap::new();
 
     for (key, value) in polymer_groups_set {
-        for _ in 0..*value {
-            min_max_string.push(key.c0);
-            min_max_string.push(key.c1);
-        }
+        insert_or_add(&mut counts, key.c0, *value);
+        insert_or_add(&mut counts, key.c1, *value);
     }
 
-    min_max_string.push(first_char);
-    min_max_string.push(last_char);
-    min_max_string.sort_unstable();
+    insert_or_add(&mut counts, first_char, 1);
+    insert_or_add(&mut counts, last_char, 1);
 
-    min_max_string
+    counts
 }
 
 pub struct Solution {}
@@ -169,9 +162,10 @@ impl Day for Solution {
             polymer_groups_set = parse_polymer_part_2(&polymer_groups_set, &pair_insertion_rules);
         }
 
-        let min_max_string = dump_string(&polymer, &polymer_groups_set);
+        let min_max_string = count_chars(&polymer, &polymer_groups_set);
 
-        let (min, max) = count_min_and_max(&min_max_string);
+        let (min, max) = count_min_and_max_part_2(&min_max_string);
+
         PartSolution::U64(max / 2 - min / 2)
     }
 }
@@ -226,7 +220,7 @@ mod test {
 
         use crate::{
             day_14::{
-                count_min_and_max, dump_string, parse_lines, parse_lines_part_2,
+                count_chars, count_min_and_max_part_2, parse_lines, parse_lines_part_2,
                 parse_polymer_part_2, test::get_example, Solution,
             },
             shared::{Day, PartSolution},
@@ -234,7 +228,10 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_2(), PartSolution::U64(2851));
+            assert_eq!(
+                (Solution {}).part_2(),
+                PartSolution::U64(10_002_813_279_337)
+            );
         }
 
         #[test]
@@ -245,26 +242,14 @@ mod test {
 
             let mut polymer_groups_set = parse_lines_part_2(&polymer);
 
-            for i in 1..=10 {
+            for _ in 1..=10 {
                 polymer_groups_set =
                     parse_polymer_part_2(&polymer_groups_set, &pair_insertion_rules);
-
-                let min_max_string = dump_string(&polymer, &polymer_groups_set);
-
-                let (min, max) = count_min_and_max(&min_max_string);
-
-                println!(
-                    "After {}: {}, min: {}, max: {}",
-                    i,
-                    min_max_string.iter().collect::<String>(),
-                    min,
-                    max
-                );
             }
 
-            let min_max_string = dump_string(&polymer, &polymer_groups_set);
+            let min_max_string = count_chars(&polymer, &polymer_groups_set);
 
-            let (min, max) = count_min_and_max(&min_max_string);
+            let (min, max) = count_min_and_max_part_2(&min_max_string);
 
             assert_eq!(min / 2, 161);
             assert_eq!(max / 2, 1749);

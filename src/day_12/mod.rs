@@ -97,10 +97,11 @@ where
             if can_revisit(&visited, target_cave) {
                 let visited_new = visited.clone();
 
-                // println!("Visiting {} -> {}", cave.name, target_cave.name);
-                for solution in navigate_caves(target_cave, can_revisit, visited_new) {
-                    solutions.push(solution);
-                }
+                println!("Visiting {} -> {}", cave.name, target_cave.name);
+
+                let mut new_solutions = navigate_caves(target_cave, can_revisit, visited_new);
+
+                solutions.append(&mut new_solutions);
             }
         }
     }
