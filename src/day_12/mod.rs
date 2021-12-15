@@ -1,9 +1,10 @@
+use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
 
 use crate::shared::{Day, PartSolution};
 
-#[derive(Eq, Default)]
+#[derive(Eq, Default, Debug)]
 struct Cave {
     name: String,
     targets: RefCell<Caves>,
@@ -12,6 +13,10 @@ struct Cave {
 impl Cave {
     fn is_end(&self) -> bool {
         self.name == "end"
+    }
+
+    fn is_small(&self) -> bool {
+        self.name.to_lowercase() == self.name
     }
 }
 
@@ -26,18 +31,6 @@ impl Hash for Cave {
         self.name.hash(state);
     }
 }
-
-struct VisitableCave {
-    cave: Rc<Cave>,
-    visits: u32,
-}
-
-// impl VisitableCave {
-
-//     fn visit(&self) {
-
-//     }
-// }
 
 type Caves = HashSet<Rc<Cave>>;
 
@@ -83,23 +76,29 @@ fn build_cave_system(lines: &[String]) -> Caves {
     caves
 }
 
-fn navigate_caves(cave: &Rc<Cave>, mut visited: Vec<String>) -> Vec<Vec<String>> {
+#[allow(clippy::mutable_key_type)]
+fn navigate_caves<F>(
+    cave: &Rc<Cave>,
+    can_revisit: &F,
+    mut visited: Vec<Rc<Cave>>,
+) -> Vec<Vec<Rc<Cave>>>
+where
+    F: Fn(&[Rc<Cave>], &Rc<Cave>) -> bool,
+{
     let mut solutions = Vec::new();
-    visited.push(cave.name.clone());
+
+    let vc = Rc::clone(cave);
+    visited.push(vc);
 
     if cave.is_end() {
-        println!("The end, we visited {:?} to get here.", visited);
-
         solutions.push(visited);
     } else {
         for target_cave in cave.targets.borrow().iter() {
-            if target_cave.name.to_lowercase() != *target_cave.name
-                || !visited.contains(&target_cave.name)
-            {
-                let visited_new: Vec<String> = visited.clone();
+            if can_revisit(&visited, target_cave) {
+                let visited_new = visited.clone();
 
-                println!("Visiting {} -> {}", cave.name, target_cave.name);
-                for solution in navigate_caves(target_cave, visited_new) {
+                // println!("Visiting {} -> {}", cave.name, target_cave.name);
+                for solution in navigate_caves(target_cave, can_revisit, visited_new) {
                     solutions.push(solution);
                 }
             }
@@ -110,14 +109,71 @@ fn navigate_caves(cave: &Rc<Cave>, mut visited: Vec<String>) -> Vec<Vec<String>>
 }
 
 #[allow(clippy::mutable_key_type)]
-fn calculate_all_paths(cave_system: &Caves) -> usize {
+fn calculate_all_paths<F>(cave_system: &Caves, can_revisit: F) -> usize
+where
+    F: Fn(&[Rc<Cave>], &Rc<Cave>) -> bool,
+{
     let start = cave_system.iter().find(|c| c.name == "start").unwrap();
 
-    let solutions = navigate_caves(start, Vec::new());
+    let solutions = navigate_caves(start, &can_revisit, Vec::new());
 
-    println!("{:?}", solutions);
+    println!("The end, we visited the following paths to get here.");
+
+    let mut debug_lines = solutions
+        .iter()
+        .map(|solution| {
+            solution
+                .iter()
+                .map(|x| x.name.clone())
+                .collect::<Vec<_>>()
+                .join(",")
+        })
+        .collect::<Vec<_>>();
+
+    debug_lines.sort();
+    for line in debug_lines {
+        println!("{}", line);
+    }
 
     solutions.len()
+}
+
+fn can_visit_part_1(visited_caves: &[Rc<Cave>], cave: &Rc<Cave>) -> bool {
+    if cave.is_small() {
+        !visited_caves.contains(cave)
+    } else {
+        true
+    }
+}
+
+#[allow(clippy::mutable_key_type)]
+fn can_visit_part_2(visited_caves: &[Rc<Cave>], cave: &Rc<Cave>) -> bool {
+    let cave_name = cave.name.clone();
+
+    if cave_name == "start" || cave_name == "end" {
+        !visited_caves.contains(cave) // only if we haven't visited them yet
+    } else if cave.is_small() && visited_caves.contains(cave) {
+        // if the cave is small and we haven't visited it, fall through
+        // BUT we can visit ONE small cave twice.
+        // so let's count the small caves, and see if we visited ANY twice
+        // if we didn't, we can visit this one again
+        let mut visit_counts: HashMap<Rc<Cave>, u32> = HashMap::new();
+
+        for visited_cave in visited_caves.iter().filter(|x| x.is_small()) {
+            let visit_count = visit_counts
+                .entry(visited_cave.clone())
+                .and_modify(|c| *c += 1)
+                .or_insert(1);
+
+            if *visit_count >= 2 {
+                return false;
+            }
+        }
+
+        true
+    } else {
+        true // unlimited
+    }
 }
 
 pub struct Solution {}
@@ -129,15 +185,20 @@ impl Day for Solution {
         #[allow(clippy::mutable_key_type)]
         let cave_system = build_cave_system(&lines);
 
-        let paths: usize = calculate_all_paths(&cave_system);
+        let paths: usize = calculate_all_paths(&cave_system, can_visit_part_1);
 
         PartSolution::USize(paths)
     }
 
     fn part_2(&self) -> PartSolution {
-        let _lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
-        PartSolution::None
+        #[allow(clippy::mutable_key_type)]
+        let cave_system = build_cave_system(&lines);
+
+        let paths: usize = calculate_all_paths(&cave_system, can_visit_part_2);
+
+        PartSolution::USize(paths)
     }
 }
 
@@ -167,7 +228,7 @@ mod test {
     mod part_1 {
 
         use crate::{
-            day_12::{build_cave_system, calculate_all_paths, Solution},
+            day_12::{build_cave_system, calculate_all_paths, can_visit_part_1, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -187,7 +248,7 @@ mod test {
             #[allow(clippy::mutable_key_type)]
             let cave_system = build_cave_system(&lines);
 
-            let paths: usize = calculate_all_paths(&cave_system);
+            let paths: usize = calculate_all_paths(&cave_system, can_visit_part_1);
 
             assert_eq!(paths, 10);
         }
@@ -199,7 +260,7 @@ mod test {
             #[allow(clippy::mutable_key_type)]
             let cave_system = build_cave_system(&lines);
 
-            let paths: usize = calculate_all_paths(&cave_system);
+            let paths: usize = calculate_all_paths(&cave_system, can_visit_part_1);
 
             assert_eq!(paths, 19);
         }
@@ -211,7 +272,7 @@ mod test {
             #[allow(clippy::mutable_key_type)]
             let cave_system = build_cave_system(&lines);
 
-            let paths: usize = calculate_all_paths(&cave_system);
+            let paths: usize = calculate_all_paths(&cave_system, can_visit_part_1);
 
             assert_eq!(paths, 226);
         }
@@ -220,7 +281,11 @@ mod test {
     mod part_2 {
 
         use crate::{
-            day_12::Solution,
+            day_12::{
+                build_cave_system, calculate_all_paths, can_visit_part_2,
+                test::{get_example_even_larger, get_example_slightly_larger},
+                Solution,
+            },
             shared::{Day, PartSolution},
         };
 
@@ -228,13 +293,43 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_2(), PartSolution::None);
+            assert_eq!((Solution {}).part_2(), PartSolution::USize(131_254));
         }
+
         #[test]
         fn example() {
             let lines = get_example();
 
-            assert!(!lines.is_empty());
+            #[allow(clippy::mutable_key_type)]
+            let cave_system = build_cave_system(&lines);
+
+            let paths: usize = calculate_all_paths(&cave_system, can_visit_part_2);
+
+            assert_eq!(paths, 36);
+        }
+
+        #[test]
+        fn example_slightly_larger() {
+            let lines = get_example_slightly_larger();
+
+            #[allow(clippy::mutable_key_type)]
+            let cave_system = build_cave_system(&lines);
+
+            let paths: usize = calculate_all_paths(&cave_system, can_visit_part_2);
+
+            assert_eq!(paths, 103);
+        }
+
+        #[test]
+        fn example_even_larger() {
+            let lines = get_example_even_larger();
+
+            #[allow(clippy::mutable_key_type)]
+            let cave_system = build_cave_system(&lines);
+
+            let paths: usize = calculate_all_paths(&cave_system, can_visit_part_2);
+
+            assert_eq!(paths, 3509);
         }
     }
 }
