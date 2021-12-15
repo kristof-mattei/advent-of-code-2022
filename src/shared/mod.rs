@@ -8,6 +8,7 @@ pub enum PartSolution {
     U32(u32),
     U64(u64),
     USize(usize),
+    Vec(Vec<String>),
     #[allow(dead_code)]
     None,
 }
@@ -18,6 +19,7 @@ impl std::fmt::Display for PartSolution {
             PartSolution::U32(x) => x.to_string(),
             PartSolution::U64(x) => x.to_string(),
             PartSolution::USize(x) => x.to_string(),
+            PartSolution::Vec(x) => format!("\n{}", x.join("\n")),
             PartSolution::None => "None".to_owned(),
         };
 
