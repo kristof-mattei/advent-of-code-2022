@@ -61,7 +61,7 @@ fn parse_polymer(input: &[char], pair_insertion_rules: &HashMap<Key, char>) -> V
         new_string.push(cc[1]);
     }
 
-    new_string // .iter().collect()
+    new_string
 }
 
 fn parse_polymer_part_2(
