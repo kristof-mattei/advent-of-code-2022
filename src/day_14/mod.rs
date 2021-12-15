@@ -2,16 +2,22 @@ use std::{collections::HashMap, hash::Hash};
 
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines(lines: &[String]) -> (Vec<char>, HashMap<String, char>) {
+fn parse_lines(lines: &[String]) -> (Vec<char>, HashMap<Key, char>) {
     let mut dictionary = HashMap::new();
 
     for line in lines.iter().skip(2) {
         let split = line.split(" -> ").collect::<Vec<_>>();
 
-        let from = split.get(0).unwrap().to_string();
+        let from = (*split.get(0).unwrap()).to_string();
+
+        let cc = from.chars().collect::<Vec<char>>();
+
+        let c0 = cc[0];
+        let c1 = cc[1];
+
         let to = split.get(1).unwrap().parse::<char>().unwrap();
 
-        dictionary.insert(from, to);
+        dictionary.insert(Key { c0, c1 }, to);
     }
 
     let template = (&lines[0]).chars().collect::<Vec<_>>();
@@ -19,26 +25,35 @@ fn parse_lines(lines: &[String]) -> (Vec<char>, HashMap<String, char>) {
     (template, dictionary)
 }
 
-fn parse_lines_part_2(input: &Vec<char>) -> HashMap<String, u32> {
+#[derive(PartialEq, Eq, Hash)]
+struct Key {
+    c0: char,
+    c1: char,
+}
+
+fn parse_lines_part_2(input: &[char]) -> HashMap<Key, u32> {
     let mut map = HashMap::new();
 
     for cc in input.windows(2) {
-        let lookup: String = cc.iter().collect();
+        let key = Key {
+            c0: cc[0],
+            c1: cc[1],
+        };
 
-        map.entry(lookup).and_modify(|c| *c += 1).or_insert(1);
+        map.entry(key).and_modify(|c| *c += 1).or_insert(1);
     }
 
     map
 }
 
-fn parse_polymer(input: &Vec<char>, pair_insertion_rules: &HashMap<String, char>) -> Vec<char> {
-    let mut new_string: Vec<char> = Vec::new();
-
-    // let chars: Vec<char> = input.chars().collect();
-    new_string.push(input[0]);
+fn parse_polymer(input: &[char], pair_insertion_rules: &HashMap<Key, char>) -> Vec<char> {
+    let mut new_string: Vec<char> = vec![input[0]];
 
     for cc in input.windows(2) {
-        let lookup: String = cc.iter().collect();
+        let lookup = Key {
+            c0: cc[0],
+            c1: cc[1],
+        };
 
         let translated = pair_insertion_rules.get(&lookup).unwrap();
 
@@ -50,9 +65,9 @@ fn parse_polymer(input: &Vec<char>, pair_insertion_rules: &HashMap<String, char>
 }
 
 fn parse_polymer_part_2(
-    input: &HashMap<String, u32>,
-    pair_insertion_rules: &HashMap<String, char>,
-) -> HashMap<String, u32> {
+    input: &HashMap<Key, u32>,
+    pair_insertion_rules: &HashMap<Key, char>,
+) -> HashMap<Key, u32> {
     let mut part_2 = HashMap::new();
 
     for (key, value) in input.iter().filter(|(_, v)| **v > 0) {
@@ -61,18 +76,18 @@ fn parse_polymer_part_2(
         // *value -= 1;
 
         for _ in 0..*value {
-            let chars_vec = key.chars().collect::<Vec<_>>();
+            let chars_vec = key;
 
-            let c1 = chars_vec.get(0).unwrap();
-            let c2 = chars_vec.get(1).unwrap();
+            let c0 = chars_vec.c0;
+            let c1 = chars_vec.c1;
 
             part_2
-                .entry(vec![*c1, *c_new].iter().collect::<String>())
+                .entry(Key { c0, c1: *c_new })
                 .and_modify(|c| *c += 1)
                 .or_insert(1);
 
             part_2
-                .entry(vec![*c_new, *c2].iter().collect::<String>())
+                .entry(Key { c0: *c_new, c1 })
                 .and_modify(|c| *c += 1)
                 .or_insert(1);
         }
@@ -98,7 +113,7 @@ where
     )
 }
 
-fn dump_string(polymer: &Vec<char>, polymer_groups_set: &HashMap<String, u32>) -> Vec<char> {
+fn dump_string(polymer: &[char], polymer_groups_set: &HashMap<Key, u32>) -> Vec<char> {
     let first_char = polymer[0];
     let last_char = polymer[polymer.len() - 1];
 
@@ -110,16 +125,15 @@ fn dump_string(polymer: &Vec<char>, polymer_groups_set: &HashMap<String, u32>) -
     let mut min_max_string = Vec::new();
 
     for (key, value) in polymer_groups_set {
-        let chars = key.chars().collect::<Vec<_>>();
         for _ in 0..*value {
-            min_max_string.push(*chars.get(0).unwrap());
-            min_max_string.push(*chars.get(1).unwrap());
+            min_max_string.push(key.c0);
+            min_max_string.push(key.c1);
         }
     }
 
     min_max_string.push(first_char);
     min_max_string.push(last_char);
-    min_max_string.sort();
+    min_max_string.sort_unstable();
 
     min_max_string
 }
@@ -149,7 +163,6 @@ impl Day for Solution {
         let (polymer, pair_insertion_rules) = parse_lines(&lines);
 
         let mut polymer_groups_set = parse_lines_part_2(&polymer);
-        let _ = dump_string(&polymer, &polymer_groups_set);
 
         for i in 1..=40 {
             println!("Step {}", i);
@@ -231,7 +244,6 @@ mod test {
             let (polymer, pair_insertion_rules) = parse_lines(&lines);
 
             let mut polymer_groups_set = parse_lines_part_2(&polymer);
-            let _ = dump_string(&polymer, &polymer_groups_set);
 
             for i in 1..=10 {
                 polymer_groups_set =
