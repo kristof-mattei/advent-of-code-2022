@@ -85,19 +85,16 @@ fn parse_polymer_part_2(
     new_counts
 }
 
-fn count_min_and_max<T>(input: &[T]) -> (u64, u64)
-where
-    T: Eq + Hash + Copy,
-{
-    let mut counts: HashMap<T, u64> = HashMap::new();
+fn polymer_to_hashmap(input: &[char]) -> HashMap<char, u64> {
+    let mut counts: HashMap<char, u64> = HashMap::new();
     for i in input {
         insert_or_add(&mut counts, *i, 1);
     }
 
-    count_min_and_max_part_2(&counts)
+    counts
 }
 
-fn count_min_and_max_part_2<T, U: Ord + Copy>(hashmap: &HashMap<T, U>) -> (U, U) {
+fn get_min_and_max_hashmap(hashmap: &HashMap<char, u64>) -> (u64, u64) {
     (
         hashmap.iter().map(|(_, v)| *v).min().unwrap(),
         hashmap.iter().map(|(_, v)| *v).max().unwrap(),
@@ -114,7 +111,10 @@ fn insert_or_add<T: Eq + Hash, U: AddAssign + Default>(
     *entry += value;
 }
 
-fn count_chars(polymer: &[char], polymer_groups_set: &HashMap<Key, u64>) -> HashMap<char, u64> {
+fn polymer_to_hashmap_part2(
+    polymer: &[char],
+    polymer_groups_set: &HashMap<Key, u64>,
+) -> HashMap<char, u64> {
     let first_char = polymer[0];
     let last_char = polymer[polymer.len() - 1];
 
@@ -127,6 +127,8 @@ fn count_chars(polymer: &[char], polymer_groups_set: &HashMap<Key, u64>) -> Hash
 
     insert_or_add(&mut counts, first_char, 1);
     insert_or_add(&mut counts, last_char, 1);
+
+    counts.iter_mut().for_each(|(_, amount)| *amount /= 2);
 
     counts
 }
@@ -145,7 +147,9 @@ impl Day for Solution {
             println!("After step {}: {}", i, polymer.iter().collect::<String>());
         }
 
-        let (min, max) = count_min_and_max(&polymer);
+        let chars_with_count = polymer_to_hashmap(&polymer);
+
+        let (min, max) = get_min_and_max_hashmap(&chars_with_count);
 
         PartSolution::U64(max - min)
     }
@@ -162,11 +166,11 @@ impl Day for Solution {
             polymer_groups_set = parse_polymer_part_2(&polymer_groups_set, &pair_insertion_rules);
         }
 
-        let min_max_string = count_chars(&polymer, &polymer_groups_set);
+        let chars_with_count = polymer_to_hashmap_part2(&polymer, &polymer_groups_set);
 
-        let (min, max) = count_min_and_max_part_2(&min_max_string);
+        let (min, max) = get_min_and_max_hashmap(&chars_with_count);
 
-        PartSolution::U64(max / 2 - min / 2)
+        PartSolution::U64(max - min)
     }
 }
 
@@ -182,7 +186,9 @@ mod test {
     mod part_1 {
 
         use crate::{
-            day_14::{count_min_and_max, parse_lines, parse_polymer, Solution},
+            day_14::{
+                get_min_and_max_hashmap, parse_lines, parse_polymer, polymer_to_hashmap, Solution,
+            },
             shared::{Day, PartSolution},
         };
 
@@ -197,19 +203,17 @@ mod test {
         fn example() {
             let lines = get_example();
 
-            let (mut new_string, pair_insertion_rules) = parse_lines(&lines);
+            let (mut polymer, pair_insertion_rules) = parse_lines(&lines);
 
             for i in 1..=10 {
-                new_string = parse_polymer(&new_string, &pair_insertion_rules);
+                polymer = parse_polymer(&polymer, &pair_insertion_rules);
 
-                println!(
-                    "After step {}: {}",
-                    i,
-                    new_string.iter().collect::<String>()
-                );
+                println!("After step {}: {}", i, polymer.iter().collect::<String>());
             }
 
-            let (min, max) = count_min_and_max(&new_string);
+            let chars_with_count = polymer_to_hashmap(&polymer);
+
+            let (min, max) = get_min_and_max_hashmap(&chars_with_count);
 
             assert_eq!(min, 161);
             assert_eq!(max, 1749);
@@ -220,8 +224,8 @@ mod test {
 
         use crate::{
             day_14::{
-                count_chars, count_min_and_max_part_2, parse_lines, parse_lines_part_2,
-                parse_polymer_part_2, test::get_example, Solution,
+                get_min_and_max_hashmap, parse_lines, parse_lines_part_2, parse_polymer_part_2,
+                polymer_to_hashmap_part2, test::get_example, Solution,
             },
             shared::{Day, PartSolution},
         };
@@ -247,12 +251,12 @@ mod test {
                     parse_polymer_part_2(&polymer_groups_set, &pair_insertion_rules);
             }
 
-            let min_max_string = count_chars(&polymer, &polymer_groups_set);
+            let chars_with_count = polymer_to_hashmap_part2(&polymer, &polymer_groups_set);
 
-            let (min, max) = count_min_and_max_part_2(&min_max_string);
+            let (min, max) = get_min_and_max_hashmap(&chars_with_count);
 
-            assert_eq!(min / 2, 161);
-            assert_eq!(max / 2, 1749);
+            assert_eq!(min, 161);
+            assert_eq!(max, 1749);
         }
     }
 }
