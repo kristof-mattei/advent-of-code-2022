@@ -56,7 +56,6 @@
 			"problemMatcher": [
 				"$rustc"
 			],
-			"dependsOn": "rust: cargo clean",
 			"group": "build",
 			"label": "rust: cargo clippy"
 		},
