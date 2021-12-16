@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::shared::{Day, PartSolution};
 
@@ -74,39 +74,45 @@ fn reconstruct_path(
 }
 
 fn distance(field: &[Vec<u32>], current: Coordinates, neighbor: Coordinates) -> u32 {
-    // intially I only had the neighbor's value here, but adding the current value increases
-    // variability and speeds up the algorithm
+    // // intially I only had the neighbor's value here, but adding the current value increases
+    // // variability and speeds up the algorithm
     field[current.0][current.1] + field[neighbor.0][neighbor.1]
 }
 
 fn heuristic(field: &[Vec<u32>], current: Coordinates) -> u32 {
-    field[current.0][current.1]
+    // // intially I only had the neighbor's value here, but adding the current value increases
+    // // variability and speeds up the algorithm
+    // field[current.0][current.1] + field[neighbor.0][neighbor.1]
+
+    ((field.len() - current.0) + (field[0].len() - current.1)) as u32
 }
 
 fn a_star(field: &[Vec<u32>], start: Coordinates, goal: Coordinates) -> Vec<Coordinates> {
-    let mut open_set = HashSet::<Coordinates>::from_iter(vec![start]);
+    let mut open_set = Vec::from([(start, heuristic(field, start))]);
 
     let mut came_from = HashMap::<Coordinates, Coordinates>::new();
 
-    let mut g_score = HashMap::new();
-    g_score.insert(start, 0);
+    let mut g_score = HashMap::from([(start, 0)]);
 
-    let mut f_score = HashMap::new();
-    f_score.insert(start, heuristic(field, start));
+    let mut f_score = HashMap::from([(start, heuristic(field, start))]);
 
     while !open_set.is_empty() {
-        let current = *open_set
-            .iter()
-            .map(|os| (os, f_score.get(os)))
-            .min_by(|(_, value1), (_, value2)| value1.cmp(value2))
-            .unwrap()
-            .0;
+        open_set.sort_unstable_by(|(_, v), (_, v2)| v2.cmp(v));
+        let current = open_set.pop().unwrap().0;
+        // old way of getting current:
+
+        // let current = *open_set
+        //     .iter()
+        //     .map(|os| (os, f_score.get(os)))
+        //     .min_by(|(_, value1), (_, value2)| value1.cmp(value2))
+        //     .unwrap()
+        //     .0;
+
+        // open_set.remove(&current);
 
         if current == goal {
             return reconstruct_path(&came_from, current);
         }
-
-        open_set.remove(&current);
 
         let neighbors = get_neighbors(field, current);
 
@@ -118,11 +124,35 @@ fn a_star(field: &[Vec<u32>], start: Coordinates, goal: Coordinates) -> Vec<Coor
                 came_from.insert(neighbor, current);
 
                 g_score.insert(neighbor, tentative_g_score);
-                f_score.insert(neighbor, tentative_g_score + heuristic(field, neighbor));
 
-                if !open_set.contains(&neighbor) {
-                    open_set.insert(neighbor);
+                let g_score_with_heurisitc = tentative_g_score + heuristic(field, neighbor);
+                f_score.insert(neighbor, g_score_with_heurisitc);
+
+                // here we deviate from A*
+                // we actually keep the latest the last f_score with it
+                // but since we cannot use a HashSet (doesn't retain order)
+                // or BinaryHeap (no random access)
+                // we do some manual work
+                // always remove the item if it exists
+                // and push it again
+                // we re-sort the set once we need to re-evaluate
+                // and this is even better than say a binary heap, as that one sorts on every insert
+                if let Some(position) = open_set.iter().position(|(c, _)| *c == neighbor) {
+                    open_set.remove(position);
                 }
+
+                open_set.push((neighbor, g_score_with_heurisitc));
+
+                // before the code looked like
+                // open_set was a HashSet<_>
+                // if !open_set.contains(&neighbor) {
+                //     open_set.insert(neighbor);
+                // }
+                // and at the beginning of the loop we would find and sort them against f_score
+
+                // the current version is much faster, as we
+                // * retain the sorted elements
+                // * defer resorting only when needed
             }
         }
     }
