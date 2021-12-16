@@ -73,13 +73,13 @@ fn reconstruct_path(
     total_path
 }
 
-fn d(field: &[Vec<u32>], current: Coordinates, neighbor: Coordinates) -> u32 {
-    let (r, c) = current;
-
-    field[r][c]
+fn distance(field: &[Vec<u32>], current: Coordinates, neighbor: Coordinates) -> u32 {
+    // intially I only had the neighbor's value here, but adding the current value increases
+    // variability and speeds up the algorithm
+    field[current.0][current.1] + field[neighbor.0][neighbor.1]
 }
 
-fn h(field: &[Vec<u32>], current: Coordinates) -> u32 {
+fn heuristic(field: &[Vec<u32>], current: Coordinates) -> u32 {
     field[current.0][current.1]
 }
 
@@ -92,7 +92,7 @@ fn a_star(field: &[Vec<u32>], start: Coordinates, goal: Coordinates) -> Vec<Coor
     g_score.insert(start, 0);
 
     let mut f_score = HashMap::new();
-    f_score.insert(start, h(field, start));
+    f_score.insert(start, heuristic(field, start));
 
     while !open_set.is_empty() {
         let current = *open_set
@@ -101,8 +101,6 @@ fn a_star(field: &[Vec<u32>], start: Coordinates, goal: Coordinates) -> Vec<Coor
             .min_by(|(_, value1), (_, value2)| value1.cmp(value2))
             .unwrap()
             .0;
-
-        println!("{:?}", current);
 
         if current == goal {
             return reconstruct_path(&came_from, current);
@@ -113,13 +111,14 @@ fn a_star(field: &[Vec<u32>], start: Coordinates, goal: Coordinates) -> Vec<Coor
         let neighbors = get_neighbors(field, current);
 
         for neighbor in neighbors {
-            let tentative_g_score = g_score.get(&current).unwrap() + d(field, current, neighbor);
+            let tentative_g_score =
+                g_score.get(&current).unwrap() + distance(field, current, neighbor);
 
             if tentative_g_score < *g_score.get(&neighbor).unwrap_or(&u32::MAX) {
                 came_from.insert(neighbor, current);
 
                 g_score.insert(neighbor, tentative_g_score);
-                f_score.insert(neighbor, tentative_g_score + h(field, neighbor));
+                f_score.insert(neighbor, tentative_g_score + heuristic(field, neighbor));
 
                 if !open_set.contains(&neighbor) {
                     open_set.insert(neighbor);
@@ -174,16 +173,21 @@ impl Day for Solution {
     }
 }
 
+fn roll_over_after_9(val: &mut u32) {
+    *val += 1;
+
+    if *val > 9 {
+        *val = 1;
+    }
+}
+
 fn duplicate_x_times(original: &mut Vec<Vec<u32>>, times: u32) {
     for r in original.iter_mut() {
         let mut to_roll_over_and_re_insert = r.iter().copied().collect::<Vec<_>>();
 
         for _ in 0..times {
             for f in &mut to_roll_over_and_re_insert {
-                *f += 1;
-                if *f > 9 {
-                    *f = 1;
-                }
+                roll_over_after_9(f);
             }
 
             let mut clone = to_roll_over_and_re_insert.clone();
@@ -201,10 +205,7 @@ fn duplicate_x_times(original: &mut Vec<Vec<u32>>, times: u32) {
         // bump all numbers
         for inner in &mut to_roll_over_and_re_insert {
             for f in inner.iter_mut() {
-                *f += 1;
-                if *f > 9 {
-                    *f = 1;
-                }
+                roll_over_after_9(f);
             }
         }
 
