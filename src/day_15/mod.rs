@@ -1,8 +1,8 @@
-use std::collections::HashMap;
+use std::{cell::Cell, collections::HashMap};
 
 use crate::shared::{Day, PartSolution};
 
-type Chiton = u32;
+type Chiton = (u32, Cell<bool>);
 type Coordinates = (usize, usize);
 
 fn parse_lines(lines: &[String]) -> Vec<Vec<Chiton>> {
@@ -12,7 +12,7 @@ fn parse_lines(lines: &[String]) -> Vec<Vec<Chiton>> {
         field.push(
             line.chars()
                 .map(|x| x.to_digit(10).unwrap() as u32)
-                // .map(Cell::new)
+                .map(|x| (x, Cell::new(false)))
                 .collect(),
         );
     }
@@ -73,13 +73,13 @@ fn reconstruct_path(
     total_path
 }
 
-fn distance(field: &[Vec<u32>], current: Coordinates, neighbor: Coordinates) -> u32 {
+fn distance(field: &[Vec<Chiton>], current: Coordinates, neighbor: Coordinates) -> u32 {
     // // intially I only had the neighbor's value here, but adding the current value increases
     // // variability and speeds up the algorithm
-    field[current.0][current.1] + field[neighbor.0][neighbor.1]
+    field[current.0][current.1].0 + field[neighbor.0][neighbor.1].0
 }
 
-fn heuristic(field: &[Vec<u32>], current: Coordinates) -> u32 {
+fn heuristic(field: &[Vec<Chiton>], current: Coordinates) -> u32 {
     // // intially I only had the neighbor's value here, but adding the current value increases
     // // variability and speeds up the algorithm
     // field[current.0][current.1] + field[neighbor.0][neighbor.1]
@@ -87,7 +87,7 @@ fn heuristic(field: &[Vec<u32>], current: Coordinates) -> u32 {
     ((field.len() - current.0) + (field[0].len() - current.1)) as u32
 }
 
-fn a_star(field: &[Vec<u32>], start: Coordinates, goal: Coordinates) -> Vec<Coordinates> {
+fn a_star(field: &mut [Vec<Chiton>], start: Coordinates, goal: Coordinates) -> Vec<Coordinates> {
     let mut open_set = Vec::from([(start, heuristic(field, start))]);
 
     let mut came_from = HashMap::<Coordinates, Coordinates>::new();
@@ -109,6 +109,8 @@ fn a_star(field: &[Vec<u32>], start: Coordinates, goal: Coordinates) -> Vec<Coor
         //     .0;
 
         // open_set.remove(&current);
+
+        field[current.0][current.1].1.set(true);
 
         if current == goal {
             return reconstruct_path(&came_from, current);
@@ -166,17 +168,20 @@ impl Day for Solution {
     fn part_1(&self) -> PartSolution {
         let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
 
-        let parsed = parse_lines(&lines);
+        let mut parsed = parse_lines(&lines);
+
         let max_row = parsed.len() - 1;
         let max_col = parsed[0].len() - 1;
 
-        let cheapest = a_star(&parsed, (0, 0), (max_row, max_col));
+        let cheapest = a_star(&mut parsed, (0, 0), (max_row, max_col));
+
+        dump_field(&parsed);
 
         PartSolution::U32(
             cheapest
                 .iter()
                 .skip(1)
-                .map(|(r, c)| (parsed[*r][*c]))
+                .map(|(r, c)| (parsed[*r][*c]).0)
                 .sum::<u32>(),
         )
     }
@@ -191,13 +196,13 @@ impl Day for Solution {
         let max_row = parsed.len() - 1;
         let max_col = parsed[0].len() - 1;
 
-        let cheapest = a_star(&parsed, (0, 0), (max_row, max_col));
+        let cheapest = a_star(&mut parsed, (0, 0), (max_row, max_col));
 
         PartSolution::U32(
             cheapest
                 .iter()
                 .skip(1)
-                .map(|(r, c)| (parsed[*r][*c]))
+                .map(|(r, c)| (parsed[*r][*c]).0)
                 .sum::<u32>(),
         )
     }
@@ -211,13 +216,24 @@ fn roll_over_after_9(val: &mut u32) {
     }
 }
 
-fn duplicate_x_times(original: &mut Vec<Vec<u32>>, times: u32) {
+fn dump_field(field: &[Vec<Chiton>]) {
+    for r in field {
+        for c in r {
+            let color: u32 = if c.1.get() { 31 } else { 0 };
+            print!("\x1b[{}m{}\x1b[0m", color, c.0);
+        }
+
+        println!();
+    }
+}
+
+fn duplicate_x_times(original: &mut Vec<Vec<Chiton>>, times: u32) {
     for r in original.iter_mut() {
-        let mut to_roll_over_and_re_insert = r.iter().copied().collect::<Vec<_>>();
+        let mut to_roll_over_and_re_insert = r.clone();
 
         for _ in 0..times {
             for f in &mut to_roll_over_and_re_insert {
-                roll_over_after_9(f);
+                roll_over_after_9(&mut f.0);
             }
 
             let mut clone = to_roll_over_and_re_insert.clone();
@@ -235,7 +251,7 @@ fn duplicate_x_times(original: &mut Vec<Vec<u32>>, times: u32) {
         // bump all numbers
         for inner in &mut to_roll_over_and_re_insert {
             for f in inner.iter_mut() {
-                roll_over_after_9(f);
+                roll_over_after_9(&mut f.0);
             }
         }
 
@@ -263,7 +279,7 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_15::{a_star, parse_lines, Solution},
+            day_15::{a_star, dump_field, parse_lines, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -278,19 +294,21 @@ mod test {
         fn example() {
             let lines = get_example();
 
-            let parsed = parse_lines(&lines);
+            let mut parsed = parse_lines(&lines);
 
             let max_row = parsed.len() - 1;
             let max_col = parsed[0].len() - 1;
 
-            let cheapest = a_star(&parsed, (0, 0), (max_row, max_col));
+            let cheapest = a_star(&mut parsed, (0, 0), (max_row, max_col));
+
+            dump_field(&parsed);
 
             assert_eq!(
                 40,
                 cheapest
                     .iter()
                     .skip(1)
-                    .map(|(r, c)| (parsed[*r][*c]))
+                    .map(|(r, c)| (parsed[*r][*c]).0)
                     .sum::<u32>()
             );
         }
@@ -312,19 +330,19 @@ mod test {
         fn example() {
             let lines = get_example_5x();
 
-            let parsed = parse_lines(&lines);
+            let mut parsed = parse_lines(&lines);
 
             let max_row = parsed.len() - 1;
             let max_col = parsed[0].len() - 1;
 
-            let cheapest = a_star(&parsed, (0, 0), (max_row, max_col));
+            let cheapest = a_star(&mut parsed, (0, 0), (max_row, max_col));
 
             assert_eq!(
                 315,
                 cheapest
                     .iter()
                     .skip(1)
-                    .map(|(r, c)| (parsed[*r][*c]))
+                    .map(|(r, c)| (parsed[*r][*c]).0)
                     .sum::<u32>()
             );
         }
