@@ -157,7 +157,7 @@ impl Day for Solution {
 
         let mut parsed = parse_lines(&lines);
 
-        duplicate_x_times(&mut parsed, 5);
+        duplicate_x_times(&mut parsed, 4);
 
         let max_row = parsed.len() - 1;
         let max_col = parsed[0].len() - 1;
@@ -175,16 +175,16 @@ impl Day for Solution {
 }
 
 fn duplicate_x_times(original: &mut Vec<Vec<u32>>, times: u32) {
-    for r in original {
+    for r in original.iter_mut() {
         let mut to_roll_over_and_re_insert = r.iter().copied().collect::<Vec<_>>();
 
         for _ in 0..times {
-            to_roll_over_and_re_insert.iter_mut().for_each(|f| {
+            for f in &mut to_roll_over_and_re_insert {
                 *f += 1;
                 if *f > 9 {
-                    *f = 0
+                    *f = 1;
                 }
-            });
+            }
 
             let mut clone = to_roll_over_and_re_insert.clone();
 
@@ -192,23 +192,26 @@ fn duplicate_x_times(original: &mut Vec<Vec<u32>>, times: u32) {
         }
     }
 
-    // let mut to_roll_over_and_re_insert = original
-    //     .iter()
-    //     .map(|v| Vec::from_iter(v.clone()))
-    //     .collect::<Vec<_>>();
+    let mut to_roll_over_and_re_insert = original
+        .iter()
+        .map(|v| Vec::from_iter(v.clone()))
+        .collect::<Vec<_>>();
 
-    // for _ in 0..times {
-    //     for _ in 0..times {
-    //         to_roll_over_and_re_insert.iter_mut().for_each(|inner| {
-    //             inner.iter_mut().for_each(|f| {
-    //                 *f += 1;
-    //                 if *f > 9 {
-    //                     *f = 0
-    //                 }
-    //             })
-    //         })
-    //     }
-    // }
+    for _ in 0..times {
+        // bump all numbers
+        for inner in &mut to_roll_over_and_re_insert {
+            for f in inner.iter_mut() {
+                *f += 1;
+                if *f > 9 {
+                    *f = 1;
+                }
+            }
+        }
+
+        let mut clone = to_roll_over_and_re_insert.clone();
+
+        original.append(&mut clone);
+    }
 }
 
 #[cfg(test)]
@@ -263,14 +266,15 @@ mod test {
     }
 
     mod part_2 {
+        use super::{get_example, get_example_5x};
         use crate::{
-            day_15::{a_star, parse_lines, test::get_example_5x, Solution},
+            day_15::{a_star, duplicate_x_times, parse_lines, Solution},
             shared::{Day, PartSolution},
         };
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_2(), PartSolution::U32(604));
+            assert_eq!((Solution {}).part_2(), PartSolution::U32(2907));
         }
 
         #[test]
@@ -292,6 +296,19 @@ mod test {
                     .map(|(r, c)| (parsed[*r][*c]))
                     .sum::<u32>()
             );
+        }
+        #[test]
+        fn test_duplication() {
+            let lines = get_example();
+            let lines_5x = get_example_5x();
+
+            let mut parsed = parse_lines(&lines);
+
+            let parsed_5x = parse_lines(&lines_5x);
+
+            duplicate_x_times(&mut parsed, 4);
+
+            assert_eq!(parsed, parsed_5x);
         }
     }
 }
