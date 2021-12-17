@@ -5,4 +5,5 @@
     "files.trimTrailingWhitespace": true,
     "lldb.displayFormat": "auto",
     "lldb.dereferencePointers": true,
+    "lldb.showDisassembly": "auto",
 }
