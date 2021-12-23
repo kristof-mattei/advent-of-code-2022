@@ -196,60 +196,59 @@ fn split(snailfish: Snailfish, did1split: bool) -> SplitSnailfish {
 }
 
 fn sum_explode_split(input: Vec<Snailfish>) -> Snailfish {
-    input
-        .into_iter()
-        .reduce(|acc, item| {
-            println!("Adding {:?} and {:?}", acc, item);
-            let mut snailfish_sum = Snailfish::Pair((acc.into(), item.into()));
-            println!("after addition: {:?}", snailfish_sum);
+    let reduced = input.into_iter().reduce(|acc, item| {
+        println!("Adding {:?} and {:?}", acc, item);
+        let mut snailfish_sum = Snailfish::Pair((acc.into(), item.into()));
+        println!("after addition: {:?}", snailfish_sum);
 
-            let mut stable = false;
+        let mut stable = false;
 
-            while !stable {
-                stable = true;
+        while !stable {
+            stable = true;
 
-                // explode until no more explosions
-                loop {
-                    let exploded = explode(snailfish_sum, 0, false);
+            let mut explosion_stable = false;
 
-                    snailfish_sum = exploded.snailfish;
+            // explode until no more explosions
+            while !explosion_stable {
+                explosion_stable = true;
 
-                    // stable & not exploded -> stable
-                    // stable & exploded -> not stable
-                    // not stable & exploded -> not stable
-                    // not stable & not exploded -> not stable
-                    stable = stable && !exploded.exploded;
+                let esf = explode(snailfish_sum, 0, false);
 
-                    if exploded.exploded {
-                        println!("after explode:  {:?}", &snailfish_sum);
-                    } else {
-                        break;
-                    }
+                snailfish_sum = esf.snailfish;
+
+                if esf.exploded {
+                    println!("after explode:  {:?}", &snailfish_sum);
+
+                    // if we had an explosion we have to run again
+                    explosion_stable = false;
+                    stable = false;
                 }
 
-                // only split ONCE, then explode again
-                let split = split(snailfish_sum, false);
-
-                snailfish_sum = split.snailfish;
-
-                // stable & not split -> stable
-                // stable & split -> not stable
-                // not stable & split -> not stable
-                // not stable & not split -> not stable
-                stable = stable && !split.split;
-
-                if split.split {
-                    println!("after split:    {:?}", &snailfish_sum);
-                }
-
-                if stable {
+                if explosion_stable {
                     break;
                 }
             }
 
-            snailfish_sum
-        })
-        .unwrap()
+            // only split ONCE, then explode again
+            let ssf = split(snailfish_sum, false);
+
+            snailfish_sum = ssf.snailfish;
+
+            if ssf.split {
+                println!("after split:    {:?}", &snailfish_sum);
+
+                stable = false;
+            }
+
+            if stable {
+                break;
+            }
+        }
+
+        snailfish_sum
+    });
+
+    reduced.unwrap()
 }
 
 fn calculate_magnitude(snailfish: &Snailfish) -> u32 {
