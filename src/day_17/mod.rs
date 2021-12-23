@@ -120,7 +120,7 @@ fn find_max_y(target: &Target) -> i32 {
                 Hit::Hit(y) => {
                     if y > max_y_for_x {
                         max_y_for_x = y;
-                        println!("MAX HIT AT {},{}", launch_x, launch_y)
+                        println!("MAX HIT AT {},{}", launch_x, launch_y);
                     }
                 }
                 Hit::Missed => {}
@@ -144,14 +144,14 @@ fn count_hits(target: &Target) -> u32 {
     let x_range = limit_x..=target.x2;
 
     for launch_x in x_range {
-        let y_range = (limit_y * -1)..=limit_y;
+        let y_range = -limit_y..=limit_y;
 
         for launch_y in y_range {
             let result = launch_probe(launch_x, launch_y, target);
             match result {
                 Hit::Hit(_) => {
                     hits += 1;
-                    println!("HIT AT {},{}", launch_x, launch_y)
+                    println!("HIT AT {},{}", launch_x, launch_y);
                 }
                 Hit::Missed => {}
             }
