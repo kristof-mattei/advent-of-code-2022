@@ -21,7 +21,7 @@ impl VentLine {
     }
 }
 
-fn parse_lines(lines: &[String], include_diagonal: bool) -> Vec<VentLine> {
+fn parse_lines(lines: &[&str], include_diagonal: bool) -> Vec<VentLine> {
     let regex = Regex::new(r"(\d+),(\d+) -> (\d+),(\d+)").unwrap();
 
     let mut vent_lines = Vec::new();
@@ -139,7 +139,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let vent_lines: Vec<VentLine> = parse_lines(&lines, false);
 
@@ -149,7 +149,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let vent_lines: Vec<VentLine> = parse_lines(&lines, true);
 
@@ -161,7 +161,7 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
+    fn get_example() -> Vec<&'static str> {
         include_str!("example.txt")
             .lines()
             .map(Into::into)
@@ -181,7 +181,7 @@ mod test {
 
         #[test]
         fn example() {
-            let lines: Vec<String> = get_example();
+            let lines = get_example();
 
             let vent_lines: Vec<VentLine> = parse_lines(&lines, false);
 
@@ -204,7 +204,7 @@ mod test {
 
         #[test]
         fn example() {
-            let lines: Vec<String> = get_example();
+            let lines = get_example();
 
             let vent_lines: Vec<VentLine> = parse_lines(&lines, true);
 

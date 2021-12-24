@@ -133,7 +133,7 @@ fn calculate_last_winning_board_2(drawings: &[u32], playfields: &[Playfield]) ->
     (last_winning_board_unmarked, last_drawing)
 }
 
-fn parse_lines(lines: &[String]) -> (Vec<u32>, Vec<Playfield>) {
+fn parse_lines(lines: &[&str]) -> (Vec<u32>, Vec<Playfield>) {
     let drawings = lines[0]
         .split(',')
         .map(|s| s.parse::<u32>().unwrap())
@@ -141,7 +141,7 @@ fn parse_lines(lines: &[String]) -> (Vec<u32>, Vec<Playfield>) {
 
     // top line is our drawings
     let raw_playfields: Vec<_> = lines[1..lines.len()]
-        .split(String::is_empty)
+        .split(|s| s.is_empty())
         .filter(|f| !f.is_empty())
         .collect();
 
@@ -188,7 +188,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let (drawings, play_fields) = parse_lines(&lines);
 
@@ -198,7 +198,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let (drawings, play_fields) = parse_lines(&lines);
 
@@ -211,7 +211,7 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
+    fn get_example() -> Vec<&'static str> {
         include_str!("example.txt")
             .lines()
             .map(Into::into)

@@ -5,7 +5,7 @@ use crate::shared::{Day, PartSolution};
 type Chiton = (u32, Cell<bool>);
 type Coordinates = (usize, usize);
 
-fn parse_lines(lines: &[String]) -> Vec<Vec<Chiton>> {
+fn parse_lines(lines: &[&str]) -> Vec<Vec<Chiton>> {
     let mut field = Vec::new();
 
     for line in lines {
@@ -166,7 +166,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let mut parsed = parse_lines(&lines);
 
@@ -187,7 +187,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let mut parsed = parse_lines(&lines);
 
@@ -263,18 +263,12 @@ fn duplicate_x_times(original: &mut Vec<Vec<Chiton>>, times: u32) {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
+    fn get_example() -> Vec<&'static str> {
+        include_str!("example.txt").lines().collect()
     }
 
-    fn get_example_5x() -> Vec<String> {
-        include_str!("example 5x.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
+    fn get_example_5x() -> Vec<&'static str> {
+        include_str!("example 5x.txt").lines().collect()
     }
 
     mod part_1 {

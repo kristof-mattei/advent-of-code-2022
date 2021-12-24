@@ -9,7 +9,7 @@ fn parse_into_lettercombinations(line: &str) -> Vec<LetterCombination> {
         .collect()
 }
 
-fn parse_lines(input: &[String]) -> Vec<(Vec<LetterCombination>, Vec<LetterCombination>)> {
+fn parse_lines(input: &[&str]) -> Vec<(Vec<LetterCombination>, Vec<LetterCombination>)> {
     let mut into_pieces = Vec::new();
 
     for line in input {
@@ -256,7 +256,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let split = parse_lines(&lines);
 
@@ -264,7 +264,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let mut last_4_sum = Vec::new();
 
@@ -282,7 +282,7 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
+    fn get_example() -> Vec<&'static str> {
         include_str!("example.txt")
             .lines()
             .map(Into::into)
