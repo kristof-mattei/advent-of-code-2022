@@ -7,8 +7,160 @@ struct Beacon {
     z: i32,
 }
 
-struct Scanner {
+struct Permutation {
     beacons: Vec<Beacon>,
+}
+
+struct Scanner {
+    permutations: Vec<Permutation>,
+}
+
+fn calculate_permutations(scanners_with_single_permutation: Vec<Permutation>) -> Vec<Scanner> {
+    let mut s: Vec<Scanner> = Vec::new();
+
+    let permutation_fns = [
+        // |b: &Beacon| Beacon {
+        //     x: b.x,
+        //     y: b.y,
+        //     z: b.z,
+        // },
+        |b: &Beacon| Beacon {
+            x: b.x,
+            y: -b.z,
+            z: b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: b.x,
+            y: -b.y,
+            z: -b.z,
+        },
+        |b: &Beacon| Beacon {
+            x: b.x,
+            y: b.z,
+            z: -b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.y,
+            y: b.x,
+            z: b.z,
+        },
+        |b: &Beacon| Beacon {
+            x: b.z,
+            y: b.x,
+            z: b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: b.y,
+            y: b.x,
+            z: -b.z,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.z,
+            y: b.x,
+            z: -b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.x,
+            y: -b.y,
+            z: b.z,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.x,
+            y: -b.z,
+            z: -b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.x,
+            y: b.y,
+            z: -b.z,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.x,
+            y: b.z,
+            z: b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: b.y,
+            y: -b.x,
+            z: b.z,
+        },
+        |b: &Beacon| Beacon {
+            x: b.z,
+            y: -b.x,
+            z: -b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.y,
+            y: -b.x,
+            z: -b.z,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.z,
+            y: -b.x,
+            z: b.y,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.z,
+            y: b.y,
+            z: b.x,
+        },
+        |b: &Beacon| Beacon {
+            x: b.y,
+            y: b.z,
+            z: b.x,
+        },
+        |b: &Beacon| Beacon {
+            x: b.z,
+            y: -b.y,
+            z: b.x,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.y,
+            y: -b.z,
+            z: b.x,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.z,
+            y: -b.y,
+            z: -b.x,
+        },
+        |b: &Beacon| Beacon {
+            x: -b.y,
+            y: b.z,
+            z: -b.x,
+        },
+        |b: &Beacon| Beacon {
+            x: b.z,
+            y: b.y,
+            z: -b.x,
+        },
+        |b: &Beacon| Beacon {
+            x: b.y,
+            y: -b.z,
+            z: -b.x,
+        },
+    ];
+    for original_permutation in scanners_with_single_permutation {
+        let mut permutations = Vec::new();
+
+        for permutation_fn in permutation_fns {
+            let mut permutation = Vec::new();
+
+            for beacon in &original_permutation.beacons {
+                permutation.push(permutation_fn(beacon));
+            }
+
+            permutations.push(Permutation {
+                beacons: permutation,
+            });
+        }
+
+        permutations.push(original_permutation);
+
+        s.push(Scanner { permutations });
+    }
+
+    s
 }
 
 fn parse_beacon_line(line: &str) -> Beacon {
@@ -20,8 +172,8 @@ fn parse_beacon_line(line: &str) -> Beacon {
     Beacon { x, y, z }
 }
 
-fn parse_lines(lines: &[&str]) -> Vec<Scanner> {
-    let raw_scanners = lines.split(|l| *l == "");
+fn parse_lines(lines: &[&str]) -> Vec<Permutation> {
+    let raw_scanners = lines.split(|l| (*l).is_empty());
 
     let mut scanners = Vec::new();
 
@@ -36,7 +188,7 @@ fn parse_lines(lines: &[&str]) -> Vec<Scanner> {
             }
         }
 
-        scanners.push(Scanner { beacons })
+        scanners.push(Permutation { beacons });
     }
 
     scanners
@@ -65,7 +217,7 @@ mod test {
     mod part_1 {
 
         use crate::{
-            day_19::{parse_lines, Solution},
+            day_19::{calculate_permutations, parse_lines, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -75,11 +227,14 @@ mod test {
         fn outcome() {
             assert_eq!((Solution {}).part_1(), PartSolution::None);
         }
+
         #[test]
         fn example() {
             let example_lines = get_example();
 
             let scanners = parse_lines(&example_lines);
+
+            let scanners_with_permutations = calculate_permutations(scanners);
         }
     }
 
