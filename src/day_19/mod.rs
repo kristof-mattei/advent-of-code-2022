@@ -12,6 +12,7 @@ struct Permutation {
 }
 
 struct Scanner {
+    #[allow(dead_code)]
     permutations: Vec<Permutation>,
 }
 
@@ -199,7 +200,9 @@ impl Day for Solution {
     fn part_1(&self) -> PartSolution {
         let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
-        let _scanners = parse_lines(&lines);
+        let scanners = parse_lines(&lines);
+
+        let _scanners_with_permutations = calculate_permutations(scanners);
 
         PartSolution::None
     }
@@ -234,7 +237,7 @@ mod test {
 
             let scanners = parse_lines(&example_lines);
 
-            let scanners_with_permutations = calculate_permutations(scanners);
+            let _scanners_with_permutations = calculate_permutations(scanners);
         }
     }
 
