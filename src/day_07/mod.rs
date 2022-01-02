@@ -83,7 +83,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines:Vec<&str> = include_str!("input.txt").lines().collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let crabs = parse_lines(&lines);
 
@@ -91,7 +91,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-let lines:Vec<&str> = include_str!("input.txt").lines().collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let crabs = parse_lines(&lines);
 

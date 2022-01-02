@@ -119,8 +119,8 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines:Vec<&str> = include_str!("input.txt").lines().collect();
-        
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+
         let into_symbols: Vec<Vec<Symbol>> = parse_lines(&lines);
 
         let mut first_illegal_characters: Vec<Symbol> = Vec::new();
@@ -136,7 +136,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines:Vec<&str> = include_str!("input.txt").lines().collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let into_symbols: Vec<Vec<Symbol>> = parse_lines(&lines);
 

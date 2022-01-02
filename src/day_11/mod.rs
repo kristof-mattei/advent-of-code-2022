@@ -142,7 +142,7 @@ pub struct Solution {}
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
         let lines: Vec<&str> = include_str!("input.txt").lines().collect();
-        
+
         let octopus_field = parse_lines(&lines);
 
         let mut flashes = 0;
