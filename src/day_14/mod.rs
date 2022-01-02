@@ -2,7 +2,7 @@ use std::{collections::HashMap, hash::Hash, ops::AddAssign};
 
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines(lines: &[String]) -> (Vec<char>, HashMap<Key, char>) {
+fn parse_lines(lines: &[&str]) -> (Vec<char>, HashMap<Key, char>) {
     let mut dictionary = HashMap::new();
 
     for line in lines.iter().skip(2) {
@@ -20,7 +20,7 @@ fn parse_lines(lines: &[String]) -> (Vec<char>, HashMap<Key, char>) {
         dictionary.insert(Key { c0, c1 }, to);
     }
 
-    let template = (&lines[0]).chars().collect::<Vec<_>>();
+    let template = (lines[0]).chars().collect::<Vec<_>>();
 
     (template, dictionary)
 }
@@ -137,7 +137,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let (mut polymer, pair_insertion_rules) = parse_lines(&lines);
 
@@ -155,7 +155,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let (polymer, pair_insertion_rules) = parse_lines(&lines);
 
@@ -176,11 +176,8 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
+    fn get_example() -> Vec<&'static str> {
+        include_str!("example.txt").lines().collect()
     }
 
     mod part_1 {

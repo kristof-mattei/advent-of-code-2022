@@ -119,7 +119,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let into_symbols: Vec<Vec<Symbol>> = parse_lines(&lines);
 
@@ -136,7 +136,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let into_symbols: Vec<Vec<Symbol>> = parse_lines(&lines);
 
@@ -157,7 +157,7 @@ impl Day for Solution {
     }
 }
 
-fn parse_lines(lines: &[String]) -> Vec<Vec<Symbol>> {
+fn parse_lines(lines: &[&str]) -> Vec<Vec<Symbol>> {
     let mut parsed = Vec::new();
     for line in lines {
         parsed.push(
@@ -181,7 +181,7 @@ fn parse_lines(lines: &[String]) -> Vec<Vec<Symbol>> {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
+    fn get_example() -> Vec<&'static str> {
         include_str!("example.txt")
             .lines()
             .map(Into::into)

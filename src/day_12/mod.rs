@@ -35,9 +35,9 @@ impl Hash for Cave {
 type Caves = HashSet<Rc<Cave>>;
 
 #[allow(clippy::mutable_key_type)]
-fn get_or_insert_cave(caves: &mut Caves, cave_name: String) -> Rc<Cave> {
+fn get_or_insert_cave(caves: &mut Caves, cave_name: &str) -> Rc<Cave> {
     let cave = Rc::new(Cave {
-        name: cave_name,
+        name: cave_name.to_owned(),
         ..Cave::default()
     });
 
@@ -51,7 +51,7 @@ fn get_or_insert_cave(caves: &mut Caves, cave_name: String) -> Rc<Cave> {
 }
 
 #[allow(clippy::mutable_key_type)]
-fn add_path(caves: &mut Caves, from: String, to: String) {
+fn add_path(caves: &mut Caves, from: &str, to: &str) {
     let from_cave = get_or_insert_cave(caves, from);
     let to_cave = get_or_insert_cave(caves, to);
 
@@ -60,17 +60,17 @@ fn add_path(caves: &mut Caves, from: String, to: String) {
 }
 
 #[allow(clippy::mutable_key_type)]
-fn build_cave_system(lines: &[String]) -> Caves {
+fn build_cave_system(lines: &[&str]) -> Caves {
     #[allow(clippy::mutable_key_type)]
     let mut caves: Caves = HashSet::default();
 
     for line in lines {
-        let pieces: Vec<String> = line.split('-').map(Into::into).collect();
+        let pieces: Vec<&str> = line.split('-').collect();
 
         let left = pieces.get(0).unwrap();
         let right = pieces.get(1).unwrap();
 
-        add_path(&mut caves, left.clone(), right.clone());
+        add_path(&mut caves, *left, *right);
     }
 
     caves
@@ -181,7 +181,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         #[allow(clippy::mutable_key_type)]
         let cave_system = build_cave_system(&lines);
@@ -192,7 +192,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         #[allow(clippy::mutable_key_type)]
         let cave_system = build_cave_system(&lines);
@@ -205,25 +205,18 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
+    fn get_example() -> Vec<&'static str> {
+        include_str!("example.txt").lines().collect()
     }
 
-    fn get_example_slightly_larger() -> Vec<String> {
+    fn get_example_slightly_larger() -> Vec<&'static str> {
         include_str!("example_slightly_larger.txt")
             .lines()
-            .map(Into::into)
             .collect()
     }
 
-    fn get_example_even_larger() -> Vec<String> {
-        include_str!("example_even_larger.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
+    fn get_example_even_larger() -> Vec<&'static str> {
+        include_str!("example_even_larger.txt").lines().collect()
     }
 
     mod part_1 {

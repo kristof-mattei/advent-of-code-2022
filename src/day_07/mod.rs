@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::shared::{Day, PartSolution};
 use std::cmp;
 
-fn parse_lines(lines: &[String]) -> Vec<u32> {
+fn parse_lines(lines: &[&str]) -> Vec<u32> {
     lines[0]
         .split(',')
         .map(|f| f.parse::<u32>().unwrap())
@@ -83,7 +83,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let crabs = parse_lines(&lines);
 
@@ -91,7 +91,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let crabs = parse_lines(&lines);
 
@@ -101,7 +101,7 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
+    fn get_example() -> Vec<&'static str> {
         include_str!("example.txt")
             .lines()
             .map(Into::into)

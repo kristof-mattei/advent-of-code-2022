@@ -7,7 +7,7 @@ enum Instruction {
     Y(usize),
 }
 
-fn parse_lines(lines: &[String]) -> (Vec<Vec<Cell<bool>>>, Vec<Instruction>) {
+fn parse_lines(lines: &[&str]) -> (Vec<Vec<Cell<bool>>>, Vec<Instruction>) {
     let mut field = Vec::new();
 
     let mut coordinates = Vec::new();
@@ -140,7 +140,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let (mut field, fold_instructions) = parse_lines(&lines);
 
@@ -155,7 +155,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let (mut field, fold_instructions) = parse_lines(&lines);
 
@@ -169,11 +169,8 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
-        include_str!("example.txt")
-            .lines()
-            .map(Into::into)
-            .collect()
+    fn get_example() -> Vec<&'static str> {
+        include_str!("example.txt").lines().collect()
     }
 
     mod part_1 {

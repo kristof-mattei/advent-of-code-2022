@@ -5,7 +5,7 @@ use crate::shared::{Day, PartSolution};
 type Octopus = Cell<u8>;
 type Coordinates = (usize, usize);
 
-fn parse_lines(lines: &[String]) -> Vec<Vec<Octopus>> {
+fn parse_lines(lines: &[&str]) -> Vec<Vec<Octopus>> {
     let mut field = Vec::new();
 
     for line in lines {
@@ -141,7 +141,7 @@ pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let octopus_field = parse_lines(&lines);
 
@@ -155,7 +155,7 @@ impl Day for Solution {
     }
 
     fn part_2(&self) -> PartSolution {
-        let lines: Vec<String> = include_str!("input.txt").lines().map(Into::into).collect();
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let octopus_field = parse_lines(&lines);
         let field_size =
@@ -175,7 +175,7 @@ impl Day for Solution {
 
 #[cfg(test)]
 mod test {
-    fn get_example() -> Vec<String> {
+    fn get_example() -> Vec<&'static str> {
         include_str!("example.txt")
             .lines()
             .map(Into::into)
@@ -190,10 +190,6 @@ mod test {
         };
 
         use super::get_example;
-
-        fn to_vec_string(vec_str: &[&str]) -> Vec<String> {
-            vec_str.iter().map(|x| (*x).to_owned()).collect()
-        }
 
         fn back_to_vec_string(octopus_field: &[Vec<Octopus>]) -> Vec<String> {
             let mut lines = Vec::new();
@@ -233,9 +229,9 @@ mod test {
 
         #[test]
         fn example_step_by_step() {
-            let lines: Vec<String> = to_vec_string(&["11111", "19991", "19191", "19991", "11111"]);
+            let lines = &["11111", "19991", "19191", "19991", "11111"];
 
-            let octopus_field = parse_lines(&lines);
+            let octopus_field = parse_lines(lines);
 
             let _ = step(&octopus_field);
 
