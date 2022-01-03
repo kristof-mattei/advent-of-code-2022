@@ -1,8 +1,5 @@
 use crate::shared::{Day, PartSolution};
 
-// fn get_neighbors<T>(chiton_field: &[Vec<T>], coordinates: Coordinates) -> Vec<Coordinates> {
-// }
-
 #[derive(PartialEq, Eq, Clone, Copy)]
 enum Pixel {
     Light,
@@ -21,6 +18,7 @@ impl std::fmt::Debug for Pixel {
 struct Field {
     picture: Vec<Vec<Pixel>>,
     outer: Pixel,
+    algorithm: Vec<Pixel>,
 }
 
 impl std::fmt::Debug for Field {
@@ -140,10 +138,10 @@ fn get_lookup(field: &Field, row_index: usize, column_index: usize) -> Vec<Pixel
         .collect()
 }
 
-fn enhance(field: &Field, algorithm: &[Pixel]) -> Field {
-    let outer = field.outer;
+fn enhance(f: Field) -> Field {
+    let outer = f.outer;
 
-    println!("Before : \n{:?}", &field);
+    let field = zoom_out(f);
 
     let mut new_image = Vec::new();
 
@@ -151,9 +149,9 @@ fn enhance(field: &Field, algorithm: &[Pixel]) -> Field {
         let mut new_row = Vec::new();
 
         for (col_index, _pixel) in row.iter().enumerate() {
-            let lookup = get_lookup(field, row_index, col_index);
+            let lookup = get_lookup(&field, row_index, col_index);
 
-            let translated = algorithm[parse_lookup(&lookup)];
+            let translated = field.algorithm[parse_lookup(&lookup)];
 
             new_row.push(translated);
         }
@@ -162,21 +160,20 @@ fn enhance(field: &Field, algorithm: &[Pixel]) -> Field {
     }
 
     let new_outer = match &outer {
-        Pixel::Light => algorithm[0b1_1111_1111],
-        Pixel::Dark => algorithm[0b0_0000_0000],
+        Pixel::Light => field.algorithm[0b1_1111_1111],
+        Pixel::Dark => field.algorithm[0b0_0000_0000],
     };
 
     let field = Field {
         picture: new_image,
         outer: new_outer,
+        algorithm: field.algorithm,
     };
-
-    println!("After: \n{:?}", &field);
 
     field
 }
 
-fn parse_lines(lines: &[&str]) -> (Field, Vec<Pixel>) {
+fn parse_lines(lines: &[&str]) -> Field {
     // first line is the algoritm
     let algorithm = to_pixel(lines[0]);
 
@@ -186,19 +183,17 @@ fn parse_lines(lines: &[&str]) -> (Field, Vec<Pixel>) {
         picture.push(to_pixel(line));
     }
 
-    (
-        Field {
-            picture,
-            outer: Pixel::Dark,
-        },
+    Field {
+        picture,
+        outer: Pixel::Dark,
         algorithm,
-    )
+    }
 }
 
 fn zoom_out(field: Field) -> Field {
     let columns = field.picture.get(0).map(Vec::len).unwrap();
 
-    let add = 1;
+    let add = 2;
 
     let mut outside = Vec::new();
     outside.resize(columns + 2 * add, field.outer);
@@ -226,6 +221,7 @@ fn zoom_out(field: Field) -> Field {
     Field {
         picture: new,
         outer: field.outer,
+        algorithm: field.algorithm,
     }
 }
 
@@ -242,27 +238,42 @@ fn count_lit_pixels(field: &Field) -> u32 {
 
     count
 }
+
+fn enhance_times(field: Field, times: u32) -> Field {
+    let mut new_field = field;
+
+    for _ in 0..times {
+        new_field = enhance(new_field);
+    }
+
+    new_field
+}
+
 pub struct Solution {}
 
 impl Day for Solution {
     fn part_1(&self) -> PartSolution {
         let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
-        let (field, algorithm) = parse_lines(&lines);
-        // println!("{:?}", field);
+        let field = parse_lines(&lines);
 
-        let field = enhance(&field, &algorithm);
-        // println!("{:?}", field);
+        let field = enhance_times(field, 2);
 
-        let field = enhance(&field, &algorithm);
-        println!("{:?}", field);
         let lit_pixels = count_lit_pixels(&field);
 
         PartSolution::U32(lit_pixels)
     }
 
     fn part_2(&self) -> PartSolution {
-        PartSolution::None
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+
+        let field = parse_lines(&lines);
+
+        let field = enhance_times(field, 50);
+
+        let lit_pixels = count_lit_pixels(&field);
+
+        PartSolution::U32(lit_pixels)
     }
 }
 
@@ -275,8 +286,8 @@ mod test {
 
         use crate::{
             day_20::{
-                count_lit_pixels, enhance, get_lookup, parse_lines, parse_lookup, to_pixel, Pixel,
-                Solution,
+                count_lit_pixels, enhance, enhance_times, get_lookup, parse_lines, parse_lookup,
+                to_pixel, Pixel, Solution,
             },
             shared::{Day, PartSolution},
         };
@@ -285,21 +296,31 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_1(), PartSolution::None);
+            assert_eq!((Solution {}).part_1(), PartSolution::U32(5425));
         }
 
         #[test]
         fn example() {
             let example_lines = get_example();
 
-            let (field, algorithm) = parse_lines(&example_lines);
-            // println!("{:?}", field);
+            let field = parse_lines(&example_lines);
 
-            let field = enhance(&field, &algorithm);
-            // println!("{:?}", field);
+            let field = enhance(field);
 
-            let field = enhance(&field, &algorithm);
-            println!("{:?}", field);
+            let field = enhance(field);
+
+            let lit_pixels = count_lit_pixels(&field);
+
+            assert_eq!(35, lit_pixels);
+        }
+
+        #[test]
+        fn example_times() {
+            let example_lines = get_example();
+
+            let field = parse_lines(&example_lines);
+
+            let field = enhance_times(field, 2);
 
             let lit_pixels = count_lit_pixels(&field);
 
@@ -333,30 +354,41 @@ mod test {
         fn test_get_lookup() {
             let example_lines = get_example();
 
-            let (field, algorithm) = parse_lines(&example_lines);
-
-            // println!("{:?}", field);
+            let field = parse_lines(&example_lines);
 
             let lookup = get_lookup(&field, 2, 2);
 
             let parsed_lookup = parse_lookup(&lookup);
 
-            let expected_algorithm_lookup = algorithm[parse_lookup(&to_pixel("...#...#."))];
+            let expected_algorithm_lookup = field.algorithm[parse_lookup(&to_pixel("...#...#."))];
 
-            assert_eq!(expected_algorithm_lookup, algorithm[parsed_lookup]);
+            assert_eq!(expected_algorithm_lookup, field.algorithm[parsed_lookup]);
         }
     }
 
     mod part_2 {
 
         use crate::{
-            day_20::Solution,
+            day_20::{count_lit_pixels, enhance_times, parse_lines, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
         #[test]
+        fn example_times() {
+            let example_lines = get_example();
+
+            let field = parse_lines(&example_lines);
+
+            let field = enhance_times(field, 50);
+
+            let lit_pixels = count_lit_pixels(&field);
+
+            assert_eq!(3351, lit_pixels);
+        }
+
+        #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_2(), PartSolution::None);
+            assert_eq!((Solution {}).part_2(), PartSolution::U32(14052));
         }
     }
 }
