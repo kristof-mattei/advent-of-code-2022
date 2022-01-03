@@ -97,9 +97,11 @@ fn play(players: &[Player], until: u32) -> (u32, u32) {
 }
 
 fn play_quantum(players: &[Player], until: u32) -> Vec<u64> {
-    for player in players {
-        for i in 1_u32..=3 {}
-    }
+    // for (i, player) in players.iter().enumerate() {
+    //     for i in 1_u32..=3 {
+    //         player
+    //     }
+    // }
 
     vec![]
 }
