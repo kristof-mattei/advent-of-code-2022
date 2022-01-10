@@ -239,7 +239,7 @@ jobs:
       - cargo-fmt
       - cargo-test-and-report
       - cargo-clippy-and-report
-    if: ${{ !failure() }}
+    if: ${{ !failure() && !cancelled() }}
     steps:
       - run: |
           echo "Great success!"
