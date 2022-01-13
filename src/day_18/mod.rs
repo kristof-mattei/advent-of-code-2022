@@ -144,9 +144,7 @@ fn explode(snailfish: Snailfish, depth: u32, exploded: bool) -> ExplodedSnailfis
             let l_exploded = explode(*l, depth + 1, exploded);
             let r_exploded = explode(*r, depth + 1, exploded || l_exploded.exploded);
 
-            if r_exploded.push_to_left.is_some() && l_exploded.push_to_right.is_some() {
-                panic!();
-            }
+            assert!(r_exploded.push_to_left.is_none() || l_exploded.push_to_right.is_none());
 
             let new_fish = Snailfish::Pair((
                 add_number_to_snailfish(l_exploded.snailfish, r_exploded.push_to_left, Side::Right)
