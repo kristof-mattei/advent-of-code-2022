@@ -122,8 +122,8 @@ fn find_max_y(target: &Target) -> i32 {
                         max_y_for_x = y;
                         println!("MAX HIT AT {},{}", launch_x, launch_y);
                     }
-                }
-                Hit::Missed => {}
+                },
+                Hit::Missed => {},
             }
         }
 
@@ -152,8 +152,8 @@ fn count_hits(target: &Target) -> u32 {
                 Hit::Hit(_) => {
                     hits += 1;
                     println!("HIT AT {},{}", launch_x, launch_y);
-                }
-                Hit::Missed => {}
+                },
+                Hit::Missed => {},
             }
         }
     }

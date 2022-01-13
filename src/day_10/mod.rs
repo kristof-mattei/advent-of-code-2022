@@ -68,7 +68,7 @@ fn find_first_illegal_character(symbols: &[Symbol]) -> Option<Symbol> {
                     if s.get_opposite() != *symbol {
                         return Some(*symbol);
                     }
-                }
+                },
             }
         }
     }

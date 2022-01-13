@@ -115,7 +115,7 @@ fn fold(field: &mut Vec<Vec<Cell<bool>>>, instruction: &Instruction) {
 
                 row.truncate(*fold_on_column);
             }
-        }
+        },
         Instruction::Y(fold_on_row) => {
             let columns = field.get(0).map_or(0, Vec::len);
 
@@ -132,7 +132,7 @@ fn fold(field: &mut Vec<Vec<Cell<bool>>>, instruction: &Instruction) {
             }
 
             field.truncate(*fold_on_row);
-        }
+        },
     }
 }
 
