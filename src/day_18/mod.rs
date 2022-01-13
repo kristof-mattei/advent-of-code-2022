@@ -113,10 +113,10 @@ fn add_number_to_snailfish(snailfish: Snailfish, number: Option<u32>, side: Side
             Snailfish::Pair((l, r)) => match side {
                 Side::Left => {
                     Snailfish::Pair((add_number_to_snailfish(*l, number, side).into(), r))
-                }
+                },
                 Side::Right => {
                     Snailfish::Pair((l, add_number_to_snailfish(*r, number, side).into()))
-                }
+                },
             },
 
             Snailfish::Value(x) => Snailfish::Value(x + n),
@@ -161,7 +161,7 @@ fn explode(snailfish: Snailfish, depth: u32, exploded: bool) -> ExplodedSnailfis
                 r_exploded.push_to_right,
                 exploded || l_exploded.exploded || r_exploded.exploded,
             )
-        }
+        },
     }
 }
 
@@ -175,7 +175,7 @@ fn split(snailfish: Snailfish, did1split: bool) -> SplitSnailfish {
                 Snailfish::Pair((l_split.snailfish.into(), r_split.snailfish.into())),
                 did1split || l_split.split || r_split.split,
             )
-        }
+        },
 
         Snailfish::Value(x) => {
             if x >= 10 && !did1split {
@@ -191,7 +191,7 @@ fn split(snailfish: Snailfish, did1split: bool) -> SplitSnailfish {
             } else {
                 SplitSnailfish::new(Snailfish::Value(x), did1split)
             }
-        }
+        },
     }
 }
 
