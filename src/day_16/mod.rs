@@ -43,10 +43,10 @@ fn fetch_until_bits_in_buffer(
             Some(nibble) => {
                 *buffer <<= 4;
                 *buffer |= u16::from(nibble);
-            }
+            },
             None => {
                 println!("You're asking more than we have left!");
-            }
+            },
         };
 
         *bits_loaded_in_buffer += 4;
@@ -227,7 +227,7 @@ fn parse_packet(
                     "Packet type ({}) / length type id ({}) not supported",
                     packet_type, length_type_id,
                 );
-            }
+            },
         }
     };
 
@@ -288,7 +288,7 @@ fn calculate_deep_packet_value(packet: &Packet) -> u64 {
             } else {
                 0
             }
-        }
+        },
         PacketInside::LessThanThan(v) => {
             assert_eq!(2, v.len());
 
@@ -300,7 +300,7 @@ fn calculate_deep_packet_value(packet: &Packet) -> u64 {
             } else {
                 0
             }
-        }
+        },
         PacketInside::Equal(v) => {
             assert_eq!(2, v.len());
             let l = calculate_deep_packet_value(&v[0]);
@@ -311,7 +311,7 @@ fn calculate_deep_packet_value(packet: &Packet) -> u64 {
             } else {
                 0
             }
-        }
+        },
     };
 }
 

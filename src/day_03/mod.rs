@@ -48,14 +48,14 @@ fn find_common(lines: &[u32], bit_index: usize, common: &Common) -> usize {
             } else {
                 1
             }
-        }
+        },
         Common::Most => {
             if count_of_1 >= count_of_0 {
                 1
             } else {
                 0
             }
-        }
+        },
     }
 }
 
