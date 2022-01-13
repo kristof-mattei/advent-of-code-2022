@@ -61,7 +61,8 @@ fn main() {
         Box::new(day_17::Solution {}),
         Box::new(day_18::Solution {}),
         Box::new(day_19::Solution {}),
-        Box::new(day_21::Solution {}),
+        // Box::new(day_20::Solution {}),
+        // Box::new(day_21::Solution {}),
     ];
 
     for solution in solutions {
