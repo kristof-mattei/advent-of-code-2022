@@ -26,7 +26,7 @@ fn determine_direction_2(directions: &[Direction]) -> (u32, u32) {
             Direction::Forward(x) => {
                 forward += x;
                 depth += aim * x;
-            }
+            },
         }
     }
     (forward, depth)
