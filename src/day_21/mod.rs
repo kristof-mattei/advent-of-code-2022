@@ -157,6 +157,7 @@ fn play_quantum(cache: &mut HashMap<Game, Vec<u64>>, game: &Game, until: u32) ->
         } else {
             new_game.current_player = next_player;
 
+            // the borrow checker doesn't like this
             // let cached = cache.entry(new_game).or_insert_with_key(|ng| play_quantum(cache, ng, until));
 
             if cache.get(&new_game).is_none() {
@@ -165,7 +166,8 @@ fn play_quantum(cache: &mut HashMap<Game, Vec<u64>>, game: &Game, until: u32) ->
                 cache.insert(new_game.clone(), new_game_results);
             }
 
-            let cached = cache.get(&new_game).unwrap();
+            let cached = &cache[&new_game];
+
             cached
                 .iter()
                 .enumerate()
@@ -251,7 +253,10 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_2(), PartSolution::None);
+            assert_eq!(
+                (Solution {}).part_2(),
+                PartSolution::U64(306_719_685_234_774)
+            );
         }
 
         #[test]
