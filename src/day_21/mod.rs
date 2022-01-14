@@ -109,61 +109,70 @@ struct Game {
     current_player: usize,
 }
 
-fn play_quantum(players: Vec<Player>, until: u32) -> Vec<u128> {
-    let mut results = Vec::new();
-    results.resize(2, 0);
-
-    let mut games: HashMap<Game, u128> = HashMap::from([(
-        Game {
+impl Game {
+    fn new(players: Vec<Player>) -> Self {
+        Self {
             players,
             current_player: 0,
-        },
-        1,
-    )]);
+        }
+    }
+}
 
-    loop {
-        // get first value where count > 0
-        // and remove it
-        // check if it's a win
-        // if so, add wins
-        // if not, duplicatae each entry with a count > 0
-        let mut new_games = HashMap::new();
-        if let Some((game, count)) = games.iter_mut().find(|(_, c)| **c > 0) {
-            let next_player = (game.current_player + 1) % game.players.len();
+fn get_quantum_die_rolls() -> HashMap<u32, u32> {
+    let mut rolls = Vec::new();
+    for r1 in 1..=3 {
+        for r2 in 1..=3 {
+            for r3 in 1..=3 {
+                rolls.push(vec![r1, r2, r3]);
+            }
+        }
+    }
 
-            let c = *count;
+    let mut rolls_sum_with_count = HashMap::new();
 
-            for r in 1..=3 {
-                let mut new_game = game.clone();
-                new_game.players[new_game.current_player].r#move(r);
+    for roll in rolls {
+        rolls_sum_with_count
+            .entry(roll.iter().sum::<u32>())
+            .and_modify(|c| *c += 1)
+            .or_insert(1);
+    }
 
-                if new_game.players[new_game.current_player].score >= until {
-                    results[new_game.current_player] += c;
-                } else {
-                    new_game.current_player = next_player;
-                    new_games.insert(new_game, c);
-                }
+    rolls_sum_with_count
+}
+
+fn play_quantum(cache: &mut HashMap<Game, Vec<u64>>, game: &Game, until: u32) -> Vec<u64> {
+    let rolls = get_quantum_die_rolls();
+
+    let mut results = Vec::new();
+    results.resize(game.players.len(), 0);
+
+    let next_player = (game.current_player + 1) % game.players.len();
+
+    for (roll_sum, occurence) in &rolls {
+        let mut new_game = game.clone();
+        new_game.players[game.current_player].r#move(*roll_sum);
+
+        if new_game.players[game.current_player].score >= until {
+            results[game.current_player] += u64::from(*occurence);
+        } else {
+            new_game.current_player = next_player;
+
+            // let cached = cache.entry(new_game).or_insert_with_key(|ng| play_quantum(cache, ng, until));
+
+            if cache.get(&new_game).is_none() {
+                let new_game_results = play_quantum(cache, &new_game, until);
+
+                cache.insert(new_game.clone(), new_game_results);
             }
 
-            *count = 0;
-        } else {
-            break;
+            let cached = cache.get(&new_game).unwrap();
+            cached
+                .iter()
+                .enumerate()
+                .for_each(|(i, c)| results[i] += c * u64::from(*occurence));
         }
-
-        games
-            .iter_mut()
-            .filter(|(_, c)| **c > 0)
-            .for_each(|(_, c)| *c += new_games.values().sum::<u128>());
-
-        for (new_game, count) in new_games {
-            games
-                .entry(new_game)
-                .and_modify(|c| *c += count)
-                .or_insert(count);
-        }
-
-        //println!("{} games to play", games.values().sum::<u64>());
     }
+
     results
 }
 
@@ -185,10 +194,9 @@ impl Day for Solution {
 
         let players = parse_lines(&lines);
 
-        let result = play_quantum(players, 21);
+        let result = play_quantum(&mut HashMap::new(), &Game::new(players), 21);
 
-        PartSolution::U128(*result.iter().max().unwrap())
-        // PartSolution::U32(result.0 * result.1)
+        PartSolution::U64(*result.iter().max().unwrap())
     }
 }
 
@@ -234,8 +242,10 @@ mod test {
     }
 
     mod part_2 {
+        use std::collections::HashMap;
+
         use crate::{
-            day_21::{parse_lines, play_quantum, test::get_example, Solution},
+            day_21::{parse_lines, play_quantum, test::get_example, Game, Solution},
             shared::{Day, PartSolution},
         };
 
@@ -250,7 +260,7 @@ mod test {
 
             let players = parse_lines(&example_lines);
 
-            let result = play_quantum(players, 21);
+            let result = play_quantum(&mut HashMap::new(), &Game::new(players), 21);
 
             println!("{:?}", result);
             assert_eq!(444_356_092_776_315, result[0]);
