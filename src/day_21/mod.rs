@@ -160,15 +160,22 @@ fn play_quantum(cache: &mut HashMap<Game, Vec<u64>>, game: &Game, until: u32) ->
             // the borrow checker doesn't like this
             // let cached = cache.entry(new_game).or_insert_with_key(|ng| play_quantum(cache, ng, until));
 
-            if cache.get(&new_game).is_none() {
-                let new_game_results = play_quantum(cache, &new_game, until);
+            // do we have the value cached?
+            let cached = cache.contains_key(&new_game);
 
-                cache.insert(new_game.clone(), new_game_results);
-            }
+            // calculate the value to insert
+            let to_insert = if cached {
+                None
+            } else {
+                Some(play_quantum(cache, &new_game, until))
+            };
 
-            let cached = &cache[&new_game];
+            let new_game_results = match to_insert {
+                None => &cache[&new_game],
+                Some(r) => cache.entry(new_game).or_insert(r),
+            };
 
-            cached
+            new_game_results
                 .iter()
                 .enumerate()
                 .for_each(|(i, c)| results[i] += c * u64::from(*occurence));
