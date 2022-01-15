@@ -76,8 +76,42 @@ fn generate_points(instruction: &Instruction, min: i32, max: i32) -> Vec<Point> 
 
     points
 }
+fn calculate_on_points(instructions: &[Instruction]) -> usize {
+    let mut on_points = HashMap::<Point, bool>::new();
 
-fn calculate_on_points(instructions: &[Instruction], min: i32, max: i32) -> usize {
+    for (i, instruction) in instructions.iter().enumerate() {
+        println!("Processing instruction {}/{}", i + 1, instructions.len());
+
+        println!(
+            "Generating points for instruction {}/{}",
+            i + 1,
+            instructions.len()
+        );
+        let points = generate_points(instruction, i32::MIN, i32::MAX);
+        println!(
+            "Generated points for instruction {}/{}",
+            i + 1,
+            instructions.len()
+        );
+
+        if instruction.on {
+            for p in points {
+                on_points.insert(p, true);
+            }
+        } else {
+            for p in points {
+                on_points.entry(p).and_modify(|on| {
+                    println!("Turned off an existing point");
+                    *on = false;
+                });
+            }
+        }
+    }
+
+    on_points.iter().filter(|(_, on)| **on).count()
+}
+
+fn calculate_on_points_naive(instructions: &[Instruction], min: i32, max: i32) -> usize {
     let mut on_points = HashMap::<Point, bool>::new();
 
     for (i, instruction) in instructions.iter().enumerate() {
@@ -128,7 +162,7 @@ impl Day for Solution {
 
         let instructions = parse_lines(&lines);
 
-        let on_points = calculate_on_points(&instructions, -50, 50);
+        let on_points = calculate_on_points_naive(&instructions, -50, 50);
 
         PartSolution::USize(on_points)
     }
@@ -138,7 +172,7 @@ impl Day for Solution {
 
         let instructions = parse_lines(&lines);
 
-        let _on_points = calculate_on_points(&instructions, i32::MIN, i32::MAX);
+        let _on_points = calculate_on_points_naive(&instructions, i32::MIN, i32::MAX);
 
         PartSolution::None
     }
@@ -161,7 +195,7 @@ mod test {
     mod part_1 {
         use crate::{
             day_22::{
-                calculate_on_points, generate_points, parse_lines, test::get_larger_example,
+                calculate_on_points_naive, generate_points, parse_lines, test::get_larger_example,
                 Instruction, Point, Solution,
             },
             shared::{Day, PartSolution},
@@ -390,7 +424,7 @@ mod test {
 
             let instructions = parse_lines(&example_lines);
 
-            let on_points = calculate_on_points(&instructions, -50, 50);
+            let on_points = calculate_on_points_naive(&instructions, -50, 50);
 
             assert_eq!(39, on_points);
         }
@@ -410,7 +444,7 @@ mod test {
                     z: 53682,
                 },
             }];
-            let on_points = calculate_on_points(&instructions, -50, 50);
+            let on_points = calculate_on_points_naive(&instructions, -50, 50);
 
             assert_eq!(0, on_points);
         }
@@ -431,7 +465,7 @@ mod test {
                 },
             }];
 
-            let on_points = calculate_on_points(&instructions, -50, 50);
+            let on_points = calculate_on_points_naive(&instructions, -50, 50);
 
             assert_eq!(60, on_points);
         }
@@ -442,7 +476,7 @@ mod test {
 
             let instructions = parse_lines(&example_lines);
 
-            let on_points = calculate_on_points(&instructions, -50, 50);
+            let on_points = calculate_on_points_naive(&instructions, -50, 50);
 
             assert_eq!(590_784, on_points);
         }
