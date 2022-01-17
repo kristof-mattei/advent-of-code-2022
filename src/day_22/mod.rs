@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use regex::Regex;
 
 use crate::shared::{Day, PartSolution};
@@ -46,112 +44,177 @@ fn parse_lines(lines: &[&str]) -> Vec<Instruction> {
     instructions
 }
 
-fn generate_points(instruction: &Instruction, min: i32, max: i32) -> Vec<Point> {
-    let mut points = Vec::new();
+fn get_on_cuboids(instructions: &[Instruction]) -> Vec<Cuboid> {
+    let mut on_cuboids: Vec<Cuboid> = Vec::new();
 
-    if !(instruction.start.x > max
-        || instruction.end.x < min
-        || instruction.start.y > max
-        || instruction.end.y < min
-        || instruction.start.z > max
-        || instruction.end.z < min)
-    {
-        let x1 = instruction.start.x.max(min);
-        let x2 = instruction.end.x.min(max);
+    for instruction in instructions.iter() {
+        let cuboid = Cuboid::new(
+            instruction.start.x,
+            instruction.end.x,
+            instruction.start.y,
+            instruction.end.y,
+            instruction.start.z,
+            instruction.end.z,
+        );
 
-        let y1 = instruction.start.y.max(min);
-        let y2 = instruction.end.y.min(max);
+        let mut touched_one = true;
 
-        let z1 = instruction.start.z.max(min);
-        let z2 = instruction.end.z.min(max);
+        while touched_one {
+            let overlapped = on_cuboids.iter().rev().find(|c| c.overlaps(&cuboid));
 
-        for x in x1.min(x2)..=x1.max(x2) {
-            for y in y1.min(y2)..=y1.max(y2) {
-                for z in z1.min(z2)..=z1.max(z2) {
-                    points.push(Point { x, y, z });
-                }
+            let position = match overlapped {
+                Some(o) => on_cuboids.iter().rev().position(|oc| oc == o),
+                None => None,
+            };
+
+            match position {
+                Some(p) => {
+                    // find the index of the overlapped one
+                    let removed = on_cuboids.remove(on_cuboids.len() - 1 - p);
+                    let new_pieces = removed.subtract(&cuboid);
+
+                    for np in new_pieces {
+                        on_cuboids.insert(p, np);
+                    }
+                },
+                None => touched_one = false,
             }
         }
-    }
-
-    points
-}
-fn calculate_on_points(instructions: &[Instruction]) -> usize {
-    let mut on_points = HashMap::<Point, bool>::new();
-
-    for (i, instruction) in instructions.iter().enumerate() {
-        println!("Processing instruction {}/{}", i + 1, instructions.len());
-
-        println!(
-            "Generating points for instruction {}/{}",
-            i + 1,
-            instructions.len()
-        );
-        let points = generate_points(instruction, i32::MIN, i32::MAX);
-        println!(
-            "Generated points for instruction {}/{}",
-            i + 1,
-            instructions.len()
-        );
 
         if instruction.on {
-            for p in points {
-                on_points.insert(p, true);
-            }
-        } else {
-            for p in points {
-                on_points.entry(p).and_modify(|on| {
-                    println!("Turned off an existing point");
-                    *on = false;
-                });
-            }
+            on_cuboids.push(cuboid);
         }
     }
 
-    on_points.iter().filter(|(_, on)| **on).count()
+    on_cuboids
 }
 
-fn calculate_on_points_naive(instructions: &[Instruction], min: i32, max: i32) -> usize {
-    let mut on_points = HashMap::<Point, bool>::new();
+fn calculate_on_points_naive(instructions: &[Instruction], min: i32, max: i32) -> u64 {
+    get_on_cuboids(instructions)
+        .into_iter()
+        .map(|cuboid| {
+            Cuboid::new(
+                cuboid.x_min.max(min),
+                cuboid.x_max.min(max),
+                cuboid.y_min.max(min),
+                cuboid.y_max.min(max),
+                cuboid.z_min.max(min),
+                cuboid.z_max.min(max),
+            )
+        })
+        .map(|cuboid| cuboid.volume())
+        .sum()
+}
 
-    for (i, instruction) in instructions.iter().enumerate() {
-        println!("Processing instruction {}/{}", i + 1, instructions.len());
+fn calculate_on_points(instructions: &[Instruction]) -> u64 {
+    get_on_cuboids(instructions)
+        .iter()
+        .map(Cuboid::volume)
+        .sum()
+}
 
-        println!(
-            "Generating points for instruction {}/{}",
-            i + 1,
-            instructions.len()
-        );
-        let points = generate_points(instruction, min, max);
-        println!(
-            "Generated points for instruction {}/{}",
-            i + 1,
-            instructions.len()
-        );
+#[derive(PartialEq, Eq, Debug)]
+struct Cuboid {
+    x_min: i32,
+    x_max: i32,
+    y_min: i32,
+    y_max: i32,
+    z_min: i32,
+    z_max: i32,
+}
 
-        if instruction.on {
-            for p in points {
-                on_points.insert(p, true);
-            }
-        } else {
-            for p in points {
-                on_points.entry(p).and_modify(|on| {
-                    println!("Turned off an existing point");
-                    *on = false;
-                });
-            }
+impl Cuboid {
+    fn new(x_min: i32, x_max: i32, y_min: i32, y_max: i32, z_min: i32, z_max: i32) -> Self {
+        Self {
+            x_min,
+            x_max,
+            y_min,
+            y_max,
+            z_min,
+            z_max,
         }
     }
 
-    // let ct = on_points
-    //     .iter()
-    //     .filter(|p| {
-    //         p.x >= min && p.x <= max && p.y >= min && p.y <= max && p.z >= min && p.z <= max
-    //     })
-    //     .count();
+    fn subtract(self, other: &Cuboid) -> Vec<Cuboid> {
+        if self.overlaps(other) {
+            [
+                Cuboid::new(
+                    self.x_min,
+                    other.x_min - 1,
+                    self.y_min,
+                    self.y_max,
+                    self.z_min,
+                    self.z_max,
+                ),
+                Cuboid::new(
+                    other.x_max + 1,
+                    self.x_max,
+                    self.y_min,
+                    self.y_max,
+                    self.z_min,
+                    self.z_max,
+                ),
+                Cuboid::new(
+                    self.x_min.max(other.x_min),
+                    self.x_max.min(other.x_max),
+                    self.y_min,
+                    other.y_min - 1,
+                    self.z_min,
+                    self.z_max,
+                ),
+                Cuboid::new(
+                    self.x_min.max(other.x_min),
+                    self.x_max.min(other.x_max),
+                    other.y_max + 1,
+                    self.y_max,
+                    self.z_min,
+                    self.z_max,
+                ),
+                Cuboid::new(
+                    self.x_min.max(other.x_min),
+                    self.x_max.min(other.x_max),
+                    self.y_min.max(other.y_min),
+                    self.y_max.min(other.y_max),
+                    self.z_min,
+                    other.z_min - 1,
+                ),
+                Cuboid::new(
+                    self.x_min.max(other.x_min),
+                    self.x_max.min(other.x_max),
+                    self.y_min.max(other.y_min),
+                    self.y_max.min(other.y_max),
+                    other.z_max + 1,
+                    self.z_max,
+                ),
+            ]
+            .into_iter()
+            .filter(|c| !c.is_empty())
+            .collect()
+        } else {
+            vec![self]
+        }
+    }
 
-    // ct
-    on_points.iter().filter(|(_, on)| **on).count()
+    fn is_empty(&self) -> bool {
+        self.x_max < self.x_min || self.y_max < self.y_min || self.z_max < self.z_min
+    }
+
+    fn overlaps(&self, other: &Cuboid) -> bool {
+        !(other.x_min > self.x_max
+            || other.x_max < self.x_min
+            || other.y_min > self.y_max
+            || other.y_max < self.y_min
+            || other.z_min > self.z_max
+            || other.z_max < self.z_min)
+    }
+
+    fn volume(&self) -> u64 {
+        // max plus one as our ranges are inclusive
+        let x_dim = u64::try_from(self.x_max + 1 - self.x_min).unwrap_or_default();
+        let y_dim = u64::try_from(self.y_max + 1 - self.y_min).unwrap_or_default();
+        let z_dim = u64::try_from(self.z_max + 1 - self.z_min).unwrap_or_default();
+        x_dim * y_dim * z_dim
+    }
 }
 
 pub struct Solution {}
@@ -164,7 +227,7 @@ impl Day for Solution {
 
         let on_points = calculate_on_points_naive(&instructions, -50, 50);
 
-        PartSolution::USize(on_points)
+        PartSolution::U64(on_points)
     }
 
     fn part_2(&self) -> PartSolution {
@@ -172,9 +235,9 @@ impl Day for Solution {
 
         let instructions = parse_lines(&lines);
 
-        let _on_points = calculate_on_points_naive(&instructions, i32::MIN, i32::MAX);
+        let on_points = calculate_on_points(&instructions);
 
-        PartSolution::None
+        PartSolution::U64(on_points)
     }
 }
 
@@ -195,8 +258,8 @@ mod test {
     mod part_1 {
         use crate::{
             day_22::{
-                calculate_on_points_naive, generate_points, parse_lines, test::get_larger_example,
-                Instruction, Point, Solution,
+                calculate_on_points_naive, parse_lines, test::get_larger_example, Instruction,
+                Point, Solution,
             },
             shared::{Day, PartSolution},
         };
@@ -205,7 +268,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!((Solution {}).part_1(), PartSolution::USize(580_012));
+            assert_eq!((Solution {}).part_1(), PartSolution::U64(580_012));
         }
 
         #[test]
@@ -267,155 +330,6 @@ mod test {
                 ],
                 reboot_steps
             );
-        }
-
-        #[test]
-        fn example_first_step() {
-            let example_lines = get_example();
-
-            let reboot_steps = parse_lines(&example_lines);
-
-            let unrolled_points = vec![
-                Point {
-                    x: 10,
-                    y: 10,
-                    z: 10,
-                },
-                Point {
-                    x: 10,
-                    y: 10,
-                    z: 11,
-                },
-                Point {
-                    x: 10,
-                    y: 10,
-                    z: 12,
-                },
-                Point {
-                    x: 10,
-                    y: 11,
-                    z: 10,
-                },
-                Point {
-                    x: 10,
-                    y: 11,
-                    z: 11,
-                },
-                Point {
-                    x: 10,
-                    y: 11,
-                    z: 12,
-                },
-                Point {
-                    x: 10,
-                    y: 12,
-                    z: 10,
-                },
-                Point {
-                    x: 10,
-                    y: 12,
-                    z: 11,
-                },
-                Point {
-                    x: 10,
-                    y: 12,
-                    z: 12,
-                },
-                Point {
-                    x: 11,
-                    y: 10,
-                    z: 10,
-                },
-                Point {
-                    x: 11,
-                    y: 10,
-                    z: 11,
-                },
-                Point {
-                    x: 11,
-                    y: 10,
-                    z: 12,
-                },
-                Point {
-                    x: 11,
-                    y: 11,
-                    z: 10,
-                },
-                Point {
-                    x: 11,
-                    y: 11,
-                    z: 11,
-                },
-                Point {
-                    x: 11,
-                    y: 11,
-                    z: 12,
-                },
-                Point {
-                    x: 11,
-                    y: 12,
-                    z: 10,
-                },
-                Point {
-                    x: 11,
-                    y: 12,
-                    z: 11,
-                },
-                Point {
-                    x: 11,
-                    y: 12,
-                    z: 12,
-                },
-                Point {
-                    x: 12,
-                    y: 10,
-                    z: 10,
-                },
-                Point {
-                    x: 12,
-                    y: 10,
-                    z: 11,
-                },
-                Point {
-                    x: 12,
-                    y: 10,
-                    z: 12,
-                },
-                Point {
-                    x: 12,
-                    y: 11,
-                    z: 10,
-                },
-                Point {
-                    x: 12,
-                    y: 11,
-                    z: 11,
-                },
-                Point {
-                    x: 12,
-                    y: 11,
-                    z: 12,
-                },
-                Point {
-                    x: 12,
-                    y: 12,
-                    z: 10,
-                },
-                Point {
-                    x: 12,
-                    y: 12,
-                    z: 11,
-                },
-                Point {
-                    x: 12,
-                    y: 12,
-                    z: 12,
-                },
-            ];
-
-            let result = generate_points(&reboot_steps[0], i32::MIN, i32::MAX);
-
-            assert_eq!(unrolled_points, result);
         }
 
         #[test]
@@ -484,11 +398,26 @@ mod test {
 
     mod part_2 {
 
-        use crate::day_22::{calculate_on_points, parse_lines, test::get_example_part_2};
+        use crate::{
+            day_22::{
+                calculate_on_points, parse_lines, test::get_example_part_2, Cuboid, Solution,
+            },
+            shared::{Day, PartSolution},
+        };
 
         #[test]
         fn outcome() {
-            // assert_eq!( (Solution {}).part_2(), PartSolution::U64(306_719_685_234_774));
+            assert_eq!(
+                (Solution {}).part_2(),
+                PartSolution::U64(1_334_238_660_555_542)
+            );
+        }
+
+        #[test]
+        fn cuboid_volume() {
+            let cuboid = Cuboid::new(0, 5, 0, 5, 0, 5);
+
+            assert_eq!(216, cuboid.volume());
         }
 
         #[test]
@@ -497,9 +426,9 @@ mod test {
 
             let instructions = parse_lines(&example_lines);
 
-            // let on_points = calculate_on_points(&instructions, i32::MIN, i32::MAX);
+            let on_points = calculate_on_points(&instructions);
 
-            // assert_eq!(2_758_514_936_282_235, on_points);
+            assert_eq!(2_758_514_936_282_235, on_points);
         }
     }
 }
