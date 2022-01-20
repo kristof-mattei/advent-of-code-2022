@@ -1,8 +1,11 @@
-use core::fmt;
-use std::collections::{HashMap, HashSet};
+use std::{
+    cell::{Cell, RefCell},
+    error::Error,
+};
 
 use crate::shared::{Day, PartSolution};
 
+#[derive(Hash, Eq, PartialEq)]
 enum Register {
     W,
     X,
@@ -10,10 +13,30 @@ enum Register {
     Z,
 }
 
-enum RegisterOrValue {
-    Register,
-    Value(i32),
+impl std::fmt::Display for Register {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Register::W => write!(f, "w"),
+            Register::X => write!(f, "x"),
+            Register::Y => write!(f, "y"),
+            Register::Z => write!(f, "z"),
+        }
+    }
 }
+enum RegisterOrValue {
+    Register(Register),
+    Value(i64),
+}
+
+impl std::fmt::Display for RegisterOrValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            RegisterOrValue::Register(r) => write!(f, "{}", r),
+            RegisterOrValue::Value(v) => write!(f, "{}", v),
+        }
+    }
+}
+
 enum Instruction {
     Input(Register),
     Add(Register, RegisterOrValue),
@@ -23,17 +46,119 @@ enum Instruction {
     Eql(Register, RegisterOrValue),
 }
 
-struct Alu {
-    registers: HashMap<Register, i32>,
-    input: Vec<i32>,
+impl std::fmt::Debug for Instruction {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Instruction::Input(r) => write!(f, "inp {}", r),
+            Instruction::Add(r, v) => write!(f, "add {} {}", r, v),
+            Instruction::Mul(r, v) => write!(f, "mul {} {}", r, v),
+            Instruction::Div(r, v) => write!(f, "div {} {}", r, v),
+            Instruction::Mod(r, v) => write!(f, "mod {} {}", r, v),
+            Instruction::Eql(r, v) => write!(f, "eql {} {}", r, v),
+        }
+    }
 }
 
-impl Alu {
-    fn new(input: Vec<i32>) -> Self {
+struct Alu<'i> {
+    w: Cell<i64>,
+    x: Cell<i64>,
+    y: Cell<i64>,
+    z: Cell<i64>,
+    instructions: &'i [Instruction],
+    input: RefCell<Vec<u32>>,
+}
+
+impl<'i> Alu<'i> {
+    fn new(instructions: &'i [Instruction], input: Vec<u32>) -> Self {
         Self {
-            registers: HashMap::new(),
-            input: input.iter().copied().rev().collect(),
+            w: 0.into(),
+            x: 0.into(),
+            y: 0.into(),
+            z: 0.into(),
+            instructions,
+            input: input.into(),
         }
+    }
+
+    fn get_register(&self, register: &Register) -> i64 {
+        match register {
+            Register::W => self.w.get(),
+            Register::X => self.x.get(),
+            Register::Y => self.y.get(),
+            Register::Z => self.z.get(),
+        }
+    }
+
+    fn set_register(&self, register: &Register, value: i64) {
+        match register {
+            Register::W => self.w.set(value),
+            Register::X => self.x.set(value),
+            Register::Y => self.y.set(value),
+            Register::Z => self.z.set(value),
+        }
+    }
+
+    fn get_from_register_or_self(&self, registrer_or_value: &RegisterOrValue) -> i64 {
+        match registrer_or_value {
+            RegisterOrValue::Register(r) => self.get_register(r),
+            RegisterOrValue::Value(v) => *v,
+        }
+    }
+
+    fn process(&self) -> Result<i64, Box<dyn Error>> {
+        for ins in self.instructions {
+            // println!(
+            //     "w: {}, x: {}, y: {}, z: {}",
+            //     self.w.get(),
+            //     self.x.get(),
+            //     self.y.get(),
+            //     self.z.get()
+            // );
+            // println!("Processing {:?}", ins);
+            match ins {
+                Instruction::Input(r) => {
+                    let pop = self.input.borrow_mut().pop().unwrap();
+                    self.set_register(r, i64::try_from(pop).unwrap());
+                },
+                Instruction::Add(a, b) => {
+                    let a_val = self.get_register(a);
+                    let b_val = self.get_from_register_or_self(b);
+                    self.set_register(a, a_val + b_val);
+                },
+                Instruction::Mul(a, b) => {
+                    let a_val = self.get_register(a);
+                    let b_val = self.get_from_register_or_self(b);
+                    self.set_register(a, a_val * b_val);
+                },
+                Instruction::Div(a, b) => {
+                    let a_val = self.get_register(a);
+                    let b_val = self.get_from_register_or_self(b);
+
+                    let result = a_val
+                        .checked_div_euclid(b_val)
+                        .ok_or_else(|| "Division by 0".to_string())?;
+
+                    self.set_register(a, result);
+                },
+                Instruction::Mod(a, b) => {
+                    let a_val = self.get_register(a);
+                    let b_val = self.get_from_register_or_self(b);
+
+                    let result = a_val
+                        .checked_rem_euclid(b_val)
+                        .ok_or_else(|| "Division by 0".to_string())?;
+
+                    self.set_register(a, result);
+                },
+                Instruction::Eql(a, b) => {
+                    let a_val = self.get_register(a);
+                    let b_val = self.get_from_register_or_self(b);
+                    self.set_register(a, if a_val == b_val { 1 } else { 0 });
+                },
+            }
+        }
+
+        Ok(self.z.get())
     }
 }
 
@@ -42,25 +167,91 @@ fn parse_lines(input: &[&str]) -> Vec<Instruction> {
     for line in input {
         let split = line.split(' ').collect::<Vec<_>>();
 
-        let part2 = split.get(1).map(|p2| p2.chars().next().unwrap());
+        let part2 = split.get(1).unwrap();
 
-        let param1 = match part2 {
-            'w' => Register::W,
-            'x' => Register::X,
-            'y' => Register::Y,
-            'z' => Register::Z,
+        let param1 = match *part2 {
+            "w" => Register::W,
+            "x" => Register::X,
+            "y" => Register::Y,
+            "z" => Register::Z,
             _ => unreachable!(),
+        };
+
+        let param2 = if let Some(part3) = split.get(2) {
+            let p2 = match *part3 {
+                "w" => RegisterOrValue::Register(Register::W),
+                "x" => RegisterOrValue::Register(Register::X),
+                "y" => RegisterOrValue::Register(Register::Y),
+                "z" => RegisterOrValue::Register(Register::Z),
+                x => RegisterOrValue::Value(x.parse::<i64>().unwrap()),
+            };
+            Some(p2)
+        } else {
+            None
         };
 
         let part1 = split.get(0).unwrap();
 
-        match *part1 {
-            "foo" => {},
+        instructions.push(match *part1 {
+            "inp" => Instruction::Input(param1),
+            "add" => Instruction::Add(param1, param2.unwrap()),
+            "mul" => Instruction::Mul(param1, param2.unwrap()),
+            "div" => Instruction::Div(param1, param2.unwrap()),
+            "mod" => Instruction::Mod(param1, param2.unwrap()),
+            "eql" => Instruction::Eql(param1, param2.unwrap()),
             _ => unreachable!(),
-        }
+        });
     }
 
     instructions
+}
+
+fn number_to_vec(mut input: u64) -> Vec<u32> {
+    let mut vec = Vec::new();
+
+    while input != 0 {
+        let v = (input % 10) as u32;
+
+        vec.push(v);
+
+        input /= 10;
+    }
+
+    vec
+}
+
+fn find_maximum_version_number(instructions: &[Instruction]) -> u64 {
+    let mut v: u64 = 99_999_999_999_999;
+
+    loop {
+        let input = number_to_vec(v);
+
+        v -= 1;
+
+        if input.contains(&0) {
+            continue;
+        }
+
+        let alu = Alu::new(instructions, input);
+
+        if let Ok(n) = alu.process() {
+            if n == 0 {
+                println!("{} is a valid number", v);
+                break;
+            }
+        }
+
+        println!(
+            "{:?}: {}, {}, {}, {}",
+            v + 1,
+            alu.w.get(),
+            alu.x.get(),
+            alu.y.get(),
+            alu.z.get()
+        );
+    }
+
+    v
 }
 
 pub struct Solution {}
@@ -71,7 +262,9 @@ impl Day for Solution {
 
         let instructions = parse_lines(&lines);
 
-        PartSolution::None
+        let result = find_maximum_version_number(&instructions);
+
+        PartSolution::U64(result)
     }
 
     fn part_2(&self) -> PartSolution {
@@ -90,9 +283,11 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_25::{parse_lines, Solution},
+            day_24::{number_to_vec, parse_lines, Alu, Solution},
             shared::{Day, PartSolution},
         };
+
+        use super::get_example;
 
         #[test]
         fn outcome() {
@@ -100,26 +295,21 @@ mod test {
         }
 
         #[test]
+        fn test_number_to_vec() {
+            assert_eq!(vec![4, 3, 2, 1], number_to_vec(1234));
+        }
+
+        #[test]
         fn example() {
-            // let example_lines = get_example();
+            let example_lines = get_example();
 
-            // let mut board = parse_lines(&example_lines);
+            let instructions = parse_lines(&example_lines);
 
-            // move_cucumbers(&mut board);
+            let alu = Alu::new(&instructions, vec![12, 2]);
 
-            // let expected = [
-            //     "..>>v>vv..",
-            //     "..v.>>vv..",
-            //     "..>>v>>vv.",
-            //     "..>>>>>vv.",
-            //     "v......>vv",
-            //     "v>v....>>v",
-            //     "vvv.....>>",
-            //     ">vv......>",
-            //     ".>v.vv.v..",
-            // ];
+            let result = alu.process();
 
-            // assert_eq!(parse_lines(&expected), board);
+            assert_eq!(24, result.unwrap());
         }
     }
 }
