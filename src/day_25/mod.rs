@@ -38,6 +38,7 @@ impl fmt::Display for Board {
         Ok(())
     }
 }
+
 impl Board {
     fn x_dim(&self) -> usize {
         self.cucumbers.len()
@@ -89,8 +90,10 @@ impl Board {
 
 fn parse_lines(input: &[&str]) -> Board {
     let mut cucumbers = Vec::new();
+
     for line in input {
         let mut board_line = Vec::new();
+
         for c in line.chars() {
             board_line.push(match c {
                 'v' => Some(Cucumber::South),
@@ -99,20 +102,22 @@ fn parse_lines(input: &[&str]) -> Board {
                 _ => unreachable!(),
             });
         }
+
         cucumbers.push(board_line);
     }
+
     Board { cucumbers }
 }
 
 fn move_cucumbers_in_direction(board: &mut Board, direction: Cucumber) -> bool {
     let mut moved = HashSet::new();
-
     let mut invalid = HashSet::new();
-    let c = Some(direction);
+
+    let expected = Some(direction);
 
     for x in 0..board.x_dim() {
         for y in 0..board.y_dim() {
-            if !moved.contains(&(x, y)) && board.cucumbers[x][y] == c {
+            if !moved.contains(&(x, y)) && board.cucumbers[x][y] == expected {
                 if let Some(r) = board.try_move(x, y, &invalid) {
                     invalid.insert((x, y));
                     moved.insert(r);
