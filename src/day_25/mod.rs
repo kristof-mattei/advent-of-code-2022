@@ -3,7 +3,7 @@ use std::collections::HashSet;
 
 use crate::shared::{Day, PartSolution};
 
-#[derive(PartialEq, Eq, Debug, Clone)]
+#[derive(PartialEq, Eq, Debug)]
 enum Cucumber {
     East,
     South,
@@ -57,11 +57,12 @@ impl Board {
         let x_dim = self.x_dim();
         let y_dim = self.y_dim();
 
-        assert!(x < x_dim);
-        assert!(y < y_dim);
+        let cucumber = self.cucumbers.get(x).and_then(|r| match r.get(y) {
+            Some(c) => c.as_ref(),
+            None => None,
+        });
 
-        #[allow(clippy::match_on_vec_items)]
-        match self.cucumbers[x][y] {
+        match cucumber {
             Some(Cucumber::East) => {
                 let new_y = (y + 1) % y_dim;
 
@@ -69,7 +70,9 @@ impl Board {
                     self.cucumbers[x][y] = None;
                     self.cucumbers[x][new_y] = Some(Cucumber::East);
 
-                    return Some((x, new_y));
+                    Some((x, new_y))
+                } else {
+                    None
                 }
             },
             Some(Cucumber::South) => {
@@ -79,12 +82,13 @@ impl Board {
                     self.cucumbers[x][y] = None;
                     self.cucumbers[new_x][y] = Some(Cucumber::South);
 
-                    return Some((new_x, y));
+                    Some((new_x, y))
+                } else {
+                    None
                 }
             },
-            None => (),
+            None => None,
         }
-        None
     }
 }
 
