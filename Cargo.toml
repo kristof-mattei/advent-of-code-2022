@@ -3,7 +3,7 @@ name = "advent-of-code-2021"
 # don't change this, it's updated before an actual build by update-version.sh
 version = "0.0.0-development"
 edition = "2021"
-rust-version = "1.57.0"
+rust-version = "1.59.0"
 authors = ["Kristof Mattei"]
 license-file = "LICENSE"
 description = "Advent of Code 2021"
@@ -38,4 +38,3 @@ regex = "1"
 # https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html#platform-specific-dependencies
 [target.'cfg(all(target_arch = "x86_64", target_os="linux", target_env="musl"))'.dependencies]
 # openssl = { version = "0.10.36", features = ["vendored"] }
-
