@@ -289,8 +289,13 @@ jobs:
       - cargo-fmt
       - cargo-test-and-report
       - cargo-clippy-and-report
-    if: ${{ !failure() && !cancelled() }}
+    if: ${{ always () }}
     steps:
+      - name: Fail upstream failed
+        shell: bash
+        if: ${{ failure() && cancelled() }}
+        run: |
+          exit 1;
       - name: Success!
         shell: bash
         run: |
