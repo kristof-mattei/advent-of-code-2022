@@ -291,6 +291,14 @@ jobs:
       - cargo-clippy-and-report
     if: ${{ !failure() && !cancelled() }}
     steps:
+      - name: Fail!
+        shell: bash
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: |
+          echo "One / more upstream failed or was cancelled. Failing job..."
+
+          exit 1
+
       - name: Success!
         shell: bash
         run: |
