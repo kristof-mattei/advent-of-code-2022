@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/kristof-mattei/advent-of-code-2021#readme",
   "devDependencies": {
-    "prettier": "^2.7.0"
+    "prettier": "^2.7.1"
   },
   "publishConfig": {
     "access": "restricted"
