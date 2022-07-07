@@ -156,21 +156,32 @@ jobs:
         run: |
           rustup component add llvm-tools-preview
 
+      - name: Get binstall
+        shell: bash
+        run: |
+          archive="cargo-binstall-x86_64-unknown-linux-musl.tgz"
+          wget "https://github.com/ryankurte/cargo-binstall/releases/latest/download/${archive}"
+
+          tar -xvf "./${archive}"
+
+          rm "./${archive}"
+
+          mv ./cargo-binstall ~/.cargo/bin/
+
       - name: Install nextest, custom test runner, with native support for junit
         shell: bash
         run: |
-          cargo install --locked cargo-nextest;
+          cargo binstall --no-confirm cargo-nextest;
 
       - name: Install grcov
         shell: bash
         run: |
-          cargo install --locked grcov;
+          cargo binstall --no-confirm grcov --pkg-url "{ repo }/releases/download/v{ version }/{ name }-{ target }.tar.bz2" --pkg-fmt tbz2 --bin-dir "{ bin }";
 
       - name: Build with instrumentation support
         shell: bash
         env:
-          RUSTC_BOOTSTRAP: 1
-          RUSTFLAGS: "-Zinstrument-coverage"
+          RUSTFLAGS: "-C instrument-coverage"
         run: |
           cargo build --all-targets --workspace --verbose
 
@@ -178,19 +189,18 @@ jobs:
         shell: bash
         id: tests
         env:
-          RUSTC_BOOTSTRAP: 1
-          RUSTFLAGS: "-Zinstrument-coverage"
+          RUSTFLAGS: "-C instrument-coverage"
           LLVM_PROFILE_FILE: "profiling/profile-%p-%m.profraw"
         run: |
           cargo nextest run --profile ci --no-fail-fast --all-targets --workspace
         continue-on-error: true
 
       - name: Upload test results
-        uses: EnricoMi/publish-unit-test-result-action@f00bb47e1d89c6d98071d1b69e16a2b63c7fbfc1
+        uses: EnricoMi/publish-unit-test-result-action@7a453e7e81ac3190db44d6a0cf3ab2811b12cf11
         with:
           check_name: Test results
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: reports/results.xml
+          junit_files: reports/results.xml
 
       - name: Run grcov
         shell: bash
@@ -270,7 +280,8 @@ jobs:
 
           cargo --version
 
-      - uses: actions-rs/clippy-check@b5b5f21f4797c02da247df37026fcd0a5024aa4d
+      - name: Run Clippy for GitHub Actions report
+        uses: actions-rs/clippy-check@b5b5f21f4797c02da247df37026fcd0a5024aa4d
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --workspace --all-targets --all-features
