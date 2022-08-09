@@ -195,13 +195,7 @@ mod test {
             let mut lines = Vec::new();
 
             for octopus_line in octopus_field {
-                lines.push(
-                    octopus_line
-                        .iter()
-                        .map(|x| x.get().to_string())
-                        .collect::<Vec<_>>()
-                        .join(""),
-                );
+                lines.push(octopus_line.iter().map(|x| x.get().to_string()).collect());
             }
 
             lines
