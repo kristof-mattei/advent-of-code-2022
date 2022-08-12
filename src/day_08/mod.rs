@@ -17,7 +17,7 @@ fn parse_lines(input: &[&str]) -> Vec<(Vec<LetterCombination>, Vec<LetterCombina
 
         assert_eq!(split.len(), 2);
 
-        let left = parse_into_lettercombinations(split.get(0).unwrap().trim());
+        let left = parse_into_lettercombinations(split.first().unwrap().trim());
 
         let right = parse_into_lettercombinations(split.get(1).unwrap().trim());
 

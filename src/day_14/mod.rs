@@ -8,7 +8,7 @@ fn parse_lines(lines: &[&str]) -> (Vec<char>, HashMap<Key, char>) {
     for line in lines.iter().skip(2) {
         let split = line.split(" -> ").collect::<Vec<_>>();
 
-        let from = (*split.get(0).unwrap()).to_string();
+        let from = (*split.first().unwrap()).to_string();
 
         let cc = from.chars().collect::<Vec<char>>();
 

@@ -67,7 +67,7 @@ fn build_cave_system(lines: &[&str]) -> Caves {
     for line in lines {
         let pieces: Vec<&str> = line.split('-').collect();
 
-        let left = pieces.get(0).unwrap();
+        let left = pieces.first().unwrap();
         let right = pieces.get(1).unwrap();
 
         add_path(&mut caves, *left, *right);

@@ -3,7 +3,7 @@ pub trait Day {
     fn part_2(&self) -> PartSolution;
 }
 
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Eq, Debug)]
 pub enum PartSolution {
     I32(i32),
     U32(u32),

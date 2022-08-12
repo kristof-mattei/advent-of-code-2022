@@ -18,7 +18,7 @@ fn parse_lines(lines: &[&str]) -> (Vec<Vec<Cell<bool>>>, Vec<Instruction>) {
     {
         let split: Vec<_> = line.split(',').collect();
 
-        let x = split.get(0).unwrap().parse::<usize>().unwrap();
+        let x = split.first().unwrap().parse::<usize>().unwrap();
         let y = split.get(1).unwrap().parse::<usize>().unwrap();
 
         coordinates.push((x, y));
@@ -30,7 +30,7 @@ fn parse_lines(lines: &[&str]) -> (Vec<Vec<Cell<bool>>>, Vec<Instruction>) {
         let line = line.replace("fold along ", "");
         let split: Vec<_> = line.split('=').collect();
 
-        let plane = split.get(0).unwrap().parse::<char>().unwrap();
+        let plane = split.first().unwrap().parse::<char>().unwrap();
         let x_y = split.get(1).unwrap().parse::<usize>().unwrap();
 
         let instruction = match plane {
