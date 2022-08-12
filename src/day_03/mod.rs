@@ -100,7 +100,7 @@ fn parse_lines(lines: &[&str]) -> (Vec<u32>, usize) {
         parsed.push(u32::from_str_radix(line, 2).unwrap());
     }
 
-    let bits_to_consider = match lines.get(0) {
+    let bits_to_consider = match lines.first() {
         Some(l) => l.len(),
         None => 0,
     };

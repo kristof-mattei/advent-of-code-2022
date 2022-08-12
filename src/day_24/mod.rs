@@ -190,7 +190,7 @@ fn parse_lines(input: &[&str]) -> Vec<Instruction> {
             None
         };
 
-        let part1 = split.get(0).unwrap();
+        let part1 = split.first().unwrap();
 
         instructions.push(match *part1 {
             "inp" => Instruction::Input(param1),
