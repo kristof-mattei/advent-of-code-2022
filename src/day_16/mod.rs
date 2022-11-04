@@ -283,11 +283,7 @@ fn calculate_deep_packet_value(packet: &Packet) -> u64 {
             let l = calculate_deep_packet_value(&v[0]);
             let r = calculate_deep_packet_value(&v[1]);
 
-            if l > r {
-                1
-            } else {
-                0
-            }
+            u64::from(l > r)
         },
         PacketInside::LessThanThan(v) => {
             assert_eq!(2, v.len());
@@ -295,22 +291,14 @@ fn calculate_deep_packet_value(packet: &Packet) -> u64 {
             let l = calculate_deep_packet_value(&v[0]);
             let r = calculate_deep_packet_value(&v[1]);
 
-            if l < r {
-                1
-            } else {
-                0
-            }
+            u64::from(l < r)
         },
         PacketInside::Equal(v) => {
             assert_eq!(2, v.len());
             let l = calculate_deep_packet_value(&v[0]);
             let r = calculate_deep_packet_value(&v[1]);
 
-            if l == r {
-                1
-            } else {
-                0
-            }
+            u64::from(l == r)
         },
     };
 }

@@ -70,7 +70,7 @@ fn build_cave_system(lines: &[&str]) -> Caves {
         let left = pieces.first().unwrap();
         let right = pieces.get(1).unwrap();
 
-        add_path(&mut caves, *left, *right);
+        add_path(&mut caves, left, right);
     }
 
     caves
