@@ -153,7 +153,7 @@ impl<'i> Alu<'i> {
                 Instruction::Eql(a, b) => {
                     let a_val = self.get_register(a);
                     let b_val = self.get_from_register_or_self(b);
-                    self.set_register(a, if a_val == b_val { 1 } else { 0 });
+                    self.set_register(a, i64::from(a_val == b_val));
                 },
             }
         }

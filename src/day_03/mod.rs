@@ -42,20 +42,8 @@ fn find_common(lines: &[u32], bit_index: usize, common: &Common) -> usize {
     let count_of_0 = bits.iter().filter(|x| **x == 0).count();
 
     match common {
-        Common::Least => {
-            if count_of_1 >= count_of_0 {
-                0
-            } else {
-                1
-            }
-        },
-        Common::Most => {
-            if count_of_1 >= count_of_0 {
-                1
-            } else {
-                0
-            }
-        },
+        Common::Least => usize::from(count_of_1 < count_of_0),
+        Common::Most => usize::from(count_of_1 >= count_of_0),
     }
 }
 

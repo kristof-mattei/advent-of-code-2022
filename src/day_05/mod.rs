@@ -87,7 +87,7 @@ fn calculate_overlap_of_2(vent_lines: &[VentLine]) -> u32 {
     //     println!();
     // }
 
-    let count_of_over_2: usize = (&field)
+    let count_of_over_2: usize = field
         .iter()
         .map(|r| r.iter().filter(|c| **c >= 2).count())
         .sum();

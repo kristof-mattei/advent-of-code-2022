@@ -103,7 +103,7 @@ fn calculate_signal_patterns(encoded_line: &(Vec<HashSet<char>>, Vec<HashSet<cha
     assert_eq!(six_nine.len(), 2);
 
     // zero is what is in zero_six_nine after we remove six and nine
-    let zero: &LetterCombination = *zero_six_nine
+    let zero: &LetterCombination = zero_six_nine
         .iter()
         .find(|x| !six_nine.contains(x))
         .unwrap();
