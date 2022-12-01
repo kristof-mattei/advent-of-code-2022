@@ -4,6 +4,7 @@ fn get_max(lines: &[&str]) -> u32 {
     let mut max = 0;
 
     let mut current = 0;
+
     for line in lines {
         if line.is_empty() {
             if current > max {
