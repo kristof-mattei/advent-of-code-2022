@@ -1,35 +1,61 @@
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines(lines: &[&str]) -> Vec<u32> {
-    lines.iter().map(|s| s.parse::<u32>().unwrap()).collect()
-}
+fn get_max(lines: &[&str]) -> u32 {
+    let mut max = 0;
 
-pub fn count_increments(list: &[u32]) -> u32 {
-    let mut count = 0;
-    for i in list.windows(2) {
-        if i[1] > i[0] {
-            count += 1;
-        }
-    }
+    let mut current = 0;
 
-    count
-}
+    // chain because the .lines() skips the final empty line
+    for line in lines.iter().chain(&[""]) {
+        if line.is_empty() {
+            if current > max {
+                max = current;
+            }
 
-pub fn count_window_of_3_increments(list: &[u32]) -> u32 {
-    let mut count = 0;
-    let mut previous_window: u32 = 0;
-
-    for i in list.windows(3) {
-        let current_window: u32 = i.iter().sum();
-
-        if current_window > previous_window {
-            count += 1;
+            current = 0;
+            continue;
         }
 
-        previous_window = current_window;
+        current += line.parse::<u32>().unwrap();
     }
 
-    count - 1
+    max
+}
+
+fn shift(current: u32, max: &mut [u32; 3]) {
+    let shift_after = max.iter().position(|v| v < &current);
+
+    let Some(index) = shift_after else { return };
+
+    let mut c_i = max.len() - 1;
+
+    while c_i > (index) {
+        max.swap(c_i, c_i - 1);
+
+        c_i -= 1;
+    }
+
+    max[index] = current;
+}
+
+fn get_top_3(lines: &[&str]) -> u32 {
+    let mut max = [0; 3];
+
+    let mut current = 0;
+
+    // chain because the .lines() skips the final empty line
+    for line in lines.iter().chain(&[""]) {
+        if line.is_empty() {
+            shift(current, &mut max);
+
+            current = 0;
+            continue;
+        }
+
+        current += line.parse::<u32>().unwrap();
+    }
+
+    max.iter().sum()
 }
 
 pub struct Solution {}
@@ -38,17 +64,17 @@ impl Day for Solution {
     fn part_1(&self) -> PartSolution {
         let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
-        let numbers = parse_lines(&lines);
+        let max = get_max(&lines);
 
-        PartSolution::U32(count_increments(&numbers))
+        max.into()
     }
 
     fn part_2(&self) -> PartSolution {
         let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
-        let numbers = parse_lines(&lines);
+        let max = get_top_3(&lines);
 
-        PartSolution::U32(count_window_of_3_increments(&numbers))
+        max.into()
     }
 }
 
@@ -63,42 +89,43 @@ mod test {
 
     mod part_1 {
         use crate::{
-            day_01::{count_increments, parse_lines, test::get_example, Solution},
+            day_01::{get_max, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::U32(1722), (Solution {}).part_1());
+            assert_eq!(PartSolution::U32(67658), (Solution {}).part_1());
         }
 
         #[test]
         fn example() {
             let lines = get_example();
 
-            let depth_measurements = parse_lines(&lines);
+            let max = get_max(&lines);
 
-            assert_eq!(count_increments(&depth_measurements), 7);
+            assert_eq!(max, 24000);
         }
     }
+
     mod part_2 {
         use crate::{
-            day_01::{count_window_of_3_increments, parse_lines, test::get_example, Solution},
+            day_01::{get_top_3, test::get_example, Solution},
             shared::{Day, PartSolution},
         };
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::U32(1748), (Solution {}).part_2());
+            assert_eq!(PartSolution::U32(200_158), (Solution {}).part_2());
         }
 
         #[test]
         fn example() {
             let lines = get_example();
 
-            let depth_measurements = parse_lines(&lines);
+            let top3 = get_top_3(&lines);
 
-            assert_eq!(count_window_of_3_increments(&depth_measurements), 5);
+            assert_eq!(top3, 45000);
         }
     }
 }
