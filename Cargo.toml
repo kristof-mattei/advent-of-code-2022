@@ -1,13 +1,13 @@
 [package]
-name = "advent-of-code-2021"
+name = "advent-of-code-2022"
 # don't change this, it's updated before an actual build by update-version.sh
 version = "0.0.0-development"
 edition = "2021"
 rust-version = "1.65.0"
 authors = ["Kristof Mattei"]
 license-file = "LICENSE"
-description = "Advent of Code 2021"
-repository = "https://github.com/kristof-mattei/advent-of-code-2021"
+description = "Advent of Code 2022"
+repository = "https://github.com/kristof-mattei/advent-of-code-2022"
 keywords = ["playground"]
 categories = ["playground"]
 
@@ -29,7 +29,7 @@ debug = true
 coverage = []
 
 [dependencies]
-regex = "1"
+# regex = "1"
 
 
 # We compile the Docker container with musl to get a static library. Smaller, faster.

@@ -1,5 +1,5 @@
 {
-  "name": "advent-of-code-2021",
+  "name": "advent-of-code-2022",
   "version": "0.0.0-development",
   "description": "It's written in Rust!",
   "main": "src/main.rs",
@@ -12,14 +12,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/kristof-mattei/advent-of-code-2021.git"
+    "url": "https://github.com/kristof-mattei/advent-of-code-2022.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/kristof-mattei/advent-of-code-2021/issues"
+    "url": "https://github.com/kristof-mattei/advent-of-code-2022/issues"
   },
-  "homepage": "https://github.com/kristof-mattei/advent-of-code-2021#readme",
+  "homepage": "https://github.com/kristof-mattei/advent-of-code-2022#readme",
   "devDependencies": {
     "prettier": "^2.7.1"
   },
