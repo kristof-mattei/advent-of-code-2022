@@ -5,7 +5,8 @@ fn get_max(lines: &[&str]) -> u32 {
 
     let mut current = 0;
 
-    for line in lines {
+    // chain because the .lines() skips the final empty line
+    for line in lines.iter().chain(&[""]) {
         if line.is_empty() {
             if current > max {
                 max = current;
@@ -21,25 +22,31 @@ fn get_max(lines: &[&str]) -> u32 {
     max
 }
 
+fn shift(current: u32, max: &mut [u32; 3]) {
+    let shift_after = max.iter().position(|v| v < &current);
+
+    let Some(index) = shift_after else { return };
+
+    let mut c_i = max.len() - 1;
+
+    while c_i > (index) {
+        max.swap(c_i, c_i - 1);
+
+        c_i -= 1;
+    }
+
+    max[index] = current;
+}
+
 fn get_top_3(lines: &[&str]) -> u32 {
-    let mut max1 = 0;
-    let mut max2 = 0;
-    let mut max3 = 0;
+    let mut max = [0; 3];
 
     let mut current = 0;
-    for line in lines {
+
+    // chain because the .lines() skips the final empty line
+    for line in lines.iter().chain(&[""]) {
         if line.is_empty() {
-            println!("Current: {current}");
-            if current > max1 {
-                max3 = max2;
-                max2 = max1;
-                max1 = current;
-            } else if current > max2 {
-                max3 = max2;
-                max2 = current;
-            } else if current > max3 {
-                max3 = current;
-            }
+            shift(current, &mut max);
 
             current = 0;
             continue;
@@ -48,7 +55,7 @@ fn get_top_3(lines: &[&str]) -> u32 {
         current += line.parse::<u32>().unwrap();
     }
 
-    max1 + max2 + max3
+    max.iter().sum()
 }
 
 pub struct Solution {}
@@ -59,7 +66,7 @@ impl Day for Solution {
 
         let max = get_max(&lines);
 
-        PartSolution::U32(max)
+        max.into()
     }
 
     fn part_2(&self) -> PartSolution {
@@ -67,7 +74,7 @@ impl Day for Solution {
 
         let max = get_top_3(&lines);
 
-        PartSolution::U32(max)
+        max.into()
     }
 }
 
@@ -109,7 +116,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::U32(1748), (Solution {}).part_2());
+            assert_eq!(PartSolution::U32(200_158), (Solution {}).part_2());
         }
 
         #[test]
@@ -118,7 +125,7 @@ mod test {
 
             let top3 = get_top_3(&lines);
 
-            assert_eq!(top3, 5);
+            assert_eq!(top3, 45000);
         }
     }
 }

@@ -14,6 +14,36 @@ pub enum PartSolution {
     None,
 }
 
+impl From<i32> for PartSolution {
+    fn from(v: i32) -> Self {
+        PartSolution::I32(v)
+    }
+}
+
+impl From<u32> for PartSolution {
+    fn from(v: u32) -> Self {
+        PartSolution::U32(v)
+    }
+}
+
+impl From<u64> for PartSolution {
+    fn from(v: u64) -> Self {
+        PartSolution::U64(v)
+    }
+}
+
+impl From<usize> for PartSolution {
+    fn from(v: usize) -> Self {
+        PartSolution::USize(v)
+    }
+}
+
+impl From<Vec<String>> for PartSolution {
+    fn from(v: Vec<String>) -> Self {
+        PartSolution::Vec(v)
+    }
+}
+
 impl std::fmt::Display for PartSolution {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let string = match &self {
