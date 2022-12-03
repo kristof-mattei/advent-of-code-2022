@@ -1,6 +1,9 @@
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines(lines: &[&str]) -> Vec<(RPS, RPS)> {
+fn parse_lines<T>(lines: &[&str]) -> Vec<(RPS, T)>
+where
+    T: From<char>,
+{
     let mut result = Vec::new();
     for line in lines {
         let mut chars = line.chars();
@@ -8,7 +11,7 @@ fn parse_lines(lines: &[&str]) -> Vec<(RPS, RPS)> {
         let first: RPS = chars.next().unwrap().into();
         // space
         let _ = chars.next();
-        let second: RPS = chars.next().unwrap().into();
+        let second: T = chars.next().unwrap().into();
 
         result.push((first, second));
     }
@@ -16,10 +19,32 @@ fn parse_lines(lines: &[&str]) -> Vec<(RPS, RPS)> {
     result
 }
 
-fn calculate_score(rounds: Vec<(RPS, RPS)>) -> u32 {
+fn calculate_score_part_1(rounds: Vec<(RPS, RPS)>) -> u32 {
     rounds.into_iter().map(score).sum()
 }
 
+fn calculate_score_part_2(rounds: Vec<(RPS, Expected)>) -> u32 {
+    rounds.into_iter().map(answer_and_score).sum()
+}
+
+enum Expected {
+    Lose,
+    Draw,
+    Win,
+}
+
+impl From<char> for Expected {
+    fn from(c: char) -> Self {
+        match c {
+            'X' => Expected::Lose,
+            'Y' => Expected::Draw,
+            'Z' => Expected::Win,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
 enum RPS {
     Rock,
     Paper,
@@ -58,6 +83,24 @@ fn score((left, right): (RPS, RPS)) -> u32 {
     score + <RPS as Into<u32>>::into(right)
 }
 
+fn answer_and_score((left, right): (RPS, Expected)) -> u32 {
+    let right_should_play = match right {
+        Expected::Lose => match left {
+            RPS::Rock => RPS::Sissors,
+            RPS::Paper => RPS::Rock,
+            RPS::Sissors => RPS::Paper,
+        },
+        Expected::Draw => left,
+        Expected::Win => match left {
+            RPS::Rock => RPS::Paper,
+            RPS::Paper => RPS::Sissors,
+            RPS::Sissors => RPS::Rock,
+        },
+    };
+
+    score((left, right_should_play))
+}
+
 impl From<char> for RPS {
     fn from(c: char) -> Self {
         match c {
@@ -76,13 +119,18 @@ impl Day for Solution {
         let lines: Vec<&str> = include_str!("input.txt").lines().collect();
 
         let rounds = parse_lines(&lines);
-        let score = calculate_score(rounds);
+        let score = calculate_score_part_1(rounds);
 
         score.into()
     }
 
     fn part_2(&self) -> PartSolution {
-        unimplemented!()
+        let lines: Vec<&str> = include_str!("input.txt").lines().collect();
+
+        let rounds = parse_lines(&lines);
+        let score = calculate_score_part_2(rounds);
+
+        score.into()
     }
 }
 
@@ -98,7 +146,7 @@ mod test {
     mod part_1 {
         use crate::{
             day_02::Solution,
-            day_02::{calculate_score, parse_lines, test::get_example},
+            day_02::{calculate_score_part_1, parse_lines, test::get_example},
             shared::{Day, PartSolution},
         };
 
@@ -113,11 +161,33 @@ mod test {
 
             let rounds = parse_lines(&lines);
 
-            let score = calculate_score(rounds);
+            let score = calculate_score_part_1(rounds);
 
             assert_eq!(score, 15);
         }
     }
 
-    mod part_2 {}
+    mod part_2 {
+        use crate::{
+            day_02::Solution,
+            day_02::{calculate_score_part_2, parse_lines, test::get_example},
+            shared::{Day, PartSolution},
+        };
+
+        #[test]
+        fn outcome() {
+            assert_eq!(PartSolution::U32(67658), (Solution {}).part_2());
+        }
+
+        #[test]
+        fn example() {
+            let lines = get_example();
+
+            let rounds = parse_lines(&lines);
+
+            let score = calculate_score_part_2(rounds);
+
+            assert_eq!(score, 12);
+        }
+    }
 }
