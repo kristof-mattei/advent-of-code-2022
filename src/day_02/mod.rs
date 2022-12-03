@@ -152,7 +152,7 @@ mod test {
 
         #[test]
         fn outcome() {
-            assert_eq!(PartSolution::U32(67658), (Solution {}).part_1());
+            assert_eq!(PartSolution::U32(67658), (Solution {}).part_2());
         }
 
         #[test]
