@@ -13,6 +13,7 @@ mod shared;
 mod utils;
 
 mod day_01;
+mod day_02;
 
 fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {}, part {} is ... {}", day, part, result);
