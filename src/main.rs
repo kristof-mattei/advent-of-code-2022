@@ -18,7 +18,7 @@ mod day_03;
 mod day_04;
 
 fn print_answer(day: u32, part: u32, result: &str) {
-    println!("Answer to Day {}, part {} is ... {}", day, part, result);
+    println!("Answer to Day {day}, part {part} is ... {result}");
 }
 
 fn main() {

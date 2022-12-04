@@ -55,6 +55,6 @@ impl std::fmt::Display for PartSolution {
             PartSolution::None => "None".to_owned(),
         };
 
-        write!(f, "{}", string)
+        write!(f, "{string}")
     }
 }
