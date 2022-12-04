@@ -14,6 +14,7 @@ mod utils;
 
 mod day_01;
 mod day_02;
+mod day_03;
 
 fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {}, part {} is ... {}", day, part, result);
@@ -22,7 +23,11 @@ fn print_answer(day: u32, part: u32, result: &str) {
 fn main() {
     let mut day: u32 = 1;
 
-    let solutions: Vec<Box<dyn Day>> = vec![Box::new(day_01::Solution {})];
+    let solutions: Vec<Box<dyn Day>> = vec![
+        Box::new(day_01::Solution {}),
+        Box::new(day_02::Solution {}),
+        Box::new(day_03::Solution {}),
+    ];
 
     for solution in solutions {
         print_answer(day, 1, &solution.part_1().to_string());
