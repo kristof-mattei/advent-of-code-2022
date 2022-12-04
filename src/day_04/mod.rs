@@ -25,6 +25,7 @@ fn one_fully_contains_other(left: (u32, u32), right: (u32, u32)) -> bool {
 
 fn one_overlaps_other(left: (u32, u32), right: (u32, u32)) -> bool {
     let range = left.0..=left.1;
+
     range.contains(&right.0) || range.contains(&right.1)
 }
 
