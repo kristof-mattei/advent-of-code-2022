@@ -1,6 +1,6 @@
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines<T>(lines: &[&str]) -> Vec<(RPS, T)>
+fn parse_lines<T>(lines: &[&str]) -> Vec<(Rps, T)>
 where
     T: From<char>,
 {
@@ -8,7 +8,7 @@ where
     for line in lines {
         let mut chars = line.chars();
 
-        let first: RPS = chars.next().unwrap().into();
+        let first: Rps = chars.next().unwrap().into();
         // space
         let _ = chars.next();
         let second: T = chars.next().unwrap().into();
@@ -19,11 +19,11 @@ where
     result
 }
 
-fn calculate_score_part_1(rounds: Vec<(RPS, RPS)>) -> u32 {
+fn calculate_score_part_1(rounds: Vec<(Rps, Rps)>) -> u32 {
     rounds.into_iter().map(score).sum()
 }
 
-fn calculate_score_part_2(rounds: Vec<(RPS, Expected)>) -> u32 {
+fn calculate_score_part_2(rounds: Vec<(Rps, Expected)>) -> u32 {
     rounds.into_iter().map(answer_and_score).sum()
 }
 
@@ -45,68 +45,68 @@ impl From<char> for Expected {
 }
 
 #[derive(Clone, Copy)]
-enum RPS {
+enum Rps {
     Rock,
     Paper,
     Sissors,
 }
 
-impl From<RPS> for u32 {
-    fn from(rps: RPS) -> Self {
+impl From<Rps> for u32 {
+    fn from(rps: Rps) -> Self {
         match rps {
-            RPS::Rock => 1,
-            RPS::Paper => 2,
-            RPS::Sissors => 3,
+            Rps::Rock => 1,
+            Rps::Paper => 2,
+            Rps::Sissors => 3,
         }
     }
 }
 
-fn score((left, right): (RPS, RPS)) -> u32 {
+fn score((left, right): (Rps, Rps)) -> u32 {
     let score = match left {
-        RPS::Rock => match right {
-            RPS::Rock => 3,
-            RPS::Paper => 6,
-            RPS::Sissors => 0,
+        Rps::Rock => match right {
+            Rps::Rock => 3,
+            Rps::Paper => 6,
+            Rps::Sissors => 0,
         },
-        RPS::Paper => match right {
-            RPS::Rock => 0,
-            RPS::Paper => 3,
-            RPS::Sissors => 6,
+        Rps::Paper => match right {
+            Rps::Rock => 0,
+            Rps::Paper => 3,
+            Rps::Sissors => 6,
         },
-        RPS::Sissors => match right {
-            RPS::Rock => 6,
-            RPS::Paper => 0,
-            RPS::Sissors => 3,
+        Rps::Sissors => match right {
+            Rps::Rock => 6,
+            Rps::Paper => 0,
+            Rps::Sissors => 3,
         },
     };
 
-    score + <RPS as Into<u32>>::into(right)
+    score + <Rps as Into<u32>>::into(right)
 }
 
-fn answer_and_score((left, right): (RPS, Expected)) -> u32 {
+fn answer_and_score((left, right): (Rps, Expected)) -> u32 {
     let right_should_play = match right {
         Expected::Lose => match left {
-            RPS::Rock => RPS::Sissors,
-            RPS::Paper => RPS::Rock,
-            RPS::Sissors => RPS::Paper,
+            Rps::Rock => Rps::Sissors,
+            Rps::Paper => Rps::Rock,
+            Rps::Sissors => Rps::Paper,
         },
         Expected::Draw => left,
         Expected::Win => match left {
-            RPS::Rock => RPS::Paper,
-            RPS::Paper => RPS::Sissors,
-            RPS::Sissors => RPS::Rock,
+            Rps::Rock => Rps::Paper,
+            Rps::Paper => Rps::Sissors,
+            Rps::Sissors => Rps::Rock,
         },
     };
 
     score((left, right_should_play))
 }
 
-impl From<char> for RPS {
+impl From<char> for Rps {
     fn from(c: char) -> Self {
         match c {
-            'A' | 'X' => RPS::Rock,
-            'B' | 'Y' => RPS::Paper,
-            'C' | 'Z' => RPS::Sissors,
+            'A' | 'X' => Rps::Rock,
+            'B' | 'Y' => Rps::Paper,
+            'C' | 'Z' => Rps::Sissors,
             _ => unreachable!(),
         }
     }
