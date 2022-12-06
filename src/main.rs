@@ -16,6 +16,7 @@ mod day_01;
 mod day_02;
 mod day_03;
 mod day_04;
+mod day_05;
 
 fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {day}, part {part} is ... {result}");
@@ -29,6 +30,7 @@ fn main() {
         Box::new(day_02::Solution {}),
         Box::new(day_03::Solution {}),
         Box::new(day_04::Solution {}),
+        Box::new(day_05::Solution {}),
     ];
 
     for solution in solutions {
