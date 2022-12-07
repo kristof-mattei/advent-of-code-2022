@@ -1,31 +1,27 @@
-use std::collections::VecDeque;
-
 use crate::shared::{Day, PartSolution};
 
 fn find_start_of<const C: usize>(line: &str) -> usize {
-    let mut v = VecDeque::with_capacity(C);
+    let mut start = 0;
 
-    for (start, byte) in line.chars().into_iter().enumerate() {
-        let p = v.iter().rposition(|v| *v == byte);
+    let bytes = line.as_bytes();
+
+    for (i, byte) in bytes.iter().enumerate() {
+        let p = &line
+            .as_bytes()
+            .iter()
+            .skip(start)
+            .take(i - start)
+            .rposition(|v| v == byte);
 
         match p {
             Some(index) => {
-                // we found the match, pop from left up until the match is gone
-                for _ in 0..=index {
-                    v.pop_front();
-                }
+                start = start + index + 1;
             },
-            None if v.len() == C - 1 => {
-                // do we have 3 items and is the incoming not present? Winner!
-                // minus one because the system expects 1-based
-                return start + 1;
+            None if i - start + 1 == C => {
+                return i + 1;
             },
-            _ => {
-                // No match but less than 3? Nothing to do yet
-            },
+            _ => {},
         }
-
-        v.push_back(byte);
     }
 
     unreachable!()
