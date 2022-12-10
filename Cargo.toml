@@ -29,6 +29,7 @@ debug = true
 coverage = []
 
 [dependencies]
+nu-ansi-term = "0.46.0"
 # regex = "1"
 
 
