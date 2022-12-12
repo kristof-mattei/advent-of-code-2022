@@ -2,17 +2,48 @@ use std::collections::HashMap;
 
 use crate::shared::{Day, PartSolution};
 
-fn parse_lines(lines: &[&str]) -> Vec<Vec<usize>> {
-    let mut field = vec![];
+#[derive(Hash, PartialEq, Eq, Copy, Clone)]
+struct RowColumn {
+    row_index: usize,
+    col_index: usize,
+}
+
+impl RowColumn {
+    fn new(row_index: usize, col_index: usize) -> Self {
+        Self {
+            row_index,
+            col_index,
+        }
+    }
+}
+
+struct Field {
+    cells: Vec<Vec<usize>>,
+}
+
+impl Field {
+    fn cell(
+        &self,
+        RowColumn {
+            row_index,
+            col_index,
+        }: RowColumn,
+    ) -> usize {
+        self.cells[row_index][col_index]
+    }
+}
+
+fn parse_lines(lines: &[&str]) -> Field {
+    let mut cells = vec![];
     for line in lines {
         let mut row = vec![];
         for byte in line.as_bytes() {
             row.push((byte - b'0').into());
         }
-        field.push(row);
+        cells.push(row);
     }
 
-    field
+    Field { cells }
 }
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
@@ -23,68 +54,90 @@ enum Direction {
     Bottom,
 }
 
-fn find_max(
-    cache: &mut HashMap<(Direction, usize, usize), usize>,
-    lines: &[Vec<usize>],
+impl Direction {
+    fn all() -> [Direction; 4] {
+        [
+            Direction::Left,
+            Direction::Right,
+            Direction::Top,
+            Direction::Bottom,
+        ]
+    }
+}
+
+fn travel(
     direction: Direction,
-    row: usize,
-    column: usize,
+    field: &Field,
+    mut row_column: RowColumn,
+    change: usize,
+) -> Option<RowColumn> {
+    match direction {
+        Direction::Top if change <= row_column.row_index => row_column.row_index -= change,
+        Direction::Bottom if row_column.row_index + change < field.cells.len() => {
+            row_column.row_index += change;
+        },
+        Direction::Left if change <= row_column.col_index => row_column.col_index -= change,
+        Direction::Right
+            if row_column.col_index + change < field.cells[row_column.row_index].len() =>
+        {
+            row_column.col_index += change;
+        },
+        _ => return None,
+    }
+
+    Some(row_column)
+}
+
+fn find_max_r(
+    cache: &mut HashMap<(Direction, RowColumn), usize>,
+    field: &Field,
+    direction: Direction,
+    row_column: RowColumn,
 ) -> usize {
-    if let Some(&cached) = cache.get(&(direction, row, column)) {
+    if let Some(&cached) = cache.get(&(direction, row_column)) {
         return cached;
     }
 
-    let max_in_direction = match direction {
-        Direction::Top if row > 0 => find_max(cache, lines, Direction::Top, row - 1, column),
-        Direction::Bottom if row + 1 < lines.len() => {
-            find_max(cache, lines, Direction::Bottom, row + 1, column)
-        },
-        Direction::Left if column > 0 => find_max(cache, lines, Direction::Left, row, column - 1),
-        Direction::Right if column + 1 < lines[row].len() => {
-            find_max(cache, lines, Direction::Right, row, column + 1)
-        },
-        _ => 0,
-    };
+    let max_in_direction = travel(direction, field, row_column, 1).map_or(0, |new_row_column| {
+        find_max_r(cache, field, direction, new_row_column)
+    });
 
-    let max = lines[row][column].max(max_in_direction);
+    let max = field.cell(row_column).max(max_in_direction);
 
-    cache.insert((direction, row, column), max);
+    cache.insert((direction, row_column), max);
 
     max
 }
 
-fn count_visible_from_any_side(lines: &[Vec<usize>]) -> usize {
+fn count_visible_from_any_side(field: &Field) -> usize {
     let mut cache = HashMap::new();
-    find_visible(&mut cache, lines)
+    find_visible(&mut cache, field)
 }
 
-fn find_visible(
-    cache: &mut HashMap<(Direction, usize, usize), usize>,
-    lines: &[Vec<usize>],
-) -> usize {
+fn find_visible(cache: &mut HashMap<(Direction, RowColumn), usize>, field: &Field) -> usize {
     let mut count = 0;
 
-    for row_index in 0..lines.len() {
-        for col_index in 0..lines[row_index].len() {
-            if row_index == 0
-                || col_index == 0
-                || row_index + 1 == lines.len()
-                || col_index + 1 == lines[row_index].len()
-            {
-                count += 1;
-            } else {
-                let max_top = find_max(cache, lines, Direction::Top, row_index - 1, col_index);
-                let max_bottom =
-                    find_max(cache, lines, Direction::Bottom, row_index + 1, col_index);
+    for row_index in 0..field.cells.len() {
+        for col_index in 0..field.cells[row_index].len() {
+            let row_column = RowColumn::new(row_index, col_index);
+            let min_any_direction = Direction::all()
+                .iter()
+                .map(|direction| {
+                    travel(*direction, field, row_column, 1)
+                        .map(|traveled| find_max_r(cache, field, *direction, traveled))
+                })
+                .min()
+                .unwrap();
 
-                let max_left = find_max(cache, lines, Direction::Left, row_index, col_index - 1);
-                let max_right = find_max(cache, lines, Direction::Right, row_index, col_index + 1);
-
-                let min_any_size = max_top.min(max_bottom).min(max_left).min(max_right);
-
-                if lines[row_index][col_index] > min_any_size {
+            match min_any_direction {
+                Some(min) if field.cell(row_column) <= min => {
+                    // lowest any direction is higher than us, we're invisible :'(
+                },
+                _ => {
+                    // None = edge, so visible
+                    // Or all values are less than us, ergo we're visible
                     count += 1;
-                }
+                },
             }
         }
     }
@@ -92,138 +145,76 @@ fn find_visible(
     count
 }
 
-fn find_max_local_scenic_score(
-    cache: &mut HashMap<(Direction, usize, usize), usize>,
-    lines: &[Vec<usize>],
-    direction: Direction,
-    row: usize,
-    column: usize,
-    max: usize,
-) -> usize {
-    if lines[row][column] >= max {
-        return 1;
-    }
-
-    // let to_jump = cache.get(&(direction, row, column)).copied().unwrap_or(0) + 1;
-    let to_jump = cache.get(&(direction, row, column)).copied().unwrap_or(0) + 1;
-
-    let max_in_direction = match direction {
-        Direction::Top if row >= to_jump => {
-            find_max_local_scenic_score(cache, lines, Direction::Top, row - to_jump, column, max)
-        },
-        Direction::Bottom if row + to_jump < lines.len() => {
-            find_max_local_scenic_score(cache, lines, Direction::Bottom, row + to_jump, column, max)
-        },
-        Direction::Left if column >= to_jump => {
-            find_max_local_scenic_score(cache, lines, Direction::Left, row, column - to_jump, max)
-        },
-        Direction::Right if column + to_jump < lines[row].len() => {
-            find_max_local_scenic_score(cache, lines, Direction::Right, row, column + to_jump, max)
-        },
-        _ => 0,
-    };
-
-    // TODO cache?
-
-    1 + max_in_direction
+fn max_scenic_score(field: &Field) -> usize {
+    let mut cache = HashMap::new();
+    find_max_scenic_score(&mut cache, field)
 }
 
 fn find_max_scenic_score(
-    cache: &mut HashMap<(Direction, usize, usize), usize>,
-    lines: &[Vec<usize>],
+    cache: &mut HashMap<(Direction, RowColumn), usize>,
+    field: &Field,
 ) -> usize {
     let mut max_scenic = 0;
 
-    for row_index in 0..lines.len() {
-        let mut dbg_output_1 = vec![];
-        let mut dbg_output_2 = vec![];
-        let mut dbg_output_3 = vec![];
+    for row_index in 0..field.cells.len() {
+        for col_index in 0..field.cells[row_index].len() {
+            let row_column = RowColumn::new(row_index, col_index);
 
-        for col_index in 0..lines[row_index].len() {
-            let scenic_top = (row_index > 0)
-                .then(|| {
-                    find_max_local_scenic_score(
-                        cache,
-                        lines,
-                        Direction::Top,
-                        row_index - 1,
-                        col_index,
-                        lines[row_index][col_index],
-                    )
+            let scenics = Direction::all()
+                .iter()
+                .map(|direction| {
+                    travel(*direction, field, row_column, 1).map_or(0, |next| {
+                        find_scenic_score_r(cache, field, *direction, next, field.cell(row_column))
+                    })
                 })
-                .unwrap_or(0);
+                .product();
 
-            let scenic_bottom = (row_index + 1 < lines.len())
-                .then(|| {
-                    find_max_local_scenic_score(
-                        cache,
-                        lines,
-                        Direction::Bottom,
-                        row_index + 1,
-                        col_index,
-                        lines[row_index][col_index],
-                    )
-                })
-                .unwrap_or(0);
-
-            let scenic_left = (col_index > 0)
-                .then(|| {
-                    find_max_local_scenic_score(
-                        cache,
-                        lines,
-                        Direction::Left,
-                        row_index,
-                        col_index - 1,
-                        lines[row_index][col_index],
-                    )
-                })
-                .unwrap_or(0);
-
-            let scenic_right = (col_index + 1 < lines[row_index].len())
-                .then(|| {
-                    find_max_local_scenic_score(
-                        cache,
-                        lines,
-                        Direction::Right,
-                        row_index,
-                        col_index + 1,
-                        lines[row_index][col_index],
-                    )
-                })
-                .unwrap_or(0);
-
-            dbg_output_1.push(format!(
-                " {}  ",
-                nu_ansi_term::Color::Red.paint(scenic_top.to_string())
-            ));
-            dbg_output_2.push(format!(
-                "{}{}{} ",
-                nu_ansi_term::Color::Red.paint(scenic_left.to_string()),
-                (lines[row_index][col_index]),
-                nu_ansi_term::Color::Red.paint(scenic_right.to_string()),
-            ));
-            dbg_output_3.push(format!(
-                " {}  ",
-                nu_ansi_term::Color::Red.paint(scenic_bottom.to_string())
-            ));
-
-            // println!("row: {row_index}, column: {col_index}, val: {}, top scenic: {scenic_top}, bottom scenic: {scenic_bottom}, left scenic: {scenic_left}, right scenic: {scenic_right}", lines[row_index][col_index]);
-
-            max_scenic = max_scenic.max(scenic_top * scenic_bottom * scenic_left * scenic_right);
+            max_scenic = max_scenic.max(scenics);
         }
-
-        println!("{}", dbg_output_1.into_iter().collect::<String>());
-        println!("{}", dbg_output_2.into_iter().collect::<String>());
-        println!("{}", dbg_output_3.into_iter().collect::<String>());
-        println!();
     }
 
     max_scenic
 }
 
-fn max_scenic_score(lines: &[Vec<usize>]) -> usize {
-    let mut cache = HashMap::new();
-    find_max_scenic_score(&mut cache, lines)
+fn find_scenic_score_r(
+    cache: &mut HashMap<(Direction, RowColumn), usize>,
+    field: &Field,
+    direction: Direction,
+    row_column: RowColumn,
+    max: usize,
+) -> usize {
+    let value = field.cell(row_column);
+
+    if value >= max {
+        // we reached our local max
+        return 1;
+    }
+
+    if let Some(&cached) = cache.get(&(direction, row_column)) {
+        return cached;
+    }
+
+    let mut result = 0;
+
+    loop {
+        if let Some(change) = travel(direction, field, row_column, result + 1)
+            .map(|traveled| find_scenic_score_r(cache, field, direction, traveled, value))
+        {
+            result += change;
+
+            let new_row_column = travel(direction, field, row_column, result).unwrap();
+
+            if field.cell(new_row_column) < max {
+                continue;
+            }
+        }
+
+        break;
+    }
+
+    cache.insert((direction, row_column), result + 1);
+
+    result + 1
 }
 
 pub struct Solution {}
