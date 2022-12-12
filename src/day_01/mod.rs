@@ -88,10 +88,9 @@ mod test {
     }
 
     mod part_1 {
-        use crate::{
-            day_01::{get_max, test::get_example, Solution},
-            shared::{Day, PartSolution},
-        };
+        use crate::day_01::test::get_example;
+        use crate::day_01::{get_max, Solution};
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
@@ -109,10 +108,9 @@ mod test {
     }
 
     mod part_2 {
-        use crate::{
-            day_01::{get_top_3, test::get_example, Solution},
-            shared::{Day, PartSolution},
-        };
+        use crate::day_01::test::get_example;
+        use crate::day_01::{get_top_3, Solution};
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {

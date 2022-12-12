@@ -92,10 +92,9 @@ mod test {
     }
 
     mod part_1 {
-        use crate::{
-            day_03::{calculate_overlap, parse_lines, test::get_example, Solution},
-            shared::{Day, PartSolution},
-        };
+        use crate::day_03::test::get_example;
+        use crate::day_03::{calculate_overlap, parse_lines, Solution};
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
@@ -115,10 +114,9 @@ mod test {
     }
 
     mod part_2 {
-        use crate::{
-            day_03::{calculate_chunk_overlap, test::get_example, Solution},
-            shared::{Day, PartSolution},
-        };
+        use crate::day_03::test::get_example;
+        use crate::day_03::{calculate_chunk_overlap, Solution};
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {

@@ -1,4 +1,5 @@
-use std::{cell::RefCell, rc::Rc};
+use std::cell::RefCell;
+use std::rc::Rc;
 
 use crate::shared::{Day, PartSolution};
 
@@ -234,10 +235,9 @@ mod test {
     }
 
     mod part_1 {
-        use crate::{
-            day_07::{dirs_smaller_than_100_000, parse_lines, test::get_example, Solution},
-            shared::{Day, PartSolution},
-        };
+        use crate::day_07::test::get_example;
+        use crate::day_07::{dirs_smaller_than_100_000, parse_lines, Solution};
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
@@ -257,10 +257,9 @@ mod test {
     }
 
     mod part_2 {
-        use crate::{
-            day_07::{find_smallest_dir_to_delete, parse_lines, test::get_example, Solution},
-            shared::{Day, PartSolution},
-        };
+        use crate::day_07::test::get_example;
+        use crate::day_07::{find_smallest_dir_to_delete, parse_lines, Solution};
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
