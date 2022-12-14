@@ -251,10 +251,8 @@ mod test {
     }
 
     mod part_1 {
-        use super::{
-            super::{count_visible_from_any_side, parse_lines, Solution},
-            get_example,
-        };
+        use super::super::{count_visible_from_any_side, parse_lines, Solution};
+        use super::get_example;
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -275,14 +273,10 @@ mod test {
     }
 
     mod part_2 {
-        use super::{
-            super::{parse_lines, Solution},
-            get_example,
-        };
-        use crate::{
-            day_08::max_scenic_score,
-            shared::{Day, PartSolution},
-        };
+        use super::super::{parse_lines, Solution};
+        use super::get_example;
+        use crate::day_08::max_scenic_score;
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
