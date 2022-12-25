@@ -115,8 +115,8 @@ mod test {
     }
 
     mod part_1 {
-        use crate::day_05::test::get_example;
-        use crate::day_05::{execute_orders_9000, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{execute_orders_9000, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -140,8 +140,8 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_05::test::get_example;
-        use crate::day_05::{execute_orders_9001, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{execute_orders_9001, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]

@@ -235,8 +235,8 @@ mod test {
     }
 
     mod part_1 {
-        use crate::day_07::test::get_example;
-        use crate::day_07::{dirs_smaller_than_100_000, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{dirs_smaller_than_100_000, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -257,8 +257,8 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_07::test::get_example;
-        use crate::day_07::{find_smallest_dir_to_delete, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{find_smallest_dir_to_delete, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]

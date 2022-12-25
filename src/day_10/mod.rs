@@ -154,10 +154,8 @@ mod test {
     }
 
     mod part_1 {
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, sum_signal_strength, Solution};
         use super::get_example;
-        use crate::day_10::sum_signal_strength;
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -178,13 +176,9 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_10::draw_crt;
-        use crate::shared::Day;
-        use crate::shared::PartSolution;
-
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{draw_crt, parse_lines, Solution};
         use super::get_example;
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {

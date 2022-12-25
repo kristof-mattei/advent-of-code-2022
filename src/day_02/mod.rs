@@ -144,8 +144,8 @@ mod test {
     }
 
     mod part_1 {
-        use crate::day_02::test::get_example;
-        use crate::day_02::{calculate_score_part_1, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{calculate_score_part_1, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -166,8 +166,8 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_02::test::get_example;
-        use crate::day_02::{calculate_score_part_2, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{calculate_score_part_2, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]
