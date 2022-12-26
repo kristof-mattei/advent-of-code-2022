@@ -51,7 +51,7 @@ impl Day for Solution {
 mod test {
 
     mod part_1 {
-        use crate::day_06::{find_start_of, Solution};
+        use super::super::{find_start_of, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -91,7 +91,7 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_06::{find_start_of, Solution};
+        use super::super::{find_start_of, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]

@@ -88,8 +88,8 @@ mod test {
     }
 
     mod part_1 {
-        use crate::day_01::test::get_example;
-        use crate::day_01::{get_max, Solution};
+        use super::super::test::get_example;
+        use super::super::{get_max, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -108,8 +108,8 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_01::test::get_example;
-        use crate::day_01::{get_top_3, Solution};
+        use super::super::test::get_example;
+        use super::super::{get_top_3, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]

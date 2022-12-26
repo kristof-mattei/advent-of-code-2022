@@ -87,8 +87,8 @@ mod test {
     }
 
     mod part_1 {
-        use crate::day_04::test::get_example;
-        use crate::day_04::{count_fully_contained, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{count_fully_contained, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]
@@ -109,8 +109,8 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_04::test::get_example;
-        use crate::day_04::{count_any_overlap, parse_lines, Solution};
+        use super::super::test::get_example;
+        use super::super::{count_any_overlap, parse_lines, Solution};
         use crate::shared::{Day, PartSolution};
 
         #[test]

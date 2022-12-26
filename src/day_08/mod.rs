@@ -273,9 +273,8 @@ mod test {
     }
 
     mod part_2 {
-        use super::super::{parse_lines, Solution};
+        use super::super::{max_scenic_score, parse_lines, Solution};
         use super::get_example;
-        use crate::day_08::max_scenic_score;
         use crate::shared::{Day, PartSolution};
 
         #[test]

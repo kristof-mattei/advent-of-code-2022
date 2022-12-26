@@ -30,7 +30,7 @@ coverage = []
 
 [dependencies]
 nu-ansi-term = "0.46.0"
-# regex = "1"
+regex = "1.7.0"
 
 
 # We compile the Docker container with musl to get a static library. Smaller, faster.
