@@ -305,14 +305,6 @@ mod test {
 
             let result = find_first_a_from_end(&parsed);
 
-            // v..v<<<<
-            // >v.vv<<^
-            // .>vv>E^^
-            // ..v>>>^^
-            // ..>>>>>^
-
-            // 31 steps
-
             assert_eq!(29, result);
         }
     }
