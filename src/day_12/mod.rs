@@ -252,8 +252,7 @@ mod test {
     }
 
     mod part_1 {
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
         use crate::day_12::find_shortest_distance;
         use crate::shared::{Day, PartSolution};
@@ -284,13 +283,10 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_12::find_first_a_from_end;
-        use crate::shared::Day;
-        use crate::shared::PartSolution;
-
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
+        use crate::day_12::find_first_a_from_end;
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
