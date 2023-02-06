@@ -56,16 +56,16 @@ fn find_taken_cells(
     line: isize,
     min: isize,
     max: isize,
-) -> BTreeMap<(isize, isize), Type> {
+) -> BTreeMap<isize, Type> {
     let mut taken_cells = BTreeMap::<_, Type>::new();
 
     for (sensor, beacon) in sensors_and_beacons {
         if sensor.y == line {
-            taken_cells.insert((sensor.x, sensor.y), Type::Sensor);
+            taken_cells.insert(sensor.x, Type::Sensor);
         }
 
         if beacon.y == line {
-            taken_cells.insert((beacon.x, beacon.y), Type::Beacon);
+            taken_cells.insert(beacon.x, Type::Beacon);
         }
     }
 
@@ -78,7 +78,7 @@ fn find_taken_cells(
             for x in isize::max(min, sensor.x - (manhattan - diff))
                 ..=isize::min(sensor.x + (manhattan - diff), max)
             {
-                match taken_cells.entry((x, line)) {
+                match taken_cells.entry(x) {
                     Entry::Occupied(_) => {},
                     Entry::Vacant(v) => {
                         v.insert(Type::Impossible);
@@ -113,11 +113,11 @@ fn find_empty(
 
         let diff: isize = isize::try_from(sensor.y.abs_diff(line)).unwrap();
 
-        if diff <= manhattan {
-            ranges.insert((
-                isize::max(0, sensor.x - (manhattan - diff)),
-                isize::min(sensor.x + (manhattan - diff), max) + 1,
-            ));
+        let start = isize::max(0, sensor.x - (manhattan - diff));
+        let end = isize::min(sensor.x + (manhattan - diff) + 1, max);
+
+        if diff <= manhattan && (0..=max).contains(&start) || (0..=max).contains(&end) {
+            ranges.insert((start, end));
         }
     }
 
