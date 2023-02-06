@@ -1,4 +1,5 @@
-use std::collections::{btree_map::Entry, BTreeMap, BTreeSet};
+use std::collections::btree_map::Entry;
+use std::collections::{BTreeMap, BTreeSet};
 
 use regex::{Captures, Regex};
 
@@ -202,8 +203,7 @@ mod test {
     }
 
     mod part_1 {
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
         use crate::day_15::find_impossible_spots_on_line;
         use crate::shared::{Day, PartSolution};
@@ -226,13 +226,10 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_15::find_only_possible_spot;
-        use crate::shared::Day;
-        use crate::shared::PartSolution;
-
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
+        use crate::day_15::find_only_possible_spot;
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {

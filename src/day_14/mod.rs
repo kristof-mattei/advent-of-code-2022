@@ -1,10 +1,6 @@
-use std::{
-    collections::{
-        btree_map::Entry::{Occupied, Vacant},
-        BTreeMap,
-    },
-    io::{stdout, Write},
-};
+use std::collections::btree_map::Entry::{Occupied, Vacant};
+use std::collections::BTreeMap;
+use std::io::{stdout, Write};
 
 use crate::shared::{Day, PartSolution};
 
@@ -429,8 +425,7 @@ mod test {
     }
 
     mod part_1 {
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
         use crate::day_14::parse_field_instructions;
         use crate::shared::{Day, PartSolution};
@@ -453,13 +448,10 @@ mod test {
     }
 
     mod part_2 {
-        use crate::day_14::parse_field_instructions_part_2;
-        use crate::shared::Day;
-        use crate::shared::PartSolution;
-
-        use super::super::parse_lines;
-        use super::super::Solution;
+        use super::super::{parse_lines, Solution};
         use super::get_example;
+        use crate::day_14::parse_field_instructions_part_2;
+        use crate::shared::{Day, PartSolution};
 
         #[test]
         fn outcome() {
