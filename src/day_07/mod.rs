@@ -13,10 +13,10 @@ impl std::fmt::Debug for Directory {
         writeln!(f, "- {} (dir)", self.name)?;
 
         for child in &self.children {
-            let s = format!("{child:?}");
+            let s = format!("{:?}", child);
 
             for line in s.lines() {
-                writeln!(f, "  {line}")?;
+                writeln!(f, "  {}", line)?;
             }
         }
 
@@ -34,10 +34,10 @@ impl std::fmt::Debug for DirOrFile {
         match &self {
             DirOrFile::Directory(d) => {
                 let borrowed_dir = (*(*d)).borrow();
-                write!(f, "{borrowed_dir:?}")
+                write!(f, "{:?}", borrowed_dir)
             },
             DirOrFile::File { name, size } => {
-                writeln!(f, "- {name} (file, size={size})")
+                writeln!(f, "- {} (file, size={})", name, size)
             },
         }
     }

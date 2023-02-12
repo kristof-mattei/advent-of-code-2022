@@ -359,7 +359,7 @@ fn dump_field(
                     Some(Contents::Rock) => '#',
                 };
 
-                let _ = write!(lock, "{character}");
+                let _ = write!(lock, "{}", character);
             }
 
             let _ = writeln!(lock);
