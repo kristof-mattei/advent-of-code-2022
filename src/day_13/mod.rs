@@ -18,7 +18,7 @@ impl std::fmt::Debug for Pair {
                 let mut s = String::new();
 
                 for (i, p) in v.iter().enumerate() {
-                    write!(s, "{p:?}")?;
+                    write!(s, "{:?}", p)?;
 
                     if i + 1 != v.len() {
                         s.push(',');
