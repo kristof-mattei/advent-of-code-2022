@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/kristof-mattei/advent-of-code-2022#readme",
   "devDependencies": {
-    "prettier": "^2.8.4"
+    "prettier": "^2.8.5"
   },
   "publishConfig": {
     "access": "restricted"
