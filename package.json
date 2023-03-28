@@ -22,7 +22,16 @@
   },
   "homepage": "https://github.com/kristof-mattei/advent-of-code-2022#readme",
   "devDependencies": {
-    "prettier": "^2.8.7"
+    "@actions/tool-cache": "^2.0.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^9.0.2",
+    "@semantic-release/github": "^8.0.7",
+    "@semantic-release/release-notes-generator": "^10.0.3",
+    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "prettier": "^2.8.7",
+    "semantic-release": "^21.0.0",
+    "semver": "^7.3.8",
+    "serialize-error": "^11.0.0"
   },
   "publishConfig": {
     "access": "restricted"
