@@ -35,11 +35,11 @@ fn parse_lines(lines: &[&str]) -> (Field, Vec<Operation>) {
         .map(|line| {
             let mut iter = line.split_whitespace();
 
-            let _ = iter.next();
+            let _: Option<_> = iter.next();
             let no_of_blocks = iter.next().map(|v| v.parse::<usize>().unwrap()).unwrap();
-            let _ = iter.next();
+            let _: Option<_> = iter.next();
             let from = iter.next().map(|v| v.parse::<usize>().unwrap()).unwrap();
-            let _ = iter.next();
+            let _: Option<_> = iter.next();
             let to = iter.next().map(|v| v.parse::<usize>().unwrap()).unwrap();
 
             // from and to are 1-based in the input
