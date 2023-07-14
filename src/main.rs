@@ -36,7 +36,9 @@ fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {}, part {} is ... {}", day, part, result);
 }
 
-fn main() {
+fn main() -> Result<(), color_eyre::Report> {
+    color_eyre::install()?;
+
     let mut day: u32 = 1;
 
     let solutions: Vec<Box<dyn Day>> = vec![
@@ -64,4 +66,6 @@ fn main() {
 
         day += 1;
     }
+
+    Ok(())
 }
