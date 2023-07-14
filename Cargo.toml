@@ -31,7 +31,16 @@ coverage = []
 [dependencies]
 nu-ansi-term = "0.48.0"
 regex = "1.9.1"
-
+color-eyre = "0.6.2"
+# reqwest = { version = "0.11.5", features = ["json"] }
+# serde_json = "1.0.68"
+# serde = { version = "1.0.130", features = ["derive"] }
+# futures = "0.3.17"
+# tokio = { version = "1.12.0", features = ["full"] }
+# log = "0.4.14"
+# env_logger = "0.9.0"
+# serde_yaml = "0.8.21"
+# clap = { version = "3.0.14", features = ["derive"] }
 
 # We compile the Docker container with musl to get a static library. Smaller, faster.
 # BUT that means that we need to include openssl
