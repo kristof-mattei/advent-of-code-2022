@@ -1,11 +1,14 @@
+#![cfg_attr(not(debug_assertions), deny(warnings))]
 #![deny(clippy::all)]
-#![warn(clippy::pedantic)]
-#![warn(clippy::cargo)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::cargo)]
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
 #![allow(clippy::too_many_lines)]
 #![allow(clippy::let_and_return)]
+#![allow(clippy::uninlined_format_args)]
+#![forbid(non_ascii_idents)]
 
 use shared::Day;
 
@@ -30,10 +33,12 @@ mod day_15;
 mod day_16;
 
 fn print_answer(day: u32, part: u32, result: &str) {
-    println!("Answer to Day {day}, part {part} is ... {result}");
+    println!("Answer to Day {}, part {} is ... {}", day, part, result);
 }
 
-fn main() {
+fn main() -> Result<(), color_eyre::Report> {
+    color_eyre::install()?;
+
     let mut day: u32 = 1;
 
     let solutions: Vec<Box<dyn Day>> = vec![
@@ -61,4 +66,6 @@ fn main() {
 
         day += 1;
     }
+
+    Ok(())
 }

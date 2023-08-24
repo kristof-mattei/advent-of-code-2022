@@ -32,7 +32,7 @@ fn char_to_value(c: char) -> u32 {
 fn calculate_overlap(split_lines: Vec<(HashSet<char>, HashSet<char>)>) -> u32 {
     let mut sum = 0;
     for (left, right) in split_lines {
-        let c = *left.intersection(&right).into_iter().next().unwrap();
+        let c = *left.intersection(&right).next().unwrap();
 
         let value = char_to_value(c);
 

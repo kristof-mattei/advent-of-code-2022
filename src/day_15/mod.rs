@@ -147,7 +147,7 @@ fn find_only_possible_spot(
         if last_percent != percent {
             last_percent = percent;
 
-            eprintln!("Line {line} of {max_included}, {last_percent}%");
+            eprintln!("Line {} of {}, {}%", line, max_included, last_percent);
         }
 
         let mut taken_cells = find_empty(sensors_and_beacons, line, max_included);
