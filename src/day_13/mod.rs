@@ -139,8 +139,8 @@ fn parse_lines_part_1(lines: &[&str]) -> Vec<(Vec<Pair>, Vec<Pair>)> {
 fn determine_largest(left: &[Pair], right: &[Pair]) -> Ordering {
     match (left, right) {
         ([Pair::Value(v1)], [Pair::Value(v2)]) => v1.cmp(v2),
-        ([l @ ..], [r @ Pair::Value(_)]) => determine_largest(l, &[Pair::Vec(vec![r.clone()])]),
-        ([l @ Pair::Value(_)], [r @ ..]) => determine_largest(&[Pair::Vec(vec![l.clone()])], r),
+        (l, [r @ Pair::Value(_)]) => determine_largest(l, &[Pair::Vec(vec![r.clone()])]),
+        ([l @ Pair::Value(_)], r) => determine_largest(&[Pair::Vec(vec![l.clone()])], r),
         ([Pair::Vec(l)], [Pair::Vec(r)]) => determine_largest(l, r),
         ([], [_, ..]) => std::cmp::Ordering::Less,
         ([_, ..], []) => std::cmp::Ordering::Greater,
