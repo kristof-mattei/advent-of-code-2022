@@ -4,11 +4,12 @@
   "description": "It's written in Rust!",
   "main": "src/main.rs",
   "scripts": {
-    "prettier": "prettier -w \"**/*.{yml,yaml}\""
+    "prettier": "prettier --write .",
+    "release": "semantic-release"
   },
   "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
+    "node": ">=v18.17.1",
+    "npm": ">=9.8.1"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,16 @@
   },
   "homepage": "https://github.com/kristof-mattei/advent-of-code-2022#readme",
   "devDependencies": {
-    "prettier": "^2.7.1"
+    "@actions/tool-cache": "^2.0.1",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^10.0.1",
+    "@semantic-release/github": "^9.0.4",
+    "@semantic-release/release-notes-generator": "^11.0.4",
+    "conventional-changelog-conventionalcommits": "^6.1.0",
+    "prettier": "^3.0.2",
+    "semantic-release": "^21.1.0",
+    "semver": "^7.5.4",
+    "serialize-error": "^11.0.1"
   },
   "publishConfig": {
     "access": "restricted"

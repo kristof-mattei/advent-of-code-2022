@@ -22,8 +22,8 @@
             "args": [],
             "cwd": "${workspaceFolder}",
             "env": {
-                "RUST_BACKTRACE": "1",
-                "RUST_LOG": "advent_of_code_2022=trace"
+                "RUST_BACKTRACE": "full",
+                "RUST_LOG": "trace,advent_of_code_2022=trace"
             }
         },
         {
@@ -45,8 +45,8 @@
             "args": [],
             "cwd": "${workspaceFolder}",
             "env": {
-                "RUST_BACKTRACE": "1",
-                "RUST_LOG": "advent_of_code_2022=trace"
+                "RUST_BACKTRACE": "full",
+                "RUST_LOG": "trace,advent_of_code_2022=trace"
             }
         }
     ]
