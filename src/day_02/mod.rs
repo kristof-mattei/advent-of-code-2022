@@ -10,7 +10,7 @@ where
 
         let first: Rps = chars.next().unwrap().into();
         // space
-        let _: Option<_> = chars.next();
+        let _ = chars.next();
         let second: T = chars.next().unwrap().into();
 
         result.push((first, second));
