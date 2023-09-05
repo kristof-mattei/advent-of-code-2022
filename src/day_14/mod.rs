@@ -359,10 +359,10 @@ fn dump_field(
                     Some(Contents::Rock) => '#',
                 };
 
-                let _ = write!(lock, "{}", character);
+                let _unused = write!(lock, "{}", character);
             }
 
-            let _ = writeln!(lock);
+            let _unused = writeln!(lock);
         }
     }
 }
@@ -384,10 +384,10 @@ fn dump_field_with_base(
         let mut lock = stdout().lock();
 
         for _ in (min_column_index - 2)..=(max_column_index + 2) {
-            let _ = write!(lock, "#");
+            let _unused = write!(lock, "#");
         }
 
-        let _ = writeln!(lock);
+        let _unused = writeln!(lock);
     }
 }
 

@@ -1,14 +1,16 @@
-#![cfg_attr(not(debug_assertions), deny(warnings))]
 #![deny(clippy::all)]
 #![deny(clippy::pedantic)]
 #![deny(clippy::cargo)]
+#![deny(warnings)]
+// exceptions
 #![allow(clippy::cast_possible_truncation)]
 #![allow(clippy::cast_possible_wrap)]
 #![allow(clippy::cast_sign_loss)]
-#![allow(clippy::too_many_lines)]
 #![allow(clippy::let_and_return)]
+#![allow(clippy::too_many_lines)]
 #![allow(clippy::uninlined_format_args)]
-#![forbid(non_ascii_idents)]
+#![deny(let_underscore_drop)]
+#![deny(non_ascii_idents)]
 
 use shared::Day;
 
