@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{BinaryHeap, HashMap};
 
 use crate::shared::{Day, PartSolution};
 
@@ -155,18 +155,30 @@ fn heuristic(field: &[Vec<Cell>], current: Coordinates) -> u32 {
     u32::from(field[current.0][current.1].elevation())
 }
 
+#[derive(PartialEq, Eq)]
+struct Node(Coordinates, u32);
+
+impl Ord for Node {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        other.1.cmp(&self.1)
+    }
+}
+
+impl PartialOrd for Node {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 fn a_star(field: &[Vec<Cell>], start: Coordinates, direction: &Direction) -> Vec<Coordinates> {
-    let mut open_set = Vec::from([(start, heuristic(field, start))]);
+    let mut open_set = BinaryHeap::from([Node(start, heuristic(field, start))]);
 
     let mut came_from = HashMap::<Coordinates, Coordinates>::new();
 
     let mut g_score = HashMap::from([(start, 0)]);
 
-    let mut f_score = HashMap::from([(start, heuristic(field, start))]);
-
-    while !open_set.is_empty() {
-        open_set.sort_unstable_by(|(_, v), (_, v2)| v2.cmp(v));
-        let current = open_set.pop().unwrap().0;
+    while let Some(current) = open_set.pop() {
+        let current = current.0;
 
         match direction {
             Direction::Ascending => {
@@ -195,13 +207,8 @@ fn a_star(field: &[Vec<Cell>], start: Coordinates, direction: &Direction) -> Vec
                 g_score.insert(neighbor, tentative_g_score);
 
                 let g_score_with_heurisitc = tentative_g_score + heuristic(field, neighbor);
-                f_score.insert(neighbor, g_score_with_heurisitc);
 
-                if let Some(position) = open_set.iter().position(|(c, _)| *c == neighbor) {
-                    open_set.remove(position);
-                }
-
-                open_set.push((neighbor, g_score_with_heurisitc));
+                open_set.push(Node(neighbor, g_score_with_heurisitc));
             }
         }
     }
