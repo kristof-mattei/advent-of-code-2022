@@ -1,0 +1,5 @@
+{
+    "rust-analyzer.runnables.extraEnv": {
+        "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
+    }
+}

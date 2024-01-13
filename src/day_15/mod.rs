@@ -168,7 +168,7 @@ fn find_only_possible_spot(
                 total_l = isize::min(total_l, l);
                 total_u = isize::max(total_u, u);
             } else {
-                return ((total_u as usize) * 4_000_000) + line as usize;
+                return ((total_u.unsigned_abs()) * 4_000_000) + line.unsigned_abs();
             }
         }
     }

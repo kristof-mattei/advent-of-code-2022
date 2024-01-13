@@ -11,18 +11,6 @@ repository = "https://github.com/kristof-mattei/advent-of-code-2022"
 keywords = ["playground"]
 categories = ["playground"]
 
-[profile.dev]
-debug = true
-
-[profile.release]
-debug = true
-
-[profile.bench]
-debug = true
-
-[profile.test]
-debug = true
-
 [lints.clippy]
 # don't stop from compiling / running
 all = "warn"
@@ -32,7 +20,6 @@ cargo = "warn"
 # dereferenced variables (`foo.bar`). The latter cannot be inlined
 # so we don't inline anything
 uninlined-format-args = { level = "allow", priority = 127 }
-cast-sign-loss = { level = "allow", priority = 127 }
 
 [lints.rust]
 let_underscore_drop = { level = "deny", priority = 127 }

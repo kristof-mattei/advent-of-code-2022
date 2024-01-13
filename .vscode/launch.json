@@ -23,9 +23,9 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
-                "RUST_LOG": "debug,advent_of_code_2022=trace"
+                "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
             },
-            "terminal": "console"
+            "terminal": "integrated"
         },
         {
             "type": "lldb",
@@ -47,9 +47,9 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
-                "RUST_LOG": "debug,advent_of_code_2022=trace"
+                "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
             },
-            "terminal": "console"
+            "terminal": "integrated"
         },
         {
             "type": "lldb",
@@ -71,9 +71,9 @@
             "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
-                "RUST_LOG": "debug,advent_of_code_2022=trace"
+                "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
             },
-            "terminal": "console"
+            "terminal": "integrated"
         }
     ]
 }
