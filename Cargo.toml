@@ -3,7 +3,7 @@ name = "advent-of-code-2022"
 # don't change this, it's updated before an actual build by update-version.sh
 version = "0.0.0-development"
 edition = "2021"
-rust-version = "1.71.0"
+rust-version = "1.77.0"
 authors = ["Kristof Mattei"]
 license-file = "LICENSE"
 description = "Advent of Code 2022"
@@ -11,27 +11,30 @@ repository = "https://github.com/kristof-mattei/advent-of-code-2022"
 keywords = ["playground"]
 categories = ["playground"]
 
-[profile.dev]
-debug = true
+[lints.clippy]
+# don't stop from compiling / running
+all = "warn"
+pedantic = "warn"
+cargo = "warn"
+# this one causes confusion when combining variables (`foo`) and
+# dereferenced variables (`foo.bar`). The latter cannot be inlined
+# so we don't inline anything
+uninlined-format-args = { level = "allow", priority = 127 }
 
-[profile.release]
-debug = true
+[lints.rust]
+let_underscore_drop = { level = "deny", priority = 127 }
+non_ascii_idents = { level = "deny", priority = 127 }
 
-[profile.bench]
-debug = true
-
-[profile.test]
-debug = true
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[profile.dev.package.backtrace]
+opt-level = 3
 
 [features]
 coverage = []
 
 [dependencies]
-nu-ansi-term = "0.49.0"
-regex = "1.9.3"
-color-eyre = "0.6.2"
+nu-ansi-term = "0.50.0"
+regex = "1.10.4"
+color-eyre = "0.6.3"
 # reqwest = { version = "0.11.5", features = ["json"] }
 # serde_json = "1.0.68"
 # serde = { version = "1.0.130", features = ["derive"] }

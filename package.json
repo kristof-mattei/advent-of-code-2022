@@ -8,8 +8,8 @@
     "release": "semantic-release"
   },
   "engines": {
-    "node": ">=v18.17.1",
-    "npm": ">=9.8.1"
+    "node": ">=20.12.0",
+    "npm": ">=10.5.0"
   },
   "repository": {
     "type": "git",
@@ -22,16 +22,14 @@
   },
   "homepage": "https://github.com/kristof-mattei/advent-of-code-2022#readme",
   "devDependencies": {
-    "@actions/tool-cache": "^2.0.1",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^10.0.1",
-    "@semantic-release/github": "^9.0.4",
-    "@semantic-release/release-notes-generator": "^11.0.4",
-    "conventional-changelog-conventionalcommits": "^6.1.0",
-    "prettier": "^3.0.2",
-    "semantic-release": "^21.1.0",
-    "semver": "^7.5.4",
-    "serialize-error": "^11.0.1"
+    "@actions/tool-cache": "2.0.1",
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/commit-analyzer": "12.0.0",
+    "@semantic-release/github": "10.0.2",
+    "@semantic-release/release-notes-generator": "13.0.0",
+    "conventional-changelog-conventionalcommits": "7.0.2",
+    "prettier": "3.2.5",
+    "semantic-release": "23.0.6"
   },
   "publishConfig": {
     "access": "restricted"

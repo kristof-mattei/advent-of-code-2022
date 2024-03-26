@@ -1,19 +1,4 @@
-#![cfg_attr(not(debug_assertions), deny(warnings))]
-#![deny(clippy::all)]
-#![deny(clippy::pedantic)]
-#![deny(clippy::cargo)]
-#![allow(clippy::cast_possible_truncation)]
-#![allow(clippy::cast_possible_wrap)]
-#![allow(clippy::cast_sign_loss)]
-#![allow(clippy::too_many_lines)]
-#![allow(clippy::let_and_return)]
-#![allow(clippy::uninlined_format_args)]
-#![forbid(non_ascii_idents)]
-
 use shared::Day;
-
-mod shared;
-mod utils;
 
 mod day_01;
 mod day_02;
@@ -32,6 +17,8 @@ mod day_14;
 mod day_15;
 mod day_16;
 mod day_17;
+mod shared;
+mod utils;
 
 fn print_answer(day: u32, part: u32, result: &str) {
     println!("Answer to Day {}, part {} is ... {}", day, part, result);
