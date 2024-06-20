@@ -16,6 +16,7 @@ mod day_13;
 mod day_14;
 mod day_15;
 mod day_16;
+mod day_17;
 mod shared;
 mod utils;
 
@@ -45,6 +46,7 @@ fn main() -> Result<(), color_eyre::Report> {
         Box::new(day_14::Solution {}),
         Box::new(day_15::Solution {}),
         Box::new(day_16::Solution {}),
+        Box::new(day_17::Solution {}),
     ];
 
     for solution in solutions {
