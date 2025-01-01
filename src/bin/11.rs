@@ -1,8 +1,7 @@
 use std::collections::VecDeque;
 
-use regex::Regex;
-
 use advent_of_code_2022::shared::{PartSolution, Parts};
+use regex::Regex;
 
 advent_of_code_2022::solution!(118_674, 32_333_418_600u64);
 
@@ -159,7 +158,8 @@ impl Parts for Solution {
 mod test {
 
     mod part_1 {
-        use advent_of_code_2022::shared::{solution::read_file, PartSolution, Parts};
+        use advent_of_code_2022::shared::solution::read_file;
+        use advent_of_code_2022::shared::{PartSolution, Parts};
 
         use crate::{Solution, DAY};
 
@@ -181,9 +181,10 @@ mod test {
     }
 
     mod part_2 {
-        use crate::{Solution, DAY};
+        use advent_of_code_2022::shared::solution::read_file;
+        use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use advent_of_code_2022::shared::{solution::read_file, PartSolution, Parts};
+        use crate::{Solution, DAY};
 
         #[test]
         fn outcome() {
