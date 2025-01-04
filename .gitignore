@@ -6,4 +6,5 @@
 node_modules/
 reports/
 profiling/
-NEXTVERSION
+
+profile.json

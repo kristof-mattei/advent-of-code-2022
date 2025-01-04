@@ -224,7 +224,7 @@ mod test {
         fn outcome() {
             assert_eq!(
                 PartSolution::USize(1820),
-                (Solution {}).part_1(&read_file("input", &DAY))
+                (Solution {}).part_1(&read_file("inputs", &DAY))
             );
         }
 

@@ -175,7 +175,7 @@ mod test {
         fn example() {
             assert_eq!(
                 PartSolution::USize(10605),
-                (Solution {}).part_1(&read_file("inputs", &DAY))
+                (Solution {}).part_1(&read_file("examples", &DAY))
             );
         }
     }
@@ -198,7 +198,7 @@ mod test {
         fn example() {
             assert_eq!(
                 PartSolution::USize(2_713_310_158),
-                (Solution {}).part_2(&read_file("inputs", &DAY))
+                (Solution {}).part_2(&read_file("examples", &DAY))
             );
         }
     }

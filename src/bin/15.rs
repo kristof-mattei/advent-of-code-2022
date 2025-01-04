@@ -1,7 +1,7 @@
-use std::collections::btree_map::Entry;
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
+use hashbrown::{hash_map::Entry, HashMap};
 use regex::{Captures, Regex};
 
 advent_of_code_2022::solution!(4_883_971, 12_691_026_767_556usize);
@@ -57,8 +57,8 @@ fn find_taken_cells(
     line: isize,
     min: isize,
     max: isize,
-) -> BTreeMap<isize, Type> {
-    let mut taken_cells = BTreeMap::<_, Type>::new();
+) -> HashMap<isize, Type> {
+    let mut taken_cells = HashMap::<_, Type>::new();
 
     for (sensor, beacon) in sensors_and_beacons {
         if sensor.y == line {
