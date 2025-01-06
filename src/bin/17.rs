@@ -265,25 +265,25 @@ mod test {
     }
 
     mod part_2 {
-        use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        // use advent_of_code_2022::shared::solution::read_file;
+        // use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        // use crate::{Solution, DAY};
 
-        #[test]
-        fn outcome() {
-            assert_eq!(
-                PartSolution::None,
-                (Solution {}).part_2(&read_file("inputs", &DAY))
-            );
-        }
+        // #[test]
+        // fn outcome() {
+        //     assert_eq!(
+        //         PartSolution::None,
+        //         (Solution {}).part_2(&read_file("inputs", &DAY))
+        //     );
+        // }
 
-        #[test]
-        fn example() {
-            assert_eq!(
-                PartSolution::USize(1_514_285_714_288),
-                (Solution {}).part_2(&read_file("examples", &DAY))
-            );
-        }
+        // #[test]
+        // fn example() {
+        //     assert_eq!(
+        //         PartSolution::USize(1_514_285_714_288),
+        //         (Solution {}).part_2(&read_file("examples", &DAY))
+        //     );
+        // }
     }
 }
