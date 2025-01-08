@@ -1,6 +1,7 @@
 {
     "debug.internalConsoleOptions": "openOnSessionStart",
     "prettier.configPath": "./.prettierrc.cjs",
+    "rust-analyzer.debug.engine": "vadimcn.vscode-lldb",
     "rust-analyzer.debug.engineSettings": {
         "lldb": {
             "internalConsoleOptions": "openOnSessionStart",
@@ -8,6 +9,10 @@
         }
     },
     "rust-analyzer.debug.openDebugPane": true,
+    "lldb.launch.expressions": "simple",
+    "lldb.launch.preRunCommands": [
+        "command script import ${workspaceFolder}/.vscode/rust_prettifier_for_lldb.py"
+    ],
     "rust-analyzer.runnables.extraEnv": {
         "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
     }
