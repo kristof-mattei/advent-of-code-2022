@@ -1,8 +1,9 @@
 use std::sync::LazyLock;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
+use hashbrown::HashMap;
 
-advent_of_code_2022::solution!(3130);
+advent_of_code_2022::solution!(3130, 1_556_521_739_139_usize);
 
 #[derive(Clone, Copy)]
 enum Direction {
@@ -29,7 +30,7 @@ impl std::fmt::Display for Cell {
     }
 }
 
-static ROCKS: LazyLock<Vec<Vec<Vec<Cell>>>> = LazyLock::new(|| {
+static PIECES: LazyLock<Vec<Vec<Vec<Cell>>>> = LazyLock::new(|| {
     // these are stored bottom to top
     let line = vec![vec![Cell::Block; 4]];
 
@@ -72,76 +73,58 @@ fn parse_input(input: &str) -> Vec<Direction> {
         .collect()
 }
 
-fn drop_blocks(input: &str, times: usize) -> PartSolution {
-    let directions = parse_input(input);
-
-    let mut directions_iter = directions.iter().cycle();
+fn drop_blocks(input: &str, target: usize) -> PartSolution {
+    let jets = parse_input(input);
 
     let mut field: Vec<[Cell; 7]> = vec![];
 
-    let mut rocks_iter = ROCKS.iter().cycle();
+    let mut jet_count = 0;
+    let mut piece_count = 0;
 
-    for _ in 0..times {
-        let block = rocks_iter.next().unwrap();
+    let mut repeats_from_cache = 0usize;
+
+    let mut cache = HashMap::new();
+
+    let mut top = 0;
+
+    while piece_count != target {
+        let piece = &PIECES[piece_count % PIECES.len()];
 
         // get the top row
-        let mut block_row_index = field
-            .iter()
-            .enumerate()
-            .rev()
-            .find_map(|(index, row)| {
-                row.iter()
-                    .any(|c| matches!(c, Cell::Settled))
-                    .then_some(index + 4)
-            })
-            .unwrap_or(3);
-
-        let all_settled_index = field
-            .iter()
-            .enumerate()
-            .rev()
-            .find_map(|(index, row)| {
-                row.iter()
-                    .all(|c| matches!(c, Cell::Settled))
-                    .then_some(index)
-            })
-            .unwrap_or_default();
-
-        println!(
-            "TOP ROW: {}, TOP ROW WITH ALL SETTLED: {}, DIFF: {}",
-            block_row_index,
-            all_settled_index,
-            block_row_index - all_settled_index
-        );
+        let mut block_row_index = top + 3;
 
         let mut block_column_index = 2;
 
         // until blocked
         loop {
             // left / right
-            let direction = directions_iter.next().unwrap();
+            let direction = &jets[jet_count % jets.len()];
+
+            jet_count += 1;
 
             (block_row_index, block_column_index) = get_new_block_position_direction(
                 &field,
                 block_row_index,
                 block_column_index,
-                block,
+                piece,
                 *direction,
             );
 
             // drop
             let Some((new_block_row_index, new_block_column_index)) =
-                get_new_block_position_down(&field, block_row_index, block_column_index, block)
+                get_new_block_position_down(&field, block_row_index, block_column_index, piece)
             else {
-                if field.len() < block_row_index + block.len() {
-                    field.resize(block_row_index + block.len(), [Cell::Empty; 7]);
+                if field.len() < block_row_index + piece.len() {
+                    field.resize(block_row_index + piece.len(), [Cell::Empty; 7]);
                 }
                 // mark the block's pieces as settled
-                for row_index in 0..block.len() {
-                    for column_index in 0..block[0].len() {
-                        if matches!(block[row_index][column_index], Cell::Block) {
+                for row_index in 0..piece.len() {
+                    for column_index in 0..piece[0].len() {
+                        if matches!(piece[row_index][column_index], Cell::Block) {
                             field[block_row_index + row_index][block_column_index + column_index] =
                                 Cell::Settled;
+
+                            top = top.max(block_row_index + row_index + 1);
                         }
                     }
                 }
@@ -151,21 +134,34 @@ fn drop_blocks(input: &str, times: usize) -> PartSolution {
 
             (block_row_index, block_column_index) = (new_block_row_index, new_block_column_index);
         }
+
+        if repeats_from_cache == 0 {
+            let key = (piece_count % PIECES.len(), jet_count % jets.len());
+
+            if let Some((2, old_piece_count, old_top)) = cache.get(&key) {
+                let delta_top = top - old_top;
+                let delta_piece_count = piece_count - old_piece_count;
+
+                let repeats = (target - piece_count) / delta_piece_count;
+
+                repeats_from_cache += repeats * delta_top;
+                piece_count += repeats * delta_piece_count;
+            }
+
+            cache
+                .entry(key)
+                .and_modify(|(amount, old_piece_count, old_top)| {
+                    *amount += 1;
+                    *old_piece_count = piece_count;
+                    *old_top = top;
+                })
+                .or_insert((1, piece_count, top));
+        }
+
+        piece_count += 1;
     }
 
-    // get the top row
-    let top_row = field
-        .iter()
-        .enumerate()
-        .rev()
-        .find_map(|(index, row)| {
-            row.iter()
-                .any(|c| matches!(c, Cell::Settled))
-                .then_some(index + 1)
-        })
-        .unwrap();
-
-    PartSolution::USize(top_row)
+    PartSolution::USize(top + repeats_from_cache)
 }
 
 fn get_new_block_position_direction(
@@ -265,25 +261,25 @@ mod test {
     }
 
     mod part_2 {
-        // use advent_of_code_2022::shared::solution::read_file;
-        // use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::solution::read_file;
+        use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        // use crate::{Solution, DAY};
+        use crate::{Solution, DAY};
 
-        // #[test]
-        // fn outcome() {
-        //     assert_eq!(
-        //         PartSolution::None,
-        //         (Solution {}).part_2(&read_file("inputs", &DAY))
-        //     );
-        // }
+        #[test]
+        fn outcome() {
+            assert_eq!(
+                PartSolution::USize(1_556_521_739_139_usize),
+                (Solution {}).part_2(&read_file("inputs", &DAY))
+            );
+        }
 
-        // #[test]
-        // fn example() {
-        //     assert_eq!(
-        //         PartSolution::USize(1_514_285_714_288),
-        //         (Solution {}).part_2(&read_file("examples", &DAY))
-        //     );
-        // }
+        #[test]
+        fn example() {
+            assert_eq!(
+                PartSolution::USize(1_514_285_714_288),
+                (Solution {}).part_2(&read_file("examples", &DAY))
+            );
+        }
     }
 }
