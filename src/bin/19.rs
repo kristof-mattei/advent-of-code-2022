@@ -4,7 +4,7 @@ use advent_of_code_2022::shared::{PartSolution, Parts};
 use enum_map::{enum_map, Enum, EnumMap};
 use regex::Regex;
 
-advent_of_code_2022::solution!();
+advent_of_code_2022::solution!(1150, 37367);
 
 #[derive(Debug, Clone, Copy, Enum)]
 #[repr(u8)]
