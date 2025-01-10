@@ -104,7 +104,7 @@ impl Parts for Solution {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
