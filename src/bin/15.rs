@@ -154,7 +154,7 @@ fn find_only_possible_spot(
         let mut taken_cells = find_empty(sensors_and_beacons, line, max_included);
 
         // check for 0
-        if taken_cells.first().map_or(false, |&(l, _)| l != 0) {
+        if taken_cells.first().is_some_and(|&(l, _)| l != 0) {
             return line.try_into().unwrap();
         }
 
