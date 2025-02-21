@@ -1,4 +1,4 @@
-FROM --platform=${BUILDPLATFORM} rust:1.84.0@sha256:f7cbb35003d4ffb5543f8ad6480c1e36bbae5c3609523c9f0c2e223668ee9c1a AS rust-base
+FROM --platform=${BUILDPLATFORM} rust:1.84.1@sha256:738ae99a3d75623f41e6882566b4ef37e38a9840244a47efd4a0ca22e9628b88 AS rust-base
 
 ARG APPLICATION_NAME
 
@@ -63,7 +63,7 @@ RUN --mount=type=cache,target=/build/${APPLICATION_NAME}/target \
     --mount=type=cache,id=cargo-registery,target=/usr/local/cargo/registry/,sharing=locked \
     cargo install --path . --target ${TARGET} --root /output
 
-FROM alpine:3.21.2@sha256:56fa17d2a7e7f168a043a2712e63aed1f8543aeafdcee47c58dcffe38ed51099
+FROM alpine:3.21.3@sha256:a8560b36e8b8210634f77d9f7f9efd7ffa463e380b75e2e74aff4511df3ef88c
 
 ARG APPLICATION_NAME
 
