@@ -104,11 +104,7 @@ fn parse_line(chars: &[char]) -> (Pair, usize) {
 }
 
 fn as_vec(pair: Pair) -> Vec<Pair> {
-    if let Pair::Vec(v) = pair {
-        v
-    } else {
-        panic!()
-    }
+    if let Pair::Vec(v) = pair { v } else { panic!() }
 }
 
 fn parse_lines(input: &str) -> Vec<Vec<Pair>> {
@@ -197,7 +193,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -220,7 +216,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {

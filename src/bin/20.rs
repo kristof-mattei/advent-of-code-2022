@@ -53,17 +53,17 @@ impl Parts for Solution {
     }
 
     fn part_2(&self, input: &str) -> PartSolution {
-        decode(input, 811589153, 10)
+        decode(input, 811_589_153, 10)
     }
 }
 
 #[cfg(test)]
 mod tests {
     mod part_1 {
+        use advent_of_code_2022::shared::Parts;
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -77,10 +77,10 @@ mod tests {
     }
 
     mod part_2 {
+        use advent_of_code_2022::shared::Parts;
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {

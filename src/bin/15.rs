@@ -1,8 +1,8 @@
 use std::collections::BTreeSet;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
-use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
+use hashbrown::hash_map::Entry;
 use regex::{Captures, Regex};
 
 advent_of_code_2022::solution!(4_883_971, 12_691_026_767_556usize);
@@ -203,7 +203,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{find_impossible_spots_on_line, parse_lines, Solution, DAY};
+        use crate::{DAY, Solution, find_impossible_spots_on_line, parse_lines};
 
         #[test]
         fn outcome() {
@@ -228,7 +228,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{find_only_possible_spot, parse_lines, Solution, DAY};
+        use crate::{DAY, Solution, find_only_possible_spot, parse_lines};
 
         #[test]
         fn outcome() {

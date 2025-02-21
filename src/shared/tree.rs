@@ -214,7 +214,7 @@ pub fn tn<T>(
 #[cfg(test)]
 mod tests {
 
-    use crate::shared::tree::{tn, to_bt, NodeIterator};
+    use crate::shared::tree::{NodeIterator, tn, to_bt};
 
     #[test]
     fn test_bt() {

@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::sync::LazyLock;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
-use enum_map::{enum_map, Enum, EnumMap};
+use enum_map::{Enum, EnumMap, enum_map};
 use regex::Regex;
 
 advent_of_code_2022::solution!(1150, 37367);
@@ -254,10 +254,10 @@ impl Parts for Solution {
 #[cfg(test)]
 mod tests {
     mod part_1 {
-        use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::solution::read_file;
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -271,10 +271,10 @@ mod tests {
     }
 
     mod part_2 {
-        use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::solution::read_file;
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
