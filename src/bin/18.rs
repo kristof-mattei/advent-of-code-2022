@@ -158,10 +158,10 @@ impl Parts for Solution {
 #[cfg(test)]
 mod tests {
     mod part_1 {
-        use advent_of_code_2022::shared::solution::{read_file, read_file_part};
         use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::solution::{read_file, read_file_part};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -185,10 +185,10 @@ mod tests {
     }
 
     mod part_2 {
-        use advent_of_code_2022::shared::solution::{read_file, read_file_part};
         use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::solution::{read_file, read_file_part};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {

@@ -1,6 +1,6 @@
-use std::collections::btree_map::Entry::{Occupied, Vacant};
 use std::collections::BTreeMap;
-use std::io::{stdout, Write};
+use std::collections::btree_map::Entry::{Occupied, Vacant};
+use std::io::{Write, stdout};
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
@@ -418,7 +418,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {
@@ -441,7 +441,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{Solution, DAY};
+        use crate::{DAY, Solution};
 
         #[test]
         fn outcome() {

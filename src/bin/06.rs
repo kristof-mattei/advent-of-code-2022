@@ -50,7 +50,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{find_start_of, Solution, DAY};
+        use crate::{DAY, Solution, find_start_of};
 
         #[test]
         fn outcome() {
@@ -95,7 +95,7 @@ mod tests {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts};
 
-        use crate::{find_start_of, Solution, DAY};
+        use crate::{DAY, Solution, find_start_of};
 
         #[test]
         fn outcome() {
