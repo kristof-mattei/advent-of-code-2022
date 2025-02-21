@@ -1,4 +1,5 @@
-use std::{collections::VecDeque, sync::LazyLock};
+use std::collections::VecDeque;
+use std::sync::LazyLock;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
 use enum_map::{enum_map, Enum, EnumMap};

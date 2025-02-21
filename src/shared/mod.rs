@@ -15,6 +15,7 @@ pub enum PartSolution {
     U32(u32),
     I64(i64),
     U64(u64),
+    ISize(isize),
     USize(usize),
     String(String),
     Vec(Vec<String>),
@@ -31,6 +32,7 @@ impl std::fmt::Debug for PartSolution {
             Self::U32(arg0) => write!(f, "{}u32", arg0),
             Self::I64(arg0) => write!(f, "{}i64", arg0),
             Self::U64(arg0) => write!(f, "{}u64", arg0),
+            Self::ISize(arg0) => write!(f, "{}isize", arg0),
             Self::USize(arg0) => write!(f, "{}usize", arg0),
             Self::String(arg0) => write!(f, "\"{}\"", arg0),
             Self::Vec(arg0) => write!(f, "{:?}", arg0),
@@ -54,6 +56,7 @@ impl PartialEq<PartSolution> for PartSolution {
             PartSolution::U32(i) => i == other,
             PartSolution::I64(i) => i == other,
             PartSolution::U64(i) => i == other,
+            PartSolution::ISize(i) => i == other,
             PartSolution::USize(i) => i == other,
             PartSolution::String(i) => i == other,
             PartSolution::Vec(i) => i == other,
@@ -84,6 +87,12 @@ impl From<i64> for PartSolution {
 impl From<u64> for PartSolution {
     fn from(v: u64) -> Self {
         PartSolution::U64(v)
+    }
+}
+
+impl From<isize> for PartSolution {
+    fn from(v: isize) -> Self {
+        PartSolution::ISize(v)
     }
 }
 
@@ -127,6 +136,7 @@ impl std::fmt::Display for PartSolution {
             PartSolution::U32(other) => other.to_string(),
             PartSolution::I64(other) => other.to_string(),
             PartSolution::U64(other) => other.to_string(),
+            PartSolution::ISize(other) => other.to_string(),
             PartSolution::USize(other) => other.to_string(),
             PartSolution::String(other) => other.to_string(),
             PartSolution::Vec(other) => format!("\n{}", other.join("\n")),
@@ -145,6 +155,7 @@ impl std::cmp::PartialEq<PartSolution> for i32 {
             PartSolution::U32(other) => i64::from(*self) == i64::from(other),
             PartSolution::I64(other) => i64::from(*self) == other,
             PartSolution::U64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::ISize(other) => Ok(*self) == Self::try_from(other),
             PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
             _ => false,
         }
@@ -158,6 +169,7 @@ impl std::cmp::PartialEq<PartSolution> for u32 {
             PartSolution::U32(other) => *self == other,
             PartSolution::I64(other) => i64::from(*self) == other,
             PartSolution::U64(other) => u64::from(*self) == other,
+            PartSolution::ISize(other) => Ok(*self) == Self::try_from(other),
             PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
             _ => false,
         }
@@ -171,6 +183,7 @@ impl std::cmp::PartialEq<PartSolution> for i64 {
             PartSolution::U32(other) => *self == Self::from(other),
             PartSolution::I64(other) => *self == other,
             PartSolution::U64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::ISize(other) => Ok(*self) == Self::try_from(other),
             PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
             _ => false,
         }
@@ -184,6 +197,21 @@ impl std::cmp::PartialEq<PartSolution> for u64 {
             PartSolution::U32(other) => *self == Self::from(other),
             PartSolution::I64(other) => Ok(*self) == Self::try_from(other),
             PartSolution::U64(other) => *self == other,
+            PartSolution::ISize(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
+            _ => false,
+        }
+    }
+}
+
+impl std::cmp::PartialEq<PartSolution> for isize {
+    fn eq(&self, other: &PartSolution) -> bool {
+        match *other {
+            PartSolution::I32(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::U32(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::I64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::U64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::ISize(other) => *self == other,
             PartSolution::USize(other) => Ok(*self) == Self::try_from(other),
             _ => false,
         }
@@ -197,6 +225,7 @@ impl std::cmp::PartialEq<PartSolution> for usize {
             PartSolution::U32(other) => Ok(*self) == Self::try_from(other),
             PartSolution::I64(other) => Ok(*self) == Self::try_from(other),
             PartSolution::U64(other) => Ok(*self) == Self::try_from(other),
+            PartSolution::ISize(other) => Ok(*self) == Self::try_from(other),
             PartSolution::USize(other) => *self == other,
             _ => false,
         }

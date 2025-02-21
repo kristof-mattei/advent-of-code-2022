@@ -1,7 +1,8 @@
 use std::collections::BTreeSet;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
-use hashbrown::{hash_map::Entry, HashMap};
+use hashbrown::hash_map::Entry;
+use hashbrown::HashMap;
 use regex::{Captures, Regex};
 
 advent_of_code_2022::solution!(4_883_971, 12_691_026_767_556usize);
