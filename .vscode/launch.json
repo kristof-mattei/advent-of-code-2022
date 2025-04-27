@@ -25,8 +25,8 @@
                 "RUST_BACKTRACE": "1",
                 "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
             },
-            "internalConsoleOptions": "openOnSessionStart",
-            "terminal": "console"
+            "internalConsoleOptions": "neverOpen",
+            "terminal": "integrated"
         },
         {
             "type": "lldb",
@@ -50,8 +50,8 @@
                 "RUST_BACKTRACE": "1",
                 "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
             },
-            "internalConsoleOptions": "openOnSessionStart",
-            "terminal": "console"
+            "internalConsoleOptions": "neverOpen",
+            "terminal": "integrated"
         },
         {
             "type": "lldb",
@@ -75,8 +75,8 @@
                 "RUST_BACKTRACE": "1",
                 "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
             },
-            "internalConsoleOptions": "openOnSessionStart",
-            "terminal": "console"
+            "internalConsoleOptions": "neverOpen",
+            "terminal": "integrated"
         }
     ]
 }
