@@ -38,7 +38,7 @@ non_ascii_idents = { level = "deny", priority = 127 }
 [dependencies]
 color-eyre = { git = "https://github.com/eyre-rs/eyre", rev = "c4ee249f7c51dc6452e8704ae8d117d90d6eeebc" }
 enum-map = "2.7.3"
-hashbrown = "0.15.2"
+hashbrown = "0.15.3"
 regex = { version = "1.11.1", default-features = false, features = [
     "perf",
     "unicode-perl", # for \d \s \w
