@@ -42,7 +42,11 @@ non_ascii_idents = { level = "deny", priority = 127 }
 [dependencies]
 color-eyre = "0.6.5"
 enum-map = "2.7.3"
-hashbrown = "0.15.4"
+hashbrown = { version = "0.15.4", default-features = false, features = [
+    "default-hasher",
+    "inline-more",
+    "equivalent",
+] }
 regex = { version = "1.11.1", default-features = false, features = [
     "perf",
     "unicode-perl", # for \d \s \w
