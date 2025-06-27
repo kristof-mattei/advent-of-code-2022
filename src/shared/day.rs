@@ -36,7 +36,6 @@ impl Day {
 
     /// Converts the [`Day`] into an [`u8`].
     #[must_use]
-    #[allow(dead_code)]
     pub fn into_inner(self) -> u8 {
         self.0
     }
@@ -72,7 +71,7 @@ impl FromStr for Day {
 }
 
 /// An error which can be returned when parsing a [`Day`].
-#[allow(clippy::module_name_repetitions)]
+#[expect(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub struct DayFromStrError;
 

@@ -108,7 +108,6 @@ fn draw_line(field: &mut BTreeMap<usize, BTreeMap<usize, Contents>>, instruction
             let start_row = start.row_index.min(end.row_index);
             let end_row = start.row_index.max(end.row_index);
 
-            #[allow(clippy::needless_range_loop)]
             for row in start_row..=end_row {
                 set_row_column_contents(field, row, start.column_index, Contents::Rock);
             }

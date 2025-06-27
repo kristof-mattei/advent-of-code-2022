@@ -19,9 +19,7 @@ pub enum PartSolution {
     USize(usize),
     String(String),
     Vec(Vec<String>),
-    #[allow(dead_code)]
     Manual,
-    #[allow(dead_code)]
     None,
 }
 
