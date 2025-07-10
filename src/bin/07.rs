@@ -62,7 +62,7 @@ fn parse_lines(input: &str) -> Rc<RefCell<Directory>> {
             // parse as command
             match line[5..].trim() {
                 "/" => {
-                    history.push(root.clone());
+                    history.push(Rc::clone(&root));
                 },
                 ".." => {
                     history.pop();
@@ -70,17 +70,19 @@ fn parse_lines(input: &str) -> Rc<RefCell<Directory>> {
                 dir_name => {
                     let last = (*(*(history.last().unwrap()))).borrow();
 
-                    let dir_reference = last
-                        .children
-                        .iter()
-                        .find_map(|c| match c {
-                            DirOrFile::Directory(dir) if (*(*dir)).borrow().name == dir_name => {
-                                Some(dir)
-                            },
-                            _ => None,
-                        })
-                        .unwrap()
-                        .clone();
+                    let dir_reference = Rc::clone(
+                        last.children
+                            .iter()
+                            .find_map(|c| match c {
+                                DirOrFile::Directory(dir)
+                                    if (*(*dir)).borrow().name == dir_name =>
+                                {
+                                    Some(dir)
+                                },
+                                _ => None,
+                            })
+                            .unwrap(),
+                    );
 
                     drop(last);
 
