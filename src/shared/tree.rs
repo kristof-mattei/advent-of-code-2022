@@ -39,7 +39,7 @@ impl<T> Iterator for NodeIterator<T> {
                     self.queue.push_back(left);
                     self.queue.push_back(right);
 
-                    Some(Some(current.clone()))
+                    Some(Some(Rc::clone(&current)))
                 },
             }
         } else {
