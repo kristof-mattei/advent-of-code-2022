@@ -15,7 +15,7 @@ fn find_start_of<const C: usize>(line: &str) -> usize {
             .take(i - start)
             .rposition(|v| v == byte);
 
-        match p {
+        match *p {
             Some(index) => {
                 start = start + index + 1;
             },
@@ -48,7 +48,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution, find_start_of};
 
@@ -93,7 +93,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution, find_start_of};
 

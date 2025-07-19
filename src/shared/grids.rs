@@ -155,6 +155,7 @@ where
         &self,
         predicate: P,
     ) -> Option<(usize, usize)> {
+        // The order here is incorrect, it goes by row by row, which is unexpected for xy (column by column)
         for ((row_index, column_index), v) in self.grid.row_column_index_value_iter() {
             if predicate(v) {
                 return Some((row_index, column_index));

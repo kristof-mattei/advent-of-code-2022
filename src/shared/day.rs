@@ -65,15 +65,15 @@ impl FromStr for Day {
     type Err = DayFromStrError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let day = s.parse().map_err(|_| DayFromStrError)?;
-        Self::try_new(day).ok_or(DayFromStrError)
+        let day = s.parse().map_err(|_| DayFromStrError {})?;
+        Self::try_new(day).ok_or(DayFromStrError {})
     }
 }
 
 /// An error which can be returned when parsing a [`Day`].
 #[expect(clippy::module_name_repetitions)]
 #[derive(Debug)]
-pub struct DayFromStrError;
+pub struct DayFromStrError {}
 
 impl Error for DayFromStrError {}
 

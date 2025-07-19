@@ -277,11 +277,12 @@ impl<T> IndexMut<usize> for Grid<T> {
 mod tests {
     use super::Grid;
     use crate::shared::grids::{
-        GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
+        GridIter as _, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection,
+        Neighbors as _,
     };
 
     #[test]
-    fn test_rows() {
+    fn rows() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
@@ -294,7 +295,7 @@ mod tests {
     }
 
     #[test]
-    fn test_columns() {
+    fn columns() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
@@ -313,7 +314,7 @@ mod tests {
     }
 
     #[test]
-    fn test_row_columns_iter() {
+    fn row_columns_iter() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
@@ -336,7 +337,7 @@ mod tests {
     }
 
     #[test]
-    fn test_hv_neighbors_middle() {
+    fn hv_neighbors_middle() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
@@ -354,7 +355,7 @@ mod tests {
     }
 
     #[test]
-    fn test_hv_neighbors_corner() {
+    fn hv_neighbors_corner() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
@@ -370,7 +371,7 @@ mod tests {
     }
 
     #[test]
-    fn test_hvd_neighbors_middle() {
+    fn hvd_neighbors_middle() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
@@ -392,7 +393,7 @@ mod tests {
     }
 
     #[test]
-    fn test_hvd_neighbors_corner() {
+    fn hvd_neighbors_corner() {
         let g = Grid::new(vec![
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],

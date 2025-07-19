@@ -21,10 +21,10 @@ enum Cell {
 
 impl Cell {
     fn elevation(&self) -> u8 {
-        match self {
+        match *self {
             Cell::Start => 0,
             Cell::End => 25,
-            Cell::Value(v) => *v,
+            Cell::Value(v) => v,
         }
     }
 }
@@ -94,7 +94,7 @@ fn get_neighbors<'f>(
     coordinates: &'f Coordinates,
     direction: &'f Direction,
 ) -> impl Iterator<Item = Coordinates> + 'f {
-    let (row_index, column_index) = coordinates;
+    let &(ref row_index, ref column_index) = coordinates;
 
     let transformations = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
@@ -139,7 +139,7 @@ fn distance(
     neighbor: Coordinates,
     direction: &Direction,
 ) -> u32 {
-    match direction {
+    match *direction {
         Direction::Ascending => {
             match (field[current.0][current.1].elevation())
                 .cmp(&(field[neighbor.0][neighbor.1].elevation()))
@@ -182,7 +182,7 @@ fn a_star(field: &[Vec<Cell>], start: Coordinates, direction: &Direction) -> Vec
     while let Some(current) = open_set.pop() {
         let current = current.0;
 
-        match direction {
+        match *direction {
             Direction::Ascending => {
                 if field[current.0][current.1] == Cell::End {
                     return reconstruct_path(&came_from, current);
@@ -250,7 +250,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -281,7 +281,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

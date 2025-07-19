@@ -1,8 +1,10 @@
+#![expect(clippy::allow_attributes_without_reason)]
 #![expect(clippy::cast_possible_truncation)]
 #![expect(clippy::cast_possible_wrap)]
+#![expect(clippy::as_conversions)]
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
-advent_of_code_2022::solution!(1087i64, 13_084_440_324_666_i64);
+advent_of_code_2022::solution!(1087_i64, 13_084_440_324_666_i64);
 
 fn parse_input(input: &str) -> Vec<i64> {
     input
@@ -60,7 +62,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod tests {
     mod part_1 {
-        use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::Parts as _;
         use advent_of_code_2022::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -77,7 +79,7 @@ mod tests {
     }
 
     mod part_2 {
-        use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::Parts as _;
         use advent_of_code_2022::shared::solution::read_file;
 
         use crate::{DAY, Solution};

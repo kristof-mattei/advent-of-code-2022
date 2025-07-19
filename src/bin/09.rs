@@ -39,8 +39,8 @@ fn move_rope<const LEN: usize>(movements: &[(Direction, usize)]) -> usize {
 
     let mut rope = vec![(0, 0); LEN];
 
-    for (direction, times) in movements {
-        for _ in 0..*times {
+    for &(ref direction, times) in movements {
+        for _ in 0..times {
             move_head(direction, &mut rope[0]);
 
             for i in 1..LEN {
@@ -57,7 +57,7 @@ fn move_rope<const LEN: usize>(movements: &[(Direction, usize)]) -> usize {
 }
 
 fn move_head(direction: &Direction, head: &mut (isize, isize)) {
-    match direction {
+    match *direction {
         Direction::Up => head.0 -= 1,
         Direction::Down => head.0 += 1,
 
@@ -127,7 +127,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -150,7 +150,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

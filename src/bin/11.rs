@@ -1,9 +1,11 @@
+#![expect(clippy::allow_attributes_without_reason)]
+#![expect(clippy::modulo_arithmetic)]
 use std::collections::VecDeque;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
 use regex::Regex;
 
-advent_of_code_2022::solution!(118_674, 32_333_418_600u64);
+advent_of_code_2022::solution!(118_674, 32_333_418_600_u64);
 
 enum Operation {
     Plus(Operand),
@@ -73,7 +75,7 @@ fn parse_lines(input: &str) -> Vec<Monkey> {
 }
 
 fn execute_operation(input: i64, operation: &Operation) -> i64 {
-    match operation {
+    match *operation {
         Operation::Plus(Operand::Old) => panic!(),
         Operation::Times(Operand::Old) => input * input,
         Operation::Plus(Operand::Scalar(s)) => input + s,
@@ -96,7 +98,7 @@ fn monkey_business(monkeys: &mut [Monkey], worry_reducer: &WorryReducer) {
 
             let result = execute_operation(item, &monkeys[i].operation);
 
-            let result = match worry_reducer {
+            let result = match *worry_reducer {
                 WorryReducer::Divide => result / 3,
                 WorryReducer::Mod(m) => result % m,
             };
@@ -159,7 +161,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -182,7 +184,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

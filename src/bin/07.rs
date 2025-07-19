@@ -33,12 +33,12 @@ enum DirOrFile {
 
 impl std::fmt::Debug for DirOrFile {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self {
-            DirOrFile::Directory(d) => {
+        match *self {
+            DirOrFile::Directory(ref d) => {
                 let borrowed_dir = (*(*d)).borrow();
                 write!(f, "{:?}", borrowed_dir)
             },
-            DirOrFile::File { name, size } => {
+            DirOrFile::File { ref name, size } => {
                 writeln!(f, "- {} (file, size={})", name, size)
             },
         }
@@ -73,13 +73,13 @@ fn parse_lines(input: &str) -> Rc<RefCell<Directory>> {
                     let dir_reference = Rc::clone(
                         last.children
                             .iter()
-                            .find_map(|c| match c {
-                                DirOrFile::Directory(dir)
+                            .find_map(|c| match *c {
+                                DirOrFile::Directory(ref dir)
                                     if (*(*dir)).borrow().name == dir_name =>
                                 {
                                     Some(dir)
                                 },
-                                _ => None,
+                                DirOrFile::File { .. } | DirOrFile::Directory(_) => None,
                             })
                             .unwrap(),
                     );
@@ -142,9 +142,9 @@ fn dirs_smaller_than_100_000_r(sums: &mut Vec<usize>, dir: &Rc<RefCell<Directory
     let mut sum = 0;
 
     for child in &(*dir).borrow().children {
-        match child {
-            DirOrFile::File { name: _, size } => sum += *size,
-            DirOrFile::Directory(d) => sum += dirs_smaller_than_100_000_r(sums, d),
+        match *child {
+            DirOrFile::File { size, .. } => sum += size,
+            DirOrFile::Directory(ref d) => sum += dirs_smaller_than_100_000_r(sums, d),
         }
     }
 
@@ -167,9 +167,9 @@ fn sum_r(dir: &Rc<RefCell<Directory>>) -> usize {
     let mut sum = 0;
 
     for child in &(*dir).borrow().children {
-        match child {
-            DirOrFile::File { name: _, size } => sum += *size,
-            DirOrFile::Directory(d) => sum += sum_r(d),
+        match *child {
+            DirOrFile::File { size, .. } => sum += size,
+            DirOrFile::Directory(ref d) => sum += sum_r(d),
         }
     }
 
@@ -179,9 +179,9 @@ fn test(larger_than: &mut Vec<usize>, minimum_size: usize, dir: &Rc<RefCell<Dire
     let mut sum = 0;
 
     for child in &(*dir).borrow().children {
-        match child {
-            DirOrFile::File { name: _, size } => sum += *size,
-            DirOrFile::Directory(d) => sum += test(larger_than, minimum_size, d),
+        match *child {
+            DirOrFile::File { size, .. } => sum += size,
+            DirOrFile::Directory(ref d) => sum += test(larger_than, minimum_size, d),
         }
     }
     if sum >= minimum_size {
@@ -230,7 +230,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -253,7 +253,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

@@ -54,12 +54,17 @@ struct State {
 
 impl State {
     fn start() -> Self {
-        State {
-            inventory: EnumMap::default(),
-            production: enum_map! {
+        #[expect(clippy::mem_forget, reason = "From macro, unable to fix")]
+        let map = {
+            enum_map! {
                 Mineral::Ore => 1,
                 Mineral::Clay | Mineral::Geode | Mineral::Obsidian => 0,
-            },
+            }
+        };
+
+        State {
+            inventory: EnumMap::default(),
+            production: map,
         }
     }
 }
@@ -254,7 +259,7 @@ impl Parts for Solution {
 #[cfg(test)]
 mod tests {
     mod part_1 {
-        use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::Parts as _;
         use advent_of_code_2022::shared::solution::read_file;
 
         use crate::{DAY, Solution};
@@ -271,7 +276,7 @@ mod tests {
     }
 
     mod part_2 {
-        use advent_of_code_2022::shared::Parts;
+        use advent_of_code_2022::shared::Parts as _;
         use advent_of_code_2022::shared::solution::read_file;
 
         use crate::{DAY, Solution};

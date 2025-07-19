@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 use std::collections::btree_map::Entry::{Occupied, Vacant};
-use std::io::{Write, stdout};
+use std::io::{Write as _, stdout};
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
@@ -31,9 +31,9 @@ fn parse_lines(input: &str) -> FieldInstructions {
     let mut line_instructions = Vec::new();
 
     let mut min_column_index = usize::MAX;
-    let mut max_column_index = 0usize;
+    let mut max_column_index = 0_usize;
 
-    let mut max_row_index = 0usize;
+    let mut max_row_index = 0_usize;
 
     for line in input.lines() {
         let steps = line.split(" -> ");
@@ -415,7 +415,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -438,7 +438,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

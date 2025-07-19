@@ -217,7 +217,7 @@ mod tests {
     use crate::shared::tree::{NodeIterator, tn, to_bt};
 
     #[test]
-    fn test_bt() {
+    fn bt() {
         let input = [
             5.into(),
             4.into(),
@@ -241,7 +241,7 @@ mod tests {
     }
 
     #[test]
-    fn test_bt_2() {
+    fn bt_2() {
         let input = (1..=15).map(Some).collect::<Vec<_>>();
 
         let expected = tn(
@@ -262,7 +262,7 @@ mod tests {
     }
 
     #[test]
-    fn test_iter() {
+    fn iter() {
         let input = (1..=15).map(Some).collect::<Vec<_>>();
 
         let tree = to_bt(&input);
