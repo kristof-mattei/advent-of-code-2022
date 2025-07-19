@@ -71,7 +71,7 @@ impl FromStr for Day {
 }
 
 /// An error which can be returned when parsing a [`Day`].
-#[expect(clippy::module_name_repetitions)]
+#[expect(clippy::module_name_repetitions, reason = "Name clarity")]
 #[derive(Debug)]
 pub struct DayFromStrError {}
 

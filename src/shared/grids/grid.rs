@@ -45,7 +45,7 @@ impl<T> Grid<T> {
     #[must_use]
     pub fn new(data: Vec<Vec<T>>) -> Self {
         for w in data.windows(2) {
-            assert_eq!(w[0].len(), w[1].len());
+            assert_eq!(w[0].len(), w[1].len(), "Row length differs");
         }
 
         let rows = data.len();

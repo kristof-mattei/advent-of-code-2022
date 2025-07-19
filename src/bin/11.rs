@@ -1,5 +1,3 @@
-#![expect(clippy::allow_attributes_without_reason)]
-#![expect(clippy::modulo_arithmetic)]
 use std::collections::VecDeque;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
@@ -100,7 +98,7 @@ fn monkey_business(monkeys: &mut [Monkey], worry_reducer: &WorryReducer) {
 
             let result = match *worry_reducer {
                 WorryReducer::Divide => result / 3,
-                WorryReducer::Mod(m) => result % m,
+                WorryReducer::Mod(m) => result.rem_euclid(m),
             };
 
             let target_monkey = if 0 == (result % monkeys[i].test) {
