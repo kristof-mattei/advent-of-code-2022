@@ -5,7 +5,7 @@ use hashbrown::HashMap;
 use hashbrown::hash_map::Entry;
 use regex::{Captures, Regex};
 
-advent_of_code_2022::solution!(4_883_971, 12_691_026_767_556usize);
+advent_of_code_2022::solution!(4_883_971, 12_691_026_767_556_usize);
 
 #[derive(Debug)]
 struct Coordinate {
@@ -61,7 +61,7 @@ fn find_taken_cells(
 ) -> HashMap<isize, Type> {
     let mut taken_cells = HashMap::<_, Type>::new();
 
-    for (sensor, beacon) in sensors_and_beacons {
+    for &(ref sensor, ref beacon) in sensors_and_beacons {
         if sensor.y == line {
             taken_cells.insert(sensor.x, Type::Sensor);
         }
@@ -71,7 +71,7 @@ fn find_taken_cells(
         }
     }
 
-    for (sensor, beacon) in sensors_and_beacons {
+    for &(ref sensor, ref beacon) in sensors_and_beacons {
         let manhattan = (sensor.x - beacon.x).abs() + (sensor.y - beacon.y).abs();
 
         let diff: isize = isize::try_from(sensor.y.abs_diff(line)).unwrap();
@@ -100,7 +100,7 @@ fn find_empty(
 ) -> BTreeSet<(isize, isize)> {
     let mut ranges = BTreeSet::new();
 
-    for (sensor, beacon) in sensors_and_beacons {
+    for &(ref sensor, ref beacon) in sensors_and_beacons {
         if sensor.y == line && sensor.x > 0 {
             ranges.insert((sensor.x, sensor.x + 1));
         }
@@ -110,7 +110,7 @@ fn find_empty(
         }
     }
 
-    for (sensor, beacon) in sensors_and_beacons {
+    for &(ref sensor, ref beacon) in sensors_and_beacons {
         let manhattan = (sensor.x - beacon.x).abs() + (sensor.y - beacon.y).abs();
 
         let diff: isize = isize::try_from(sensor.y.abs_diff(line)).unwrap();
@@ -134,7 +134,7 @@ fn find_impossible_spots_on_line(
 
     taken_cells
         .iter()
-        .filter(|(_, t)| t == &&Type::Impossible)
+        .filter(|&(_, t)| t == &Type::Impossible)
         .count()
 }
 
@@ -201,7 +201,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution, find_impossible_spots_on_line, parse_lines};
 
@@ -226,7 +226,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution, find_only_possible_spot, parse_lines};
 

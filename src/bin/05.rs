@@ -39,11 +39,11 @@ fn parse_lines(input: &str) -> (Field, Vec<Operation>) {
         .map(|line| {
             let mut iter = line.split_whitespace();
 
-            let _ = iter.next();
+            let _: Option<&str> = iter.next();
             let no_of_blocks = iter.next().map(|v| v.parse::<usize>().unwrap()).unwrap();
-            let _ = iter.next();
+            let _: Option<&str> = iter.next();
             let from = iter.next().map(|v| v.parse::<usize>().unwrap()).unwrap();
-            let _ = iter.next();
+            let _: Option<&str> = iter.next();
             let to = iter.next().map(|v| v.parse::<usize>().unwrap()).unwrap();
 
             // from and to are 1-based in the input
@@ -59,7 +59,7 @@ fn get_top_boxes(field: &Field) -> String {
     field
         .stacks
         .iter()
-        .filter_map(|stack| stack.last().map(|Block(c)| *c))
+        .filter_map(|stack| stack.last().map(|&Block(c)| c))
         .collect::<String>()
 }
 
@@ -108,7 +108,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -131,7 +131,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

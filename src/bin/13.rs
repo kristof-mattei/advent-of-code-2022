@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use std::fmt::Write;
+use std::fmt::Write as _;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
@@ -13,8 +13,8 @@ enum Pair {
 
 impl std::fmt::Debug for Pair {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Pair::Vec(v) => {
+        match *self {
+            Pair::Vec(ref v) => {
                 f.write_str("[")?;
 
                 let mut s = String::new();
@@ -136,13 +136,13 @@ fn parse_lines_part_1(input: &str) -> Vec<(Vec<Pair>, Vec<Pair>)> {
 
 fn determine_largest(left: &[Pair], right: &[Pair]) -> Ordering {
     match (left, right) {
-        ([Pair::Value(v1)], [Pair::Value(v2)]) => v1.cmp(v2),
-        (l, [r @ Pair::Value(_)]) => determine_largest(l, &[Pair::Vec(vec![r.clone()])]),
-        ([l @ Pair::Value(_)], r) => determine_largest(&[Pair::Vec(vec![l.clone()])], r),
-        ([Pair::Vec(l)], [Pair::Vec(r)]) => determine_largest(l, r),
-        ([], [_, ..]) => std::cmp::Ordering::Less,
-        ([_, ..], []) => std::cmp::Ordering::Greater,
-        ([l, l_rest @ ..], [r, r_rest @ ..]) => {
+        (&[Pair::Value(v1)], &[Pair::Value(ref v2)]) => v1.cmp(v2),
+        (l, &[ref r @ Pair::Value(_)]) => determine_largest(l, &[Pair::Vec(vec![r.clone()])]),
+        (&[ref l @ Pair::Value(_)], r) => determine_largest(&[Pair::Vec(vec![l.clone()])], r),
+        (&[Pair::Vec(ref l)], &[Pair::Vec(ref r)]) => determine_largest(l, r),
+        (&[], &[_, ..]) => std::cmp::Ordering::Less,
+        (&[_, ..], &[]) => std::cmp::Ordering::Greater,
+        (&[ref l, ref l_rest @ ..], &[ref r, ref r_rest @ ..]) => {
             match determine_largest(&[l.clone()], &[r.clone()]) {
                 Ordering::Less => Ordering::Less,
                 Ordering::Greater => Ordering::Greater,
@@ -191,7 +191,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -214,7 +214,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

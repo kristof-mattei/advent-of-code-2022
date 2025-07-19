@@ -87,7 +87,7 @@ mod tests {
 
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -110,7 +110,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 

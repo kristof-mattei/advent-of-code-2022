@@ -20,7 +20,7 @@ enum Cell {
 
 impl std::fmt::Display for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let c = match self {
+        let c = match *self {
             Cell::Empty => '.',
             Cell::Block => '@',
             Cell::Settled => '#',
@@ -81,7 +81,7 @@ fn drop_blocks(input: &str, target: usize) -> PartSolution {
     let mut jet_count = 0;
     let mut piece_count = 0;
 
-    let mut repeats_from_cache = 0usize;
+    let mut repeats_from_cache = 0_usize;
 
     let mut cache = HashMap::new();
 
@@ -138,7 +138,7 @@ fn drop_blocks(input: &str, target: usize) -> PartSolution {
         if repeats_from_cache == 0 {
             let key = (piece_count % PIECES.len(), jet_count % jets.len());
 
-            if let Some((2, old_piece_count, old_top)) = cache.get(&key) {
+            if let Some(&(2, ref old_piece_count, old_top)) = cache.get(&key) {
                 let delta_top = top - old_top;
                 let delta_piece_count = piece_count - old_piece_count;
 
@@ -150,11 +150,13 @@ fn drop_blocks(input: &str, target: usize) -> PartSolution {
 
             cache
                 .entry(key)
-                .and_modify(|(amount, old_piece_count, old_top)| {
-                    *amount += 1;
-                    *old_piece_count = piece_count;
-                    *old_top = top;
-                })
+                .and_modify(
+                    |&mut (ref mut amount, ref mut old_piece_count, ref mut old_top)| {
+                        *amount += 1;
+                        *old_piece_count = piece_count;
+                        *old_top = top;
+                    },
+                )
                 .or_insert((1, piece_count, top));
         }
 
@@ -188,7 +190,7 @@ fn get_new_block_position_direction(
                     field
                         .get(block_row_index + row_index)
                         .and_then(|row| row.get(new_block_column_index + column_index)),
-                    Some(Cell::Settled)
+                    Some(&Cell::Settled)
                 )
             {
                 return (block_row_index, start_block_column_index);
@@ -214,7 +216,7 @@ fn get_new_block_position_down(
                     field
                         .get(new_block_row_index + row_index)
                         .and_then(|row| row.get(block_column_index + column_index)),
-                    Some(Cell::Settled)
+                    Some(&Cell::Settled)
                 )
             {
                 return None;
@@ -239,7 +241,7 @@ impl Parts for Solution {
 mod tests {
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
@@ -262,7 +264,7 @@ mod tests {
 
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
-        use advent_of_code_2022::shared::{PartSolution, Parts};
+        use advent_of_code_2022::shared::{PartSolution, Parts as _};
 
         use crate::{DAY, Solution};
 
