@@ -1,7 +1,6 @@
 #![expect(clippy::allow_attributes_without_reason)]
 #![expect(clippy::cast_possible_truncation)]
 #![expect(clippy::cast_possible_wrap)]
-#![expect(clippy::as_conversions)]
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
 advent_of_code_2022::solution!(1087_i64, 13_084_440_324_666_i64);
