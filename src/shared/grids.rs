@@ -53,36 +53,36 @@ pub trait GridIter {
     fn get_row_length(&self) -> usize;
     fn get_column_length(&self) -> usize;
 
-    fn row_iter(&self) -> Iter<Self::GridRow> {
+    fn row_iter(&self) -> Iter<'_, Self::GridRow> {
         self.get_grid().iter()
     }
 
-    fn y_iter(&self) -> Iter<Self::GridRow> {
+    fn y_iter(&'_ self) -> Iter<'_, Self::GridRow> {
         self.get_grid().iter()
     }
 
-    fn x_iter(&self) -> XIter<Self>
+    fn x_iter(&'_ self) -> XIter<'_, Self>
     where
         Self: Sized,
     {
         XIter::new(self)
     }
 
-    fn column_iter(&self) -> XIter<Self>
+    fn column_iter(&'_ self) -> XIter<'_, Self>
     where
         Self: Sized,
     {
         XIter::new(self)
     }
 
-    fn row_column_index_value_iter(&self) -> RowColumnIndexValueIter<Self>
+    fn row_column_index_value_iter(&'_ self) -> RowColumnIndexValueIter<'_, Self>
     where
         Self: Sized,
     {
         RowColumnIndexValueIter::new(self)
     }
 
-    fn x_y_value_iter(&self) -> XYValueIter<Self>
+    fn x_y_value_iter(&'_ self) -> XYValueIter<'_, Self>
     where
         Self: Sized,
     {
