@@ -74,11 +74,9 @@ fn draw_crt(instructions: Vec<Instruction>) -> Vec<Vec<char>> {
             }
         }
 
-        if !slot_is_fresh {
-            if let Some(Instruction::Addx(addx)) = slot {
-                x += addx;
-                slot = None;
-            }
+        if !slot_is_fresh && let Some(Instruction::Addx(addx)) = slot {
+            x += addx;
+            slot = None;
         }
 
         cycle += 1;
@@ -117,11 +115,9 @@ fn sum_signal_strength(instructions: Vec<Instruction>) -> i32 {
             sum += i32::try_from(cycle).unwrap() * x;
         }
 
-        if !slot_is_fresh {
-            if let Some(Instruction::Addx(addx)) = slot {
-                x += addx;
-                slot = None;
-            }
+        if !slot_is_fresh && let Some(Instruction::Addx(addx)) = slot {
+            x += addx;
+            slot = None;
         }
 
         cycle += 1;

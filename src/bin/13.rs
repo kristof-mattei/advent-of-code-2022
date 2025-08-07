@@ -1,5 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::Write as _;
+use std::slice;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
@@ -143,7 +144,7 @@ fn determine_largest(left: &[Pair], right: &[Pair]) -> Ordering {
         (&[], &[_, ..]) => std::cmp::Ordering::Less,
         (&[_, ..], &[]) => std::cmp::Ordering::Greater,
         (&[ref l, ref l_rest @ ..], &[ref r, ref r_rest @ ..]) => {
-            match determine_largest(&[l.clone()], &[r.clone()]) {
+            match determine_largest(slice::from_ref(l), slice::from_ref(r)) {
                 Ordering::Less => Ordering::Less,
                 Ordering::Greater => Ordering::Greater,
                 Ordering::Equal => determine_largest(l_rest, r_rest),
