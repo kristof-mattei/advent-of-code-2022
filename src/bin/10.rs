@@ -111,7 +111,7 @@ fn sum_signal_strength(instructions: Vec<Instruction>) -> i32 {
             }
         }
 
-        if cycle >= 20 && (cycle - 20) % 40 == 0 {
+        if cycle >= 20 && (cycle - 20).is_multiple_of(40) {
             sum += i32::try_from(cycle).unwrap() * x;
         }
 

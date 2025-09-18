@@ -131,7 +131,7 @@ fn do_monkey_business_part_1(monkeys: Vec<Monkey>) -> usize {
 }
 
 fn do_monkey_business_part_2(monkeys: Vec<Monkey>) -> usize {
-    let m = monkeys.iter().fold(1, |acc, curr| (acc * curr.test));
+    let m = monkeys.iter().fold(1, |acc, curr| acc * curr.test);
 
     do_monkey_business(monkeys, 10_000, &WorryReducer::Mod(m))
 }

@@ -53,7 +53,7 @@ impl Solver {
     fn build(valve_mapping: HashMap<String, ValveData>) -> Self {
         let mut valves_having_positive_rate = valve_mapping
             .iter()
-            .filter(|&(_, &ValveData { flow_rate, .. })| (flow_rate > 0))
+            .filter(|&(_, &ValveData { flow_rate, .. })| flow_rate > 0)
             .map(|(valve_name, _)| valve_name.clone())
             .collect::<Vec<_>>();
 
