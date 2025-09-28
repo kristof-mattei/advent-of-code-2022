@@ -12,7 +12,6 @@ repository = "https://github.com/kristof-mattei/advent-of-code-2022"
 include = ["src/**", "/LICENSE", "/LICENSE-*"]
 
 [dependencies]
-color-eyre = "0.6.5"
 enum-map = "2.7.3"
 hashbrown = { version = "0.16.0", default-features = false, features = [
     "default-hasher",
