@@ -18,7 +18,7 @@ hashbrown = { version = "0.16.0", default-features = false, features = [
     "inline-more",
     "equivalent",
 ] }
-regex = { version = "1.12.1", default-features = false, features = [
+regex = { version = "1.12.2", default-features = false, features = [
     "perf",
     "unicode-perl", # for \d \s \w
     "std",
