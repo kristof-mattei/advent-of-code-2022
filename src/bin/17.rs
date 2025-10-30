@@ -183,9 +183,9 @@ fn get_new_block_position_direction(
         return (block_row_index, start_block_column_index);
     };
 
-    for row_index in 0..block.len() {
-        for column_index in 0..block[0].len() {
-            if matches!(block[row_index][column_index], Cell::Block)
+    for (row_index, row) in block.iter().enumerate() {
+        for (column_index, cell) in row.iter().enumerate() {
+            if matches!(cell, Cell::Block)
                 && matches!(
                     field
                         .get(block_row_index + row_index)
@@ -209,9 +209,9 @@ fn get_new_block_position_down(
 ) -> Option<(usize, usize)> {
     let new_block_row_index = start_block_row_index.checked_sub(1)?;
 
-    for row_index in 0..block.len() {
-        for column_index in 0..block[0].len() {
-            if matches!(block[row_index][column_index], Cell::Block)
+    for (row_index, row) in block.iter().enumerate() {
+        for (column_index, cell) in row.iter().enumerate() {
+            if matches!(cell, Cell::Block)
                 && matches!(
                     field
                         .get(new_block_row_index + row_index)
