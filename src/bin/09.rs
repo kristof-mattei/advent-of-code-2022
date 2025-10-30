@@ -1,3 +1,5 @@
+#![expect(clippy::string_slice, reason = "Advent of Code is ASCII only")]
+
 use std::cmp::Ordering;
 use std::collections::HashSet;
 

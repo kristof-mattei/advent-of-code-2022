@@ -1,3 +1,5 @@
+#![expect(clippy::string_slice, reason = "Advent of Code is ASCII only")]
+
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
 advent_of_code_2022::solution!(
