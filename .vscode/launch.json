@@ -5,22 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "lldb",
-            "request": "launch",
             "name": "Debug executable 'advent-of-code-2022'",
+            "type": "lldb",
+            "request": "launch",
             "cargo": {
-                "args": [
-                    "build",
-                    "--bin=advent-of-code-2022",
-                    "--package=advent-of-code-2022"
-                ],
-                "filter": {
-                    "name": "advent-of-code-2022",
-                    "kind": "bin"
-                }
+                "args": ["run", "--bin=advent-of-code-2022"]
             },
             "args": [],
-            "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
                 "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
@@ -29,23 +20,12 @@
             "terminal": "integrated"
         },
         {
-            "type": "lldb",
-            "request": "launch",
             "name": "Debug unit tests in executable 'advent-of-code-2022'",
+            "type": "lldb",
+            "request": "launch",
             "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--bin=advent-of-code-2022",
-                    "--package=advent-of-code-2022"
-                ],
-                "filter": {
-                    "name": "advent-of-code-2022",
-                    "kind": "bin"
-                }
+                "args": ["test", "--bin=advent-of-code-2022"]
             },
-            "args": [],
-            "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
                 "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
@@ -54,23 +34,12 @@
             "terminal": "integrated"
         },
         {
+            "name": "Debug integration test 'integration_tests'",
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'integration_tests'",
             "cargo": {
-                "args": [
-                    "test",
-                    "--no-run",
-                    "--test=integration_tests",
-                    "--package=advent-of-code-2022"
-                ],
-                "filter": {
-                    "name": "integration_tests",
-                    "kind": "test"
-                }
+                "args": ["test", "--test=integration_tests"]
             },
-            "args": [],
-            "cwd": "${workspaceFolder}",
             "env": {
                 "RUST_BACKTRACE": "1",
                 "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
