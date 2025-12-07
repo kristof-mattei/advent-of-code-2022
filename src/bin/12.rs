@@ -1,6 +1,7 @@
-use std::collections::{BinaryHeap, HashMap};
+use std::collections::BinaryHeap;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
+use hashbrown::HashMap;
 
 advent_of_code_2022::solution!(517, 512);
 
@@ -177,7 +178,7 @@ fn a_star(field: &[Vec<Cell>], start: Coordinates, direction: &Direction) -> Vec
 
     let mut came_from = HashMap::<Coordinates, Coordinates>::new();
 
-    let mut g_score = HashMap::from([(start, 0)]);
+    let mut g_score: HashMap<_, _> = HashMap::from([(start, 0)]);
 
     while let Some(current) = open_set.pop() {
         let current = current.0;
