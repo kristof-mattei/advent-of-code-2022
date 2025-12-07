@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use advent_of_code_2022::shared::{PartSolution, Parts};
+use hashbrown::HashMap;
 use regex::{Captures, Regex};
 
 advent_of_code_2022::solution!(1820, 2602);
@@ -86,11 +85,8 @@ impl Solver {
             })
             .collect::<HashMap<_, _>>();
 
-        #[expect(clippy::iter_over_hash_type, reason = "We don't care about order")]
         for mid in valve_mapping.keys() {
-            #[expect(clippy::iter_over_hash_type, reason = "We don't care about order")]
             for start in valve_mapping.keys() {
-                #[expect(clippy::iter_over_hash_type, reason = "We don't care about order")]
                 for end in valve_mapping.keys() {
                     let new_min = usize::min(
                         min_time[start][end],
@@ -185,9 +181,7 @@ fn release_pressure_with_elephant(valve_mapping: HashMap<String, ValveData>) -> 
 
     let mut result = usize::MIN;
 
-    #[expect(clippy::iter_over_hash_type, reason = "We don't care about order")]
     for (human, human_max_rate) in &max_rate_map_bit_representation {
-        #[expect(clippy::iter_over_hash_type, reason = "We don't care about order")]
         for (elephant, elephant_max_rate) in &max_rate_map_bit_representation {
             if (*human & *elephant) == 0 {
                 result = usize::max(result, human_max_rate + elephant_max_rate);

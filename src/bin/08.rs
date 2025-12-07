@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use advent_of_code_2022::shared::{PartSolution, Parts};
+use hashbrown::HashMap;
 
 advent_of_code_2022::solution!(1688, 410_400);
 

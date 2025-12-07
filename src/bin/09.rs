@@ -1,9 +1,9 @@
 #![expect(clippy::string_slice, reason = "Advent of Code is ASCII only")]
 
 use std::cmp::Ordering;
-use std::collections::HashSet;
 
 use advent_of_code_2022::shared::{PartSolution, Parts};
+use hashbrown::HashSet;
 
 advent_of_code_2022::solution!(6_332, 2_511);
 
