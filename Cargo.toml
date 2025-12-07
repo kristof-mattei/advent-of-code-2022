@@ -15,8 +15,8 @@ include = ["src/**", "/LICENSE", "/LICENSE-*"]
 enum-map = "2.7.3"
 hashbrown = { version = "0.16.1", default-features = false, features = [
     "default-hasher",
-    "inline-more",
     "equivalent",
+    "inline-more",
 ] }
 regex = { version = "1.12.2", default-features = false, features = [
     "perf",
