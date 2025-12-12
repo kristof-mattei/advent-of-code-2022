@@ -1,7 +1,7 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
-        "github>kristof-mattei/renovate-config-test",
+        "github>kristof-mattei/renovate-config-test:default.json5",
         "github>kristof-mattei/renovate-config-test//rust/updateRustVersionInCargoToml",
         "github>kristof-mattei/renovate-config-test//rust/updateChannelInRustToolchainToml"
     ]
