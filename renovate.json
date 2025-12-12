@@ -1,8 +1,8 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
-        "github>kristof-mattei/renovate-config:full-semver",
-        "github>kristof-mattei/renovate-config//rust/updateRustVersionInCargoToml",
-        "github>kristof-mattei/renovate-config//rust/updateChannelInRustToolchainToml"
+        "github>kristof-mattei/renovate-config-test",
+        "github>kristof-mattei/renovate-config-test//rust/updateRustVersionInCargoToml",
+        "github>kristof-mattei/renovate-config-test//rust/updateChannelInRustToolchainToml"
     ]
 }
