@@ -109,7 +109,7 @@ jobs:
       # when updating this, ensure you update the `Cache cargo` step in the `docker-build` job
       - &cache_cargo
         name: Cache cargo
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5
+        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
         env:
           CACHE_NAME: cargo
         with:
