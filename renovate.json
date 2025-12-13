@@ -1,8 +1,45 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "commitMessageTopic": "{{depName}} ({{datasource}})",
+    "dependencyDashboard": true,
+    "dependencyDashboardAutoclose": true,
     "extends": [
-        "github>kristof-mattei/renovate-config",
-        "github>kristof-mattei/renovate-config//rust/updateRustVersionInCargoToml",
-        "github>kristof-mattei/renovate-config//rust/updateChannelInRustToolchainToml"
-    ]
+        "config:recommended",
+        ":maintainLockFilesWeekly",
+        ":rebaseStalePrs",
+        ":semanticCommits",
+        ":semanticCommitScope(deps)",
+        "docker:enableMajor",
+        "docker:pinDigests",
+        ":prConcurrentLimitNone",
+        ":pinDevDependencies",
+        ":prHourlyLimitNone",
+        "helpers:pinGitHubActionDigestsToSemver"
+    ],
+    "internalChecksFilter": "strict",
+    "lockFileMaintenance": {
+        "automerge": true
+    },
+    "packageRules": [
+        {
+            "automerge": true,
+            "description": "Automatically merges minor and patch-level updates",
+            "matchUpdateTypes": ["minor", "patch", "digest", "pin", "pinDigest"]
+        },
+        {
+            "description": "Special actions case for mold",
+            "extractVersion": "^(?<version>v?\\d+)$",
+            "matchDepNames": ["rui314/setup-mold"],
+            "matchDepTypes": ["action"],
+            "versioning": "regex:^v?(?<major>\\d+)(\\.(?<minor>\\d+)\\.(?<patch>\\d+))?$"
+        },
+        {
+            "automerge": false,
+            "description": "Automatically creates a PR whenever there is a new major Renovate version",
+            "matchUpdateTypes": ["major"]
+        }
+    ],
+    "platformAutomerge": true,
+    "rangeStrategy": "bump",
+    "rollbackPrs": true
 }
