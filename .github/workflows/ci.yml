@@ -342,7 +342,7 @@ jobs:
           use_oidc: true
 
       - name: Upload test results to Codecov
-        uses: codecov/test-results-action@47f89e9acb64b76debcd5ea40642d25a4adced9f # v1.1.1
+        uses: codecov/test-results-action@v1
         with:
           disable_search: true
           # doesn't exist here... yet
