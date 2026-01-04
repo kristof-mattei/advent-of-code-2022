@@ -83,7 +83,7 @@ impl Display for DayFromStrError {
     }
 }
 
-/// Creates a [`Day`] value in a const context.
+/// Creates a [`Day`] value in a `const` context.
 #[macro_export]
 macro_rules! day {
     ($day:literal) => {{

@@ -106,7 +106,7 @@ impl Side {
     }
 }
 
-/// Converts a slice of &[Option<T>] to a Binary tree
+/// Converts a slice of `&[Option<T>]` to a Binary tree
 ///
 /// # Examples
 ///
@@ -120,7 +120,7 @@ impl Side {
 ///
 /// # Panics
 ///
-/// Panics if cannot borrow Rc
+/// Panics if cannot borrow `Rc`
 #[must_use]
 pub fn to_bt<T: Copy>(input: &[Option<T>]) -> Option<Rc<RefCell<Node<T>>>> {
     if input.is_empty() {
@@ -174,7 +174,7 @@ pub fn to_bt<T: Copy>(input: &[Option<T>]) -> Option<Rc<RefCell<Node<T>>>> {
 ///
 /// # Panics
 ///
-/// Panics if cannot borrow Rc
+/// Panics if cannot borrow `Rc`
 #[must_use]
 pub fn from_bt<T: Copy>(root: Option<Rc<RefCell<Node<T>>>>) -> Vec<Option<T>> {
     if root.is_none() {
