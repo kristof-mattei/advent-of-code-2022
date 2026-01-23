@@ -14,9 +14,10 @@ fn read_file_base(filepath: impl AsRef<Path>) -> String {
 }
 
 /// Helper function that reads a text file to a string.
+///
 /// # Panics
 ///
-/// if the file does not exist or cannot be read
+/// if the file does not exist or cannot be read.
 #[must_use]
 pub fn read_file(folder: &str, day: &Day) -> String {
     let cwd = env::current_dir().unwrap();
@@ -26,9 +27,10 @@ pub fn read_file(folder: &str, day: &Day) -> String {
 }
 
 /// Helper function that reads a text file to string, appending a part suffix. E.g. like `01-2.txt`.
+///
 /// # Panics
 ///
-/// if the file does not exist or cannot be read
+/// if the file does not exist or cannot be read.
 #[must_use]
 pub fn read_file_part(folder: &str, day: &Day, part: u8) -> String {
     let cwd = env::current_dir().unwrap();
