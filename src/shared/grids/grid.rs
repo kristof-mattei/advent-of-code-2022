@@ -38,10 +38,10 @@ impl<T: Clone> Clone for Grid<T> {
 }
 
 impl<T> Grid<T> {
-    /// Builds a new grid
+    /// Builds a new grid.
     ///
     /// # Panics
-    /// When rows are not equal length
+    /// When rows are not equal length.
     #[must_use]
     pub fn new(data: Vec<Vec<T>>) -> Self {
         for w in data.windows(2) {
