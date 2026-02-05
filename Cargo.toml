@@ -1,5 +1,8 @@
-[package]
-name = "advent-of-code-2022"
+[workspace]
+members = ["crates/advent-of-code-2022", "crates/shared"]
+resolver = "3"
+
+[workspace.package]
 version = "0.0.0-development"
 edition = "2024"
 rust-version = "1.93.0"
@@ -9,25 +12,14 @@ license = "MIT"
 categories = ["playground"]
 keywords = ["playground"]
 repository = "https://github.com/kristof-mattei/advent-of-code-2022"
-include = ["src/**", "/LICENSE", "/LICENSE-*"]
+include = ["crates/**", "/LICENSE", "/LICENSE-*"]
 
-[dependencies]
-enum-map = "2.7.3"
-hashbrown = { version = "0.16.1", default-features = false, features = [
-    "default-hasher",
-    "equivalent",
-    "inline-more",
-] }
-regex = { version = "1.12.3", default-features = false, features = [
-    "perf",
-    "unicode-perl", # for \d \s \w
-    "std",
-] }
+[workspace.dependencies]
 
-[package.metadata.spellcheck]
+[workspace.metadata.spellcheck]
 config = "spellcheck.toml"
 
-[lints.clippy]
+[workspace.lints.clippy]
 # don't stop from compiling / running
 all = "warn"
 cargo = "warn"
@@ -251,6 +243,6 @@ redundant_else = { level = "allow", priority = 127 }
 # so we don't inline anything
 uninlined_format_args = { level = "allow", priority = 127 }
 
-[lints.rust]
+[workspace.lints.rust]
 let_underscore_drop = { level = "deny", priority = 127 }
 non_ascii_idents = { level = "deny", priority = 127 }

@@ -1,0 +1,34 @@
+[package]
+name = "advent-of-code-2022"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+description.workspace = true
+license.workspace = true
+categories.workspace = true
+keywords.workspace = true
+repository.workspace = true
+include.workspace = true
+
+[features]
+default = []
+
+[dependencies]
+enum-map = "2.7.3"
+hashbrown = { version = "0.16.1", default-features = false, features = [
+    "default-hasher",
+    "equivalent",
+    "inline-more",
+] }
+regex = { version = "1.12.3", default-features = false, features = [
+    "perf",
+    "unicode-perl", # for \d \s \w
+    "std",
+] }
+
+[dev-dependencies]
+pretty_assertions = "=1.4.1"
+
+[lints]
+workspace = true
