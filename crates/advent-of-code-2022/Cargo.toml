@@ -23,8 +23,8 @@ hashbrown = { version = "0.16.1", default-features = false, features = [
 ] }
 regex = { version = "1.12.3", default-features = false, features = [
     "perf",
-    "unicode-perl", # for \d \s \w
     "std",
+    "unicode-perl", # for \d \s \w
 ] }
 
 [dev-dependencies]
