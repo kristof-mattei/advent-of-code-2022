@@ -1,6 +1,4 @@
 #![expect(clippy::allow_attributes_without_reason)]
-#![expect(clippy::cast_possible_truncation)]
-#![expect(clippy::cast_possible_wrap)]
 use advent_of_code_2022::shared::{PartSolution, Parts};
 
 advent_of_code_2022::solution!(1087_i64, 13_084_440_324_666_i64);
@@ -27,11 +25,14 @@ fn decode(input: &str, key: i64, times: usize) -> PartSolution {
             let value = numbers[old_index].1;
 
             // calculate new position
-            let new_index = old_index as isize + value as isize;
+            let new_index = isize::try_from(old_index).unwrap() + isize::try_from(value).unwrap();
 
             // % doesn't work for negative values.
             // move by length - 1 otherwise we move one too far
-            let new_index = new_index.rem_euclid(numbers.len() as isize - 1) as usize;
+            let new_index = new_index
+                .rem_euclid(isize::try_from(numbers.len()).unwrap() - 1)
+                .try_into()
+                .unwrap();
 
             // move position
             let tmp = numbers.remove(old_index);
