@@ -99,7 +99,7 @@ fn get_row_column_contents(
 }
 
 fn draw_line(field: &mut BTreeMap<usize, BTreeMap<usize, Contents>>, instructions: &[Step]) {
-    for [start, end] in instructions.array_windows::<2>() {
+    for &[ref start, ref end] in instructions.array_windows::<2>() {
         if start.column_index == end.column_index {
             // we move over x
             let start_row = start.row_index.min(end.row_index);
