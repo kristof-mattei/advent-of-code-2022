@@ -88,7 +88,7 @@ impl<T> InfiniteGrid<T> {
     #[must_use]
     #[expect(clippy::disallowed_macros, reason = "No pretty needed here")]
     pub fn new(data: Vec<Vec<T>>) -> Self {
-        for w in data.windows(2) {
+        for w in data.array_windows::<2>() {
             assert_eq!(w[0].len(), w[1].len(), "Row length differs");
         }
 
