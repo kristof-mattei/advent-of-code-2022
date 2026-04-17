@@ -121,7 +121,7 @@ fn do_monkey_business(
         monkey_business(&mut monkeys, worry_reducer);
     });
 
-    monkeys.sort_unstable_by(|a, b| b.activity.cmp(&a.activity));
+    monkeys.sort_unstable_by_key(|b| std::cmp::Reverse(b.activity));
 
     monkeys[0].activity * monkeys[1].activity
 }
