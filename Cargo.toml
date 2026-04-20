@@ -14,8 +14,6 @@ keywords = ["playground"]
 repository = "https://github.com/kristof-mattei/advent-of-code-2022"
 include = ["crates/**", "/LICENSE", "/LICENSE-*"]
 
-[workspace.dependencies]
-
 [workspace.metadata.spellcheck]
 config = "spellcheck.toml"
 
