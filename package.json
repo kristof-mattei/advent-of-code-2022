@@ -1,10 +1,22 @@
 {
     "name": "advent-of-code-2022",
     "type": "module",
+<<<<<<< HEAD
     "packageManager": "pnpm@10.33.3+sha512.a19744364a7e248b92657a4ca5973f9354d21caf982579674b1c539f32c7420c47138ad8b1254df07aba9bc782d9b3029e3db34d5dbff974326eb74dac8ff489",
+||||||| 57c3efc6
+    "packageManager": "pnpm@10.33.2+sha512.a90faf6feeab71ad6c6e57f94e0fe1a12f5dcc22cd754db40ae9593eb6a3e0b6b12e3540218bb37ae083404b1f2ce6db2a4121e979829b4aff94b99f49da1cf8",
+=======
+    "packageManager": "pnpm@10.33.4+sha512.1c67b3b359b2d408119ba1ed289f34b8fc3c6873412bec6fd264fbdc82489e510fcbecb9ce9d22dae7f3b76269d8441046014bdca53b9979cd7a561ad631b800",
+>>>>>>> upstream/main
     "engines": {
         "node": "24.15.0",
+<<<<<<< HEAD
         "pnpm": "10.33.3"
+||||||| 57c3efc6
+        "pnpm": "10.33.2"
+=======
+        "pnpm": "10.33.4"
+>>>>>>> upstream/main
     },
     "scripts": {
         "format": "prettier --write ."
