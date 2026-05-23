@@ -15,6 +15,7 @@ include.workspace = true
 default = []
 
 [dependencies]
+<<<<<<< HEAD:crates/advent-of-code-2022/Cargo.toml
 enum-map = "2.7.3"
 hashbrown = { version = "0.17.1", default-features = false, features = [
     "default-hasher",
@@ -26,6 +27,13 @@ regex = { version = "1.12.3", default-features = false, features = [
     "std",
     "unicode-perl", # for \d \s \w
 ] }
+||||||| 1cd12422:crates/rust-seed/Cargo.toml
+color-eyre = "0.6.5"
+mimalloc = "0.1.51"
+=======
+color-eyre = "0.6.5"
+mimalloc = "0.1.52"
+>>>>>>> upstream/main:crates/rust-seed/Cargo.toml
 
 [dev-dependencies]
 pretty_assertions = "=1.4.1"
