@@ -15,13 +15,13 @@ include.workspace = true
 default = []
 
 [dependencies]
-enum-map = "2.7.3"
-hashbrown = { version = "0.17.1", default-features = false, features = [
+enum-map = "=2.7.3"
+hashbrown = { version = "=0.17.1", default-features = false, features = [
     "default-hasher",
     "equivalent",
     "inline-more",
 ] }
-regex = { version = "1.12.4", default-features = false, features = [
+regex = { version = "=1.12.4", default-features = false, features = [
     "perf",
     "std",
     "unicode-perl", # for \d \s \w
