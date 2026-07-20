@@ -54,12 +54,9 @@ struct State {
 
 impl State {
     fn start() -> Self {
-        #[expect(clippy::mem_forget, reason = "From macro, unable to fix")]
-        let map = {
-            enum_map! {
-                Mineral::Ore => 1,
-                Mineral::Clay | Mineral::Geode | Mineral::Obsidian => 0,
-            }
+        let map = enum_map! {
+            Mineral::Ore => 1,
+            Mineral::Clay | Mineral::Geode | Mineral::Obsidian => 0,
         };
 
         State {
