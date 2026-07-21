@@ -15,7 +15,7 @@ include.workspace = true
 default = []
 
 [dependencies]
-enum-map = "=3.0.0"
+enum-map = "=3.1.0"
 hashbrown = { version = "=0.17.1", default-features = false, features = [
     "default-hasher",
     "equivalent",
