@@ -50,7 +50,7 @@ impl From<char> for Expected {
 enum Rps {
     Rock,
     Paper,
-    Sissors,
+    Scissors,
 }
 
 impl From<Rps> for u32 {
@@ -58,7 +58,7 @@ impl From<Rps> for u32 {
         match rps {
             Rps::Rock => 1,
             Rps::Paper => 2,
-            Rps::Sissors => 3,
+            Rps::Scissors => 3,
         }
     }
 }
@@ -68,17 +68,17 @@ fn score((left, right): (Rps, Rps)) -> u32 {
         Rps::Rock => match right {
             Rps::Rock => 3,
             Rps::Paper => 6,
-            Rps::Sissors => 0,
+            Rps::Scissors => 0,
         },
         Rps::Paper => match right {
             Rps::Rock => 0,
             Rps::Paper => 3,
-            Rps::Sissors => 6,
+            Rps::Scissors => 6,
         },
-        Rps::Sissors => match right {
+        Rps::Scissors => match right {
             Rps::Rock => 6,
             Rps::Paper => 0,
-            Rps::Sissors => 3,
+            Rps::Scissors => 3,
         },
     };
 
@@ -88,15 +88,15 @@ fn score((left, right): (Rps, Rps)) -> u32 {
 fn answer_and_score((left, right): (Rps, Expected)) -> u32 {
     let right_should_play = match right {
         Expected::Lose => match left {
-            Rps::Rock => Rps::Sissors,
+            Rps::Rock => Rps::Scissors,
             Rps::Paper => Rps::Rock,
-            Rps::Sissors => Rps::Paper,
+            Rps::Scissors => Rps::Paper,
         },
         Expected::Draw => left,
         Expected::Win => match left {
             Rps::Rock => Rps::Paper,
-            Rps::Paper => Rps::Sissors,
-            Rps::Sissors => Rps::Rock,
+            Rps::Paper => Rps::Scissors,
+            Rps::Scissors => Rps::Rock,
         },
     };
 
@@ -108,7 +108,7 @@ impl From<char> for Rps {
         match c {
             'A' | 'X' => Rps::Rock,
             'B' | 'Y' => Rps::Paper,
-            'C' | 'Z' => Rps::Sissors,
+            'C' | 'Z' => Rps::Scissors,
             _ => unreachable!(),
         }
     }

@@ -16,7 +16,6 @@ endmacro
 errorlens
 fullfill
 grcov
-heurisitc
 hubot
 idents
 kristof
@@ -32,7 +31,6 @@ nppdvjthqldpwncqszvftbrmjlhg
 nvmrc
 nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg
 pathbuf
-pids
 postprocessors
 prereleased
 profraw
@@ -43,7 +41,6 @@ rustflags
 samply
 sccache
 scenics
-Sissors
 skopeo
 startswith
 striptags

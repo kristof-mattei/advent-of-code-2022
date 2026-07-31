@@ -209,9 +209,9 @@ fn a_star(field: &[Vec<Cell>], start: Coordinates, direction: &Direction) -> Vec
 
                 g_score.insert(neighbor, tentative_g_score);
 
-                let g_score_with_heurisitc = tentative_g_score + heuristic(field, neighbor);
+                let g_score_with_heuristic = tentative_g_score + heuristic(field, neighbor);
 
-                open_set.push(Node(neighbor, g_score_with_heurisitc));
+                open_set.push(Node(neighbor, g_score_with_heuristic));
             }
         }
     }
