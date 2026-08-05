@@ -5,9 +5,10 @@ appuser
 bkeepers
 buildcache
 bvwbjplbgvbhsrlpgdmjqwftvncz
-Cinstrument
+cinstrument
 cocogitto
-Ctarget
+ctarget
+cttc
 cves
 Deque
 dorny
@@ -22,6 +23,7 @@ kristof
 LCTQFBVZV
 lldb
 mattei
+mimalloc
 mjqjpqmgbljsphdztnvjfqwrcgsmlb
 monomorphization
 multiplatform
@@ -34,8 +36,9 @@ pathbuf
 postprocessors
 prereleased
 profraw
-Retag
-Retagging
+pyflakes
+retag
+retagging
 rposition
 rustflags
 samply
@@ -46,9 +49,9 @@ startswith
 striptags
 swellaby
 taiki
-TARGETPLATFORMDASH
+targetplatformdash
 telem
-Tera
+tera
 topo
 trixie
 uninlined
