@@ -2,6 +2,7 @@ adduser
 Addx
 appgroup
 appuser
+artipacked
 bkeepers
 buildcache
 bvwbjplbgvbhsrlpgdmjqwftvncz
@@ -55,8 +56,10 @@ topo
 trixie
 TRUNC
 uninlined
+uninspectable
 unseparated
 usernamehw
 vadimcn
 VJSFHWGFT
 zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw
+zizmor
