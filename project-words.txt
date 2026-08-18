@@ -1,5 +1,5 @@
 adduser
-Addx
+addx
 appgroup
 appuser
 artipacked
@@ -8,9 +8,8 @@ buildcache
 bvwbjplbgvbhsrlpgdmjqwftvncz
 cinstrument
 ctarget
-cttc
 cves
-Deque
+deque
 dorny
 endfor
 endmacro
@@ -20,10 +19,9 @@ grcov
 hubot
 idents
 kristof
-LCTQFBVZV
+lctqfbvzv
 lldb
 mattei
-mimalloc
 mjqjpqmgbljsphdztnvjfqwrcgsmlb
 monomorphization
 multiplatform
@@ -45,6 +43,7 @@ samply
 sccache
 scenics
 skopeo
+skopeo's
 startswith
 striptags
 swellaby
@@ -54,12 +53,12 @@ telem
 tera
 topo
 trixie
-TRUNC
+trunc
 uninlined
 uninspectable
 unseparated
 usernamehw
 vadimcn
-VJSFHWGFT
+vjsfhwgft
 zcfzfwzzqfrljwzlrfnpqdbhtmscgvjw
 zizmor
