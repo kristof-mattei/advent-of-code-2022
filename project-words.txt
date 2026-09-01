@@ -1,4 +1,3 @@
-adduser
 addx
 appgroup
 appuser
@@ -28,7 +27,6 @@ multiplatform
 mypy
 nextest
 nppdvjthqldpwncqszvftbrmjlhg
-nvmrc
 nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg
 pathbuf
 postprocessors
@@ -37,6 +35,7 @@ profraw
 pyflakes
 retag
 retagging
+rhysd
 rposition
 rustflags
 samply
