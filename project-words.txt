@@ -6,6 +6,7 @@ bkeepers
 buildcache
 bvwbjplbgvbhsrlpgdmjqwftvncz
 cinstrument
+cliffignore
 ctarget
 cves
 deque
@@ -19,12 +20,10 @@ hubot
 idents
 kristof
 lctqfbvzv
-lldb
 mattei
 mjqjpqmgbljsphdztnvjfqwrcgsmlb
 monomorphization
 multiplatform
-mypy
 nextest
 nppdvjthqldpwncqszvftbrmjlhg
 nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg
@@ -33,6 +32,7 @@ postprocessors
 prereleased
 profraw
 pyflakes
+rawfile
 retag
 retagging
 rhysd
@@ -43,6 +43,7 @@ sccache
 scenics
 skopeo
 skopeo's
+slurpfile
 startswith
 striptags
 swellaby
