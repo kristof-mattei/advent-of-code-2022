@@ -27,6 +27,7 @@ multiplatform
 nextest
 nppdvjthqldpwncqszvftbrmjlhg
 nznrnfrfntjfmvfwmzdfjlvtqnbhcprsg
+oras
 pathbuf
 postprocessors
 prereleased
