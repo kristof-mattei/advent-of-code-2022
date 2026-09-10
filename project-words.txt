@@ -1,4 +1,5 @@
 addx
+allgreen
 appgroup
 appuser
 artipacked
@@ -16,7 +17,7 @@ endmacro
 errorlens
 fullfill
 grcov
-hubot
+headgreen
 idents
 kristof
 lctqfbvzv
