@@ -114,7 +114,7 @@ COPY <<EOF /etc/group
 appgroup:x:900:appuser
 EOF
 
-COPY --from=rust-build /output/bin/${APPLICATION_NAME} /app/entrypoint
+COPY --from=rust-build /output/bin/${APPLICATION_NAME} /app/advent-of-code-2022
 
 USER appuser
 
@@ -122,4 +122,4 @@ ENV RUST_BACKTRACE=full
 
 WORKDIR /app
 
-ENTRYPOINT ["/app/entrypoint"]
+ENTRYPOINT ["/app/advent-of-code-2022"]
