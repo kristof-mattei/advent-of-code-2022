@@ -11,13 +11,7 @@
             "cargo": {
                 "args": ["run", "--bin=advent-of-code-2022"]
             },
-            "args": [],
-            "env": {
-                "RUST_BACKTRACE": "1",
-                "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
-            },
-            "internalConsoleOptions": "neverOpen",
-            "terminal": "integrated"
+            "args": []
         },
         {
             "name": "Debug unit tests in executable 'advent-of-code-2022'",
@@ -26,13 +20,7 @@
             "cargo": {
                 "args": ["test", "--no-run", "--bin=advent-of-code-2022"]
             },
-            "args": [],
-            "env": {
-                "RUST_BACKTRACE": "1",
-                "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
-            },
-            "internalConsoleOptions": "neverOpen",
-            "terminal": "integrated"
+            "args": []
         },
         {
             "name": "Debug integration test 'integration_tests'",
@@ -41,13 +29,7 @@
             "cargo": {
                 "args": ["test", "--no-run", "--test=integration_tests"]
             },
-            "args": [],
-            "env": {
-                "RUST_BACKTRACE": "1",
-                "RUST_LOG": "DEBUG,advent_of_code_2022=TRACE"
-            },
-            "internalConsoleOptions": "neverOpen",
-            "terminal": "integrated"
+            "args": []
         }
     ]
 }
