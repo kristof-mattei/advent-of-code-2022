@@ -9,7 +9,6 @@ bvwbjplbgvbhsrlpgdmjqwftvncz
 cinstrument
 cliffignore
 ctarget
-cves
 deque
 dorny
 endfor
@@ -33,7 +32,6 @@ oras
 pathbuf
 pkgs
 postprocessors
-prereleased
 profraw
 pyflakes
 rawfile
