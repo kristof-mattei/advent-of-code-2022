@@ -17,6 +17,7 @@ errorlens
 fullfill
 grcov
 headgreen
+humn
 idents
 kristof
 lctqfbvzv

@@ -3,7 +3,7 @@ use std::str::FromStr;
 use advent_of_code_2022::shared::{PartSolution, Parts};
 use hashbrown::HashMap;
 
-advent_of_code_2022::solution!(276_156_919_469_632_usize);
+advent_of_code_2022::solution!(276_156_919_469_632_usize, 3_441_198_826_073_usize);
 
 #[derive(Debug)]
 struct Monkey {
@@ -25,15 +25,38 @@ enum Operand {
     Divide,
 }
 impl Operand {
-    fn calculate(&self, left: usize, right: usize) -> usize {
-        match *self {
+    fn calculate(self, left: usize, right: usize) -> usize {
+        match self {
             Operand::Plus => left + right,
             Operand::Minus => left - right,
             Operand::Times => left * right,
             Operand::Divide => left / right,
         }
     }
+
+    /// Returns `left` such that `left <operand> right == result`.
+    fn solve_left(self, result: usize, right: usize) -> usize {
+        match self {
+            Operand::Plus => result - right,
+            Operand::Minus => result + right,
+            Operand::Times => result / right,
+            Operand::Divide => result * right,
+        }
+    }
+
+    /// Returns `right` such that `left <operand> right == result`.
+    fn solve_right(self, result: usize, left: usize) -> usize {
+        match self {
+            Operand::Plus => result - left,
+            Operand::Minus => left - result,
+            Operand::Times => result / left,
+            Operand::Divide => left / result,
+        }
+    }
 }
+
+const ROOT: &str = "root";
+const HUMAN: &str = "humn";
 
 impl FromStr for Monkey {
     type Err = &'static str;
@@ -56,24 +79,25 @@ impl FromStr for Monkey {
     }
 }
 
+impl FromStr for Operand {
+    type Err = &'static str;
+
+    fn from_str(operand: &str) -> Result<Self, Self::Err> {
+        match operand {
+            "+" => Ok(Operand::Plus),
+            "-" => Ok(Operand::Minus),
+            "*" => Ok(Operand::Times),
+            "/" => Ok(Operand::Divide),
+            _ => Err("Invalid operand kind"),
+        }
+    }
+}
+
 fn parse_calculate(rest: &str) -> Result<(String, Operand, String), &'static str> {
-    let operand_index = rest.trim().find(' ').ok_or("Operand not found")?;
+    let (left, rest) = rest.split_once(' ').ok_or("Operand not found")?;
+    let (operand, right) = rest.split_once(' ').ok_or("Right side not found")?;
 
-    let operand = match &rest[operand_index + 1..operand_index + 2] {
-        "+" => Operand::Plus,
-        "-" => Operand::Minus,
-        "*" => Operand::Times,
-        "/" => Operand::Divide,
-        _ => return Err("Invalid operand kind"),
-    };
-
-    let left = &rest[0..operand_index];
-    let right = &rest[operand_index + 2..];
-
-    let left = left.trim().to_owned();
-    let right = right.trim().to_owned();
-
-    Ok((left, operand, right))
+    Ok((left.to_owned(), operand.parse()?, right.to_owned()))
 }
 
 fn parse_input(input: &str) -> Result<HashMap<String, Rest>, &'static str> {
@@ -82,8 +106,6 @@ fn parse_input(input: &str) -> Result<HashMap<String, Rest>, &'static str> {
         .filter(|line| !line.trim().is_empty())
         .map(str::parse)
         .collect::<Result<Vec<_>, _>>()?;
-
-    println!("{:?}", monkeys);
 
     Ok(monkeys
         .into_iter()
@@ -105,15 +127,61 @@ fn resolve(monkeys: &HashMap<String, Rest>, to_resolve: &str) -> usize {
     }
 }
 
+/// Returns `None` when the value of `to_resolve` depends on `humn`.
+fn resolve_without_human(monkeys: &HashMap<String, Rest>, to_resolve: &str) -> Option<usize> {
+    if to_resolve == HUMAN {
+        return None;
+    }
+
+    match monkeys[to_resolve] {
+        Rest::Yell(v) => Some(v),
+        Rest::Calculate(ref left, operand, ref right) => {
+            let left = resolve_without_human(monkeys, left)?;
+            let right = resolve_without_human(monkeys, right)?;
+
+            Some(operand.calculate(left, right))
+        },
+    }
+}
+
+/// Returns the number `humn` must yell for `to_solve` to evaluate to `target`.
+fn solve_for_human(monkeys: &HashMap<String, Rest>, to_solve: &str, target: usize) -> usize {
+    if to_solve == HUMAN {
+        return target;
+    }
+
+    let Rest::Calculate(ref left, operand, ref right) = monkeys[to_solve] else {
+        panic!("{} yells a number but depends on {}", to_solve, HUMAN);
+    };
+
+    match (
+        resolve_without_human(monkeys, left),
+        resolve_without_human(monkeys, right),
+    ) {
+        (None, Some(right)) => solve_for_human(monkeys, left, operand.solve_left(target, right)),
+        (Some(left), None) => solve_for_human(monkeys, right, operand.solve_right(target, left)),
+        _ => panic!("Exactly one side of {} must depend on {}", to_solve, HUMAN),
+    }
+}
+
 impl Parts for Solution {
     fn part_1(&self, input: &str) -> PartSolution {
         let monkeys = parse_input(input).unwrap();
 
-        (resolve(&monkeys, "root")).into()
+        (resolve(&monkeys, ROOT)).into()
     }
 
     fn part_2(&self, input: &str) -> PartSolution {
-        todo!()
+        let mut monkeys = parse_input(input).unwrap();
+
+        let Some(&mut Rest::Calculate(_, ref mut operand, _)) = monkeys.get_mut(ROOT) else {
+            panic!("{} must calculate", ROOT);
+        };
+
+        // `left == right` is the same as `left - right == 0`
+        *operand = Operand::Minus;
+
+        solve_for_human(&monkeys, ROOT, 0).into()
     }
 }
 
@@ -150,17 +218,14 @@ mod tests {
         #[test]
         fn outcome() {
             assert_eq!(
-                13_084_440_324_666_i64,
+                3_441_198_826_073_usize,
                 (Solution {}).part_2(&read_file("inputs", &DAY))
             );
         }
 
         #[test]
         fn example() {
-            assert_eq!(
-                1_623_178_306,
-                (Solution {}).part_2(&read_file("examples", &DAY))
-            );
+            assert_eq!(301, (Solution {}).part_2(&read_file("examples", &DAY)));
         }
     }
 }
