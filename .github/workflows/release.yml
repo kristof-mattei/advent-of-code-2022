@@ -34,7 +34,7 @@ jobs:
 
       # zizmor: ignore[artipacked] the release branch is pushed with this credential, see the release step
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -42,53 +42,75 @@ jobs:
           token: ${{ secrets.TOKEN_TO_TRIGGER_SUBSEQUENT_WORKFLOWS }}
 
       - name: Install git-cliff to generate changelog & next version number
-        uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: git-cliff
 
-      - name: Compute version and build the ballot context
+      - name: Calculate next version
+        id: version
+        uses: $/.github/actions/calculate-next-version
+
+      - name: Compute the release branch and build the ballot context
         shell: bash
         id: release
         env:
           # git-cliff reads GITHUB_TOKEN from the environment
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LATEST_TAG: ${{ steps.version.outputs.latest-tag }}
+          VERSION: ${{ steps.version.outputs.next-tag }}
         run: |
-          # git-cliff also applies .cliffignore to --bumped-version and --context, so main's copy from earlier releases would drop commits from the version bump and from the ballot
-          rm --force .cliffignore
-
-          latest_tag=$(git describe --tags --abbrev=0 || true)
-
-          echo "::notice::Latest tag: ${latest_tag:-none}"
-
-          if [ -n "${latest_tag}" ] && [ -z "$(git log "${latest_tag}..HEAD" --oneline)" ]; then
-            echo "::error::No commits since ${latest_tag}."
+          if [ -n "${LATEST_TAG}" ] && [ -z "$(git log "${LATEST_TAG}..HEAD" --oneline)" ]; then
+            echo "::error::No commits since ${LATEST_TAG}."
             exit 1
           fi
 
-          version=$(git-cliff --bumped-version --bump auto --unreleased --offline)
-
-          # If git-cliff didn't bump (e.g. chore/ci only commits), force a patch increment
-          # so we never release the same version as the last tag.
-          if [ "${version}" = "${latest_tag}" ]; then
-            version=$(git-cliff --bumped-version --bump patch --unreleased --offline)
-            echo "::notice::No conventional bump detected, forcing patch bump"
-          fi
-
-          echo "::notice::Version: ${version}"
-          echo "version=${version}" >> "${GITHUB_OUTPUT}"
-
-          branch="release/${version}"
+          branch="release/${VERSION}"
           echo "::notice::Branch: ${branch}"
           echo "branch=${branch}" >> "${GITHUB_OUTPUT}"
 
-          commit_message="chore(release): prepare for ${version}"
+          commit_message="chore(release): prepare for ${VERSION}"
           echo "commit_message=${commit_message}" >> "${GITHUB_OUTPUT}"
 
           main_sha=$(git rev-parse HEAD)
           echo "main_sha=${main_sha}" >> "${GITHUB_OUTPUT}"
 
-          # build the context before writing .cliffignore below, the ballot has to list every commit
-          git-cliff --context --unreleased --tag "${version}" > ballot-context.json
+          # git-cliff also applies .cliffignore to --context, so main's copy from earlier releases would drop commits from the ballot
+          rm --force .cliffignore
+
+          # build the context before writing .cliffignore below, the ballot has to list the excluded commits too
+          git-cliff --context --unreleased --tag "${VERSION}" > ballot-context.json
+
+      - name: Exclude superseded dependency bumps
+        shell: bash
+        id: superseded
+        env:
+          VERSION: ${{ steps.version.outputs.next-tag }}
+        run: |
+          # Renovate bumps the same dependency several times per release. Each release keeps the newest bump of a dependency, the older ones are excluded and left off the ballot.
+          # The context covers every release and is built without .cliffignore, so an excluded newest bump still supersedes the older ones.
+          # The version is the last word of the message, the rest identifies the dependency.
+          git-cliff --context --offline --tag "${VERSION}" \
+            | jq --raw-output '
+                [ .[]
+                  | .commits
+                  | to_entries
+                  | map(select(.value.scope == "deps" and .value.author.name == "renovate[bot]"))
+                  | group_by([.value.group, (.value.message | split(" ") | .[:-1] | join(" "))])[]
+                  | sort_by(.key)
+                  | .[:-1][]
+                  | .value.id
+                ]
+                | unique[]
+              ' > "${RUNNER_TEMP}/superseded.txt"
+
+          jq --rawfile superseded "${RUNNER_TEMP}/superseded.txt" '
+              ($superseded | split("\n") | map(select(. != "") | {(.): true}) | add // {}) as $excluded
+              | .[0].commits |= map(select($excluded[.id] | not))
+            ' ballot-context.json > "${RUNNER_TEMP}/ballot-context.json"
+
+          mv "${RUNNER_TEMP}/ballot-context.json" ballot-context.json
+
+          echo "file=${RUNNER_TEMP}/superseded.txt" >> "${GITHUB_OUTPUT}"
 
       - name: List open release PRs
         shell: bash
@@ -116,31 +138,32 @@ jobs:
           # git-cliff reads GITHUB_TOKEN from the environment
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SIBLINGS_FILE: ${{ steps.siblings.outputs.file }}
-          VERSION: ${{ steps.release.outputs.version }}
+          SUPERSEDED_FILE: ${{ steps.superseded.outputs.file }}
+          VERSION: ${{ steps.version.outputs.next-tag }}
         run: |
-          # Only a checked entry appears in the changelog, so every unreleased commit starts excluded
+          # Every entry starts checked, so a ballot entry is excluded only when a ballot has it unchecked
           jq --raw-output '.[0].commits[].id' ballot-context.json | sort --unique > "${RUNNER_TEMP}/unreleased.txt"
 
-          # Take the checked entries from the live bodies of the open release PRs, this branch's PR included. A toggle shows up in the body first and only reaches CHANGELOG.md on the next rebuild, so the body wins.
-          : > "${RUNNER_TEMP}/checked.txt"
+          # Take the unchecked entries from the live bodies of the open release PRs, this branch's PR included. A toggle shows up in the body first and only reaches .cliffignore on the next rebuild, so the body wins.
+          : > "${RUNNER_TEMP}/unchecked.txt"
 
           while read -r pr_number _; do
             gh api "repos/${GITHUB_REPOSITORY}/pulls/${pr_number}" --jq '.body // ""' \
-              | grep --perl-regexp --only-matching '^- \[[xX]\] .*/commit/\K[0-9a-f]{40}(?=\)\)\r?$)' >> "${RUNNER_TEMP}/checked.txt" || true
+              | grep --perl-regexp --only-matching '^- \[ \] .*/commit/\K[0-9a-f]{40}(?=\)\)\r?$)' >> "${RUNNER_TEMP}/unchecked.txt" || true
           done < "${SIBLINGS_FILE}"
 
-          # A release PR closed by hand has no body and no pending toggle left, so its branch's CHANGELOG.md is the latest selection
+          # A release PR closed by hand has no body and no pending toggle left, so its branch's .cliffignore is the latest selection
           if ! cut --delimiter=" " --fields=2 "${SIBLINGS_FILE}" | grep --quiet --fixed-strings --line-regexp "${BRANCH}" \
             && git ls-remote --exit-code --heads origin "${BRANCH}" > /dev/null; then
             git fetch origin "refs/heads/${BRANCH}"
-            git show "FETCH_HEAD:CHANGELOG.md" 2> /dev/null \
-              | grep --perl-regexp --only-matching '/commit/\K[0-9a-f]{40}(?=\)\)$)' >> "${RUNNER_TEMP}/checked.txt" || true
+            git show "FETCH_HEAD:.cliffignore" >> "${RUNNER_TEMP}/unchecked.txt" 2> /dev/null || true
           fi
 
           # Exclusions accumulate across releases, so the copy on main is the starting point
           git show HEAD:.cliffignore > .cliffignore 2> /dev/null || : > .cliffignore
 
-          grep --fixed-strings --line-regexp --invert-match --file "${RUNNER_TEMP}/checked.txt" "${RUNNER_TEMP}/unreleased.txt" >> .cliffignore || true
+          grep --fixed-strings --line-regexp --file "${RUNNER_TEMP}/unchecked.txt" "${RUNNER_TEMP}/unreleased.txt" >> .cliffignore || true
+          cat "${SUPERSEDED_FILE}" >> .cliffignore
           sort --unique --output .cliffignore .cliffignore
 
           git-cliff --output CHANGELOG.md --tag "${VERSION}"
@@ -171,7 +194,7 @@ jobs:
           BRANCH: ${{ steps.release.outputs.branch }}
           DEFAULT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.TOKEN_TO_TRIGGER_SUBSEQUENT_WORKFLOWS }}
-          VERSION: ${{ steps.release.outputs.version }}
+          VERSION: ${{ steps.version.outputs.next-tag }}
         run: |
           # Check if a PR already exists for this branch
           existing_pr=$(gh pr list --head "${BRANCH}" --state open --json number --jq '.[0].number // empty')

@@ -1,6 +1,5 @@
 use std::cell::RefCell;
 use std::collections::VecDeque;
-use std::option::Option;
 use std::rc::Rc;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -63,7 +62,7 @@ impl<T> Node<T> {
 #[must_use]
 pub fn vec_eq<T>(left: Vec<T>, mut right: Vec<T>) -> bool
 where
-    T: std::cmp::Eq,
+    T: Eq,
 {
     if left.len() != right.len() {
         return false;
@@ -82,7 +81,7 @@ where
 
 pub fn sort_vec_of_vec<T>(vec: &mut [Vec<T>])
 where
-    T: std::cmp::Ord,
+    T: Ord,
 {
     for inner_v in &mut *vec {
         inner_v.sort_unstable();

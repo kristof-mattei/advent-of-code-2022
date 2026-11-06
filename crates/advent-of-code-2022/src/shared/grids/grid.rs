@@ -65,7 +65,7 @@ impl<T> Grid<T> {
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug)]
 pub struct Row<T>(Vec<T>);
 
-impl<T: Clone> std::clone::Clone for Row<T> {
+impl<T: Clone> Clone for Row<T> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }

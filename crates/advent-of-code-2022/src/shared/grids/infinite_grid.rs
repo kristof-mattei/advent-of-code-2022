@@ -7,7 +7,7 @@ use super::{
 #[derive(PartialEq, Eq, PartialOrd, Ord)]
 pub struct InfiniteRow<T>(Vec<T>);
 
-impl<T: Clone> std::clone::Clone for InfiniteRow<T> {
+impl<T: Clone> Clone for InfiniteRow<T> {
     fn clone(&self) -> Self {
         Self(self.0.clone())
     }

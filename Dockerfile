@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1@sha256:4edf897a3ffa55b89f906fc8cc78afdb3f1834cc9c7083565e611a8a7d5fe99e
-# check=skip=SecretsUsedInArgOrEnv,error=true
+# check=skip=SecretsUsedInArgOrEnv;error=true
 
 # Rust toolchain setup
-FROM --platform=${BUILDPLATFORM} rust:1.99.0-slim-trixie@sha256:0952c7a429d2f53c7f1f5e0796190690e7d8db367ec4a66ce0419763b9e5e0d0 AS rust-base
+FROM --platform=${BUILDPLATFORM} rust:1.99.1-slim-trixie@sha256:7eab7ce19273ce785e0ca7578bdf7bc1fcbae621775a8197379a04c9f6e03cd5 AS rust-base
 
 ARG APPLICATION_NAME
 ARG DEBIAN_FRONTEND=noninteractive
@@ -13,12 +13,10 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean \
 RUN apt-get update \
     && apt-get upgrade --yes \
     && apt-get install --no-install-recommends --yes \
-        build-essential \
-        musl-dev \
         patch \
         xz-utils
 
-# trixie only has cargo-auditable 0.6.6, we need >= 0.6.7 for a bare linker (see build.sh)
+# trixie only has cargo-auditable 0.6.6, we need >= 0.6.7 for a bare linker
 ADD --checksum=sha256:7676443367c5e33d9fb22acef63cccb5e9202de12dae1b0579995eb3e2bc7a18 https://github.com/rust-secure-code/cargo-auditable/releases/download/v0.7.7/cargo-auditable-x86_64-unknown-linux-musl.tar.xz /tmp/cargo-auditable-x86_64.tar.xz
 ADD --checksum=sha256:c324af56990601354bbf40080f582ba46f8ec8b807a1388e25bb7e429d285c18 https://github.com/rust-secure-code/cargo-auditable/releases/download/v0.7.7/cargo-auditable-aarch64-unknown-linux-musl.tar.xz /tmp/cargo-auditable-aarch64.tar.xz
 
@@ -38,8 +36,17 @@ RUN tar --extract --gzip --no-same-owner --strip-components 2 \
         --wildcards "*/bin/mold" \
     && rm /tmp/mold-*.tar.gz
 
+ENV CC_x86_64_unknown_linux_musl=x86_64-linux-musl-gcc \
+    CC_aarch64_unknown_linux_musl=aarch64-linux-musl-gcc \
+    CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER=mold \
+    CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER=mold \
+    RUSTFLAGS="-Clink-self-contained=yes -Clinker-flavor=ld"
+
 FROM rust-base AS rust-linux-amd64
 ARG TARGET=x86_64-unknown-linux-musl
+ARG TARGETVARIANT
+# empty TARGETVARIANT adds nothing, v3 becomes -Ctarget-cpu=x86-64-v3
+ENV RUSTFLAGS="${RUSTFLAGS}${TARGETVARIANT:+ -Ctarget-cpu=x86-64-}${TARGETVARIANT}"
 
 FROM rust-base AS rust-linux-arm64
 ARG TARGET=aarch64-unknown-linux-musl
@@ -50,22 +57,20 @@ FROM rust-linux-${TARGETARCH} AS rust-cargo-build
 ARG TARGETARCH
 # linux or ...
 ARG TARGETOS
-# used by `build.sh`, v2, v3 or empty
+# v2, v3 or empty
 ARG TARGETVARIANT
 # like TARGETPLATFORM, but with dashes
 ARG TARGETPLATFORMDASH="${TARGETOS}-${TARGETARCH}-${TARGETVARIANT:-base}"
 ARG CARGO_TARGET_DIR=/build/target/${TARGETPLATFORMDASH}
 
-COPY ./build-scripts /build-scripts
-
-RUN /build-scripts/setup-env.sh
+# Debian architecture names match TARGETARCH for amd64 and arm64
+RUN if [ "$(dpkg --print-architecture)" != "${TARGETARCH}" ]; then dpkg --add-architecture "${TARGETARCH}"; fi \
+    && apt-get update \
+    && apt-get install --no-install-recommends --yes "musl-tools:${TARGETARCH}"
 
 RUN rustup target add ${TARGET}
 
-# The following block
-# creates an empty app, and we copy in Cargo.toml and Cargo.lock as they represent our dependencies
-# This allows us to copy in the source in a different layer which in turn allows us to leverage Docker's layer caching
-# That means that if our dependencies don't change rebuilding is much faster
+# building an empty app with only the manifests and Cargo.lock puts the dependencies in their own layer, which Docker's layer cache reuses while they do not change
 WORKDIR /build
 COPY ./.cargo ./.cargo
 COPY ./Cargo.toml ./Cargo.lock ./
@@ -85,7 +90,7 @@ WORKDIR /build
 
 RUN cargo fetch --locked
 
-RUN /build-scripts/build.sh build --frozen --release
+RUN cargo auditable build --frozen --release --target "${TARGET}"
 
 # Rust full build
 FROM rust-cargo-build AS rust-build
@@ -95,21 +100,17 @@ WORKDIR /build
 # now we copy in the source which is more prone to changes and build it
 COPY ./crates ./crates
 
-# ensure cargo picks up on the fact that we copied in our code
+# the copied sources get a newer mtime than the empty app's build, so cargo rebuilds them
 RUN find ./crates -type f -name '*.rs' -exec touch {} +
 
 ENV PATH="/output/bin:$PATH"
-
-# build with sources with default version number
-RUN /build-scripts/build.sh build --frozen --release
 
 # apply version bump (if any)
 COPY ./version-bump.patch ./
 RUN [ ! -s version-bump.patch ] || patch --strip 1 < version-bump.patch
 
-# build with new version number, minor update
 # --release not needed, it is implied with install
-RUN /build-scripts/build.sh install --frozen --path "./crates/${APPLICATION_NAME}/" --root /output
+RUN cargo auditable install --frozen --path "./crates/${APPLICATION_NAME}/" --root /output --target "${TARGET}"
 
 # Final stage, no `BUILDPLATFORM`, this one is run where it is deployed
 FROM scratch

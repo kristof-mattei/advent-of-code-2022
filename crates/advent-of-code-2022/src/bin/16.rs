@@ -4,7 +4,7 @@ use regex::{Captures, Regex};
 
 advent_of_code_2022::solution!(1820, 2602);
 
-fn get_value<T: std::str::FromStr>(captures: &Captures, name: &str) -> T {
+fn get_value<T: std::str::FromStr>(captures: &Captures<'_>, name: &str) -> T {
     captures
         .name(name)
         .and_then(|v| v.as_str().parse().ok())

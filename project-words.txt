@@ -38,6 +38,7 @@ pyflakes
 rawfile
 retag
 retagging
+retags
 rhysd
 rposition
 rustflags
@@ -49,6 +50,7 @@ skopeo's
 slurpfile
 startswith
 striptags
+supertrait
 swellaby
 taiki
 targetplatformdash

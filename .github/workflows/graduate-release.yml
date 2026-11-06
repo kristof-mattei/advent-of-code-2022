@@ -47,7 +47,7 @@ jobs:
 
       # zizmor: ignore[artipacked] the tag steps below read from the remote, which needs the credential in .git/config
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: true
@@ -135,7 +135,7 @@ jobs:
 
       - name: Install git-cliff to generate changelog
         if: steps.check_release.outputs.exists == 'false'
-        uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: git-cliff
 
@@ -189,7 +189,7 @@ jobs:
       needs.graduate.outputs.finalized == 'false'
     steps:
       - name: Set up ORAS
-        uses: oras-project/setup-oras@005458ad77f1c8facd38a094e4af2e69e5607ff4 # v2.0.2
+        uses: oras-project/setup-oras@v2.0.3
 
       - name: Set full deb artifact name
         shell: bash
@@ -276,7 +276,8 @@ jobs:
     needs:
       - graduate
       - attach-deb
-    # a skipped attach-deb still publishes, a failed one leaves the draft
+    # `attach-deb` is skipped unless `HAS_DEB` is `true`
+    # after `attach-deb` has failed, the release stays a draft
     if: |
       !cancelled() &&
       needs.graduate.result == 'success' &&

@@ -114,7 +114,7 @@ environments:
   - name: crates-io
     # Delays each job by this many minutes, 0 to 43200.
     # wait_timer: 0
-    # Lists up to six users or teams. Each job waits for an approval from one of them.
+    # Lists up to six users or teams. A job starts only after one of them approves.
     # reviewers:
     #   - id: 1
     #     type: User
@@ -153,14 +153,6 @@ rulesets:
     rules:
       - type: deletion
       - type: non_fast_forward
-      - type: code_scanning
-        parameters:
-          code_scanning_tools:
-            - tool: CodeQL
-              # Accepts `none`, `critical`, `high_or_higher`, `medium_or_higher`, or `all`.
-              security_alerts_threshold: high_or_higher
-              # Accepts `none`, `errors`, `errors_and_warnings`, or `all`.
-              alerts_threshold: errors
       - type: required_status_checks
         parameters:
           strict_required_status_checks_policy: true

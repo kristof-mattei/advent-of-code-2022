@@ -10,8 +10,7 @@ on:
       - main
 
 concurrency:
-  # each new commit to a PR runs this workflow
-  # so we need to avoid a long running older one from overwriting the "pr-<number>-latest"
+  # each new commit to a PR runs this workflow, so an older, slower run must not overwrite the newer run's "pr-<number>-latest" tag
   group: "${{ github.workflow }} @ ${{ github.ref_name }}"
   cancel-in-progress: true
 
@@ -40,7 +39,7 @@ jobs:
       architectures: ${{ steps.matrix.outputs.architectures }}
     steps:
       - name: Build matrix
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        uses: actions/github-script@v9.0.0
         id: matrix
         with:
           script: |
@@ -152,14 +151,14 @@ jobs:
       rust: ${{ steps.filter.outputs.rust }}
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           # dorny/paths-filter fetches `PR_BASE_SHA` with the persisted credentials
           persist-credentials: true
           show-progress: false
 
       - name: Check if we actually made changes
-        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        uses: dorny/paths-filter@v4.0.3
         id: filter
         with:
           # the API lists a stacked PR's changes against the PR below it, so the diff runs over git against `base`
@@ -179,7 +178,7 @@ jobs:
       - repo-has-container
       - repo-has-deb
     outputs:
-      version: ${{ steps.version.outputs.version }}
+      version: ${{ steps.version.outputs.next-version }}
       # the artifacts embed the predicted version, so a new version needs a rebuild
       build_container: ${{ fromJSON(needs.repo-has-container.outputs.has_container) && (fromJSON(needs.changes.outputs.docker) || fromJSON(needs.changes.outputs.rust) || fromJSON(steps.version_moved.outputs.container)) }}
       # the deb doesn't build from the Dockerfile
@@ -193,40 +192,23 @@ jobs:
       )
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           show-progress: false
           fetch-depth: 0
 
       - name: Install git-cliff to generate changelog & next version number
-        uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: git-cliff
 
       - name: Calculate next version
-        shell: bash
         id: version
-        run: |
-          latest_tag=$(git describe --tags --abbrev=0 || true)
-
-          # git-cliff also applies .cliffignore to --bumped-version, so the release branch's copy would hide commits from the version bump
-          rm --force .cliffignore
-
-          bumped=$(git-cliff --bumped-version --unreleased --offline)
-
-          # If git-cliff didn't bump (e.g. chore/ci only commits), force a patch increment
-          # so we never tag a Docker image with the same version as the last release.
-          if [ "${bumped}" = "${latest_tag}" ]; then
-            bumped=$(git-cliff --bumped-version --bump patch --unreleased --offline)
-            echo "Force bumping to ${bumped}"
-          fi
-
-          # tags are vX.Y.Z, cargo versions are not prefixed
-          echo "version=${bumped#v}" >> "${GITHUB_OUTPUT}"
+        uses: $/.github/actions/calculate-next-version
 
       - name: Set up ORAS
-        uses: oras-project/setup-oras@005458ad77f1c8facd38a094e4af2e69e5607ff4 # v2.0.2
+        uses: oras-project/setup-oras@v2.0.3
 
       - name: Log into registry ${{ env.REGISTRY }}
         shell: bash
@@ -250,7 +232,7 @@ jobs:
           BASE_SHA: ${{ env.PR_BASE_SHA }}
           HAS_CONTAINER: ${{ needs.repo-has-container.outputs.has_container }}
           HAS_DEB: ${{ needs.repo-has-deb.outputs.has_deb }}
-          VERSION: ${{ steps.version.outputs.version }}
+          VERSION: ${{ steps.version.outputs.next-version }}
         run: |
           image_name="${REGISTRY,,}/${IMAGE_NAME,,}"
 
@@ -307,13 +289,13 @@ jobs:
     steps:
       - &checkout
         name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           show-progress: false
 
       - name: Install cargo-edit to do set-version
-        uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: cargo-edit
 
@@ -332,7 +314,7 @@ jobs:
           git diff > /tmp/version-bump.patch
 
       - name: Upload version bump patch
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           if-no-files-found: error
           name: version-bump-patch
@@ -416,12 +398,11 @@ jobs:
       - *checkout
 
       - name: Download version bump patch
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: version-bump-patch
           path: .
 
-      # TODO validate no changes between github.event.pull_request.head.sha and the actual current sha (representing the hypothetical merge)
       - name: Set variables
         shell: bash
         id: variables
@@ -443,7 +424,7 @@ jobs:
           echo "buildcache_main_ref=${CACHE_IMAGE_NAME}:buildcache-main-${runner_arch}-${platform_no_slashes}" >> "${GITHUB_OUTPUT}"
 
       - name: Set up Docker
-        uses: docker/setup-docker-action@2bf61fb9464cc67f0cbdeabed6aa0380accd1c70 # v5.5.0
+        uses: docker/setup-docker-action@v5.7.0
         with:
           daemon-config: |
             {
@@ -453,10 +434,10 @@ jobs:
             }
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        uses: docker/setup-buildx-action@v4.4.1
 
       - name: Log into registry ${{ needs.prepare-variables.outputs.registry }}
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@v4.8.0
         with:
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ${{ needs.prepare-variables.outputs.registry }}
@@ -475,23 +456,21 @@ jobs:
           fi
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+        uses: docker/setup-qemu-action@v4.4.0
         if: fromJSON(steps.setup_qemu.outputs.setup_qemu) == true
         with:
           platforms: linux/${{ matrix.platform }}
           cache-image: false
 
       - name: Extract Docker metadata
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        uses: docker/metadata-action@v6.2.0
         id: meta
         with:
           annotations: |
             org.opencontainers.image.authors=${{ needs.prepare-variables.outputs.authors }}
             org.opencontainers.image.description=${{ needs.prepare-variables.outputs.description }} (${{ matrix.platform }})
-            # this image is built from the merge of head (branch) into base (main), see
-            # https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request
-            # `strict_required_status_checks_policy` in `.github/settings.yml` blocks merging once base moves,
-            # so if this PR merges, the merge commit on main will have this same tree
+            # this image is built from the merge of head (branch) into base (main), see https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request
+            # `strict_required_status_checks_policy` in `.github/settings.yml` blocks merging once base moves, so if this PR merges, the merge commit on main will have this same tree
             org.opencontainers.image.revision=${{ env.PR_BASE_SHA }}-${{ github.event.pull_request.head.sha }}
             org.opencontainers.image.source=${{ github.event.pull_request.html_url }}
             org.opencontainers.image.vendor=${{ github.repository_owner }}
@@ -508,13 +487,12 @@ jobs:
             type=raw,value=${{ steps.variables.outputs.unique_tag_arch }}
 
       - name: Build Docker image
-        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        uses: docker/build-push-action@v7.4.0
         with:
           build-args: |
             APPLICATION_NAME=${{ needs.prepare-variables.outputs.application_name }}
           context: .
-          # this container is THE PR's artifact, and we will re-tag it
-          # once the PR has been accepted
+          # this container is THE PR's artifact, and we will re-tag it once the PR has been accepted
           cache-from: |
             type=registry,ref=${{ steps.variables.outputs.buildcache_pr_ref }}
             type=registry,ref=${{ steps.variables.outputs.buildcache_main_ref }}
@@ -529,7 +507,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
 
       - name: Upload artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         if: |
           matrix.runs-on == 'ubuntu-26.04'
         with:
@@ -543,7 +521,7 @@ jobs:
     runs-on: ubuntu-26.04
     services:
       registry:
-        image: registry:3@sha256:ddf754342cfc8acc51a56d5d0ab6af06826461864460636d8bd5c546dab2a7b8
+        image: registry:3@sha256:38907510915c3f1604c7e83d6ab602ab3020d092f73bdaed8696773693ff768c
         ports:
           - 5000:5000
     outputs:
@@ -557,7 +535,7 @@ jobs:
       - deb-build
       - rust-build
     # both or neither. If only one gets published and the PR is merged anyway, main ends up with a container and a deb from different commits.
-    # Check if the event is not triggered by a fork
+    # the steps push the image to ghcr.io with the `GITHUB_TOKEN`, which is read-only in pull requests from forks
     if: |
       !cancelled() &&
       needs.docker-build.result == 'success' &&
@@ -570,7 +548,7 @@ jobs:
       github.event_name == 'pull_request'
     steps:
       - name: Set up Docker
-        uses: docker/setup-docker-action@2bf61fb9464cc67f0cbdeabed6aa0380accd1c70 # v5.5.0
+        uses: docker/setup-docker-action@v5.7.0
         with:
           daemon-config: |
             {
@@ -580,17 +558,17 @@ jobs:
             }
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        uses: docker/setup-buildx-action@v4.4.1
 
       - name: Log into registry ${{ needs.prepare-variables.outputs.registry }}
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@v4.8.0
         with:
           registry: ${{ needs.prepare-variables.outputs.registry }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Extract Docker metadata
-        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
+        uses: docker/metadata-action@v6.2.0
         id: meta
         with:
           annotations: |
@@ -606,7 +584,7 @@ jobs:
             type=ref,event=pr,suffix=-latest
 
       - name: Download artifacts
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@v8.0.2
         id: artifact
         with:
           merge-multiple: true
@@ -643,8 +621,7 @@ jobs:
             new_annotations+=("${annotation}")
           done <<< "${ANNOTATIONS}"
 
-          # merge the platform containers in a new multiplatform one
-          # with the new annotations, and push it to our local registry
+          # merge the platform containers in a new multiplatform one with the new annotations, and push it to our local registry
           docker buildx imagetools create "${new_annotations[@]}" --tag "${LOCAL_IMAGE_NAME}:${UNIQUE_TAG}" \
             "${platforms[@]}"
 
@@ -683,7 +660,7 @@ jobs:
 
               echo "Copying ${source} to ${tag} (attempt ${attempt} of 3)"
 
-              if skopeo copy --all --preserve-digests --src-tls-verify=false --command-timeout 70s --retry-times 5 "${source}" "docker://${tag}"; then
+              if skopeo copy --all --preserve-digests --src-tls-verify=false --command-timeout 5m --retry-times 5 "${source}" "docker://${tag}"; then
                 return 0
               fi
             done
@@ -694,9 +671,8 @@ jobs:
 
           exit_code=0
 
-          # this used to be parallel, but that gives occasional error 500 with ghcr.io:
-          # https://github.com/orgs/community/discussions/187118
-          # try to upload all of them, if one of them fails, upload the other ones and fail
+          # sequential, because parallel uploads to ghcr.io fail with an occasional error 500 (https://github.com/orgs/community/discussions/187118)
+          # a failed upload does not stop the others, the step fails after the last one
           while IFS= read -r tag; do
             copy_with_retries "${tag}" || exit_code=1
           done <<< "${NEW_TAGS}"
@@ -711,7 +687,7 @@ jobs:
           while IFS= read -r new_tag; do
             echo "Inspecting ${new_tag}:"
 
-            skopeo inspect --raw --command-timeout 70s --retry-times 5 "docker://${new_tag}"
+            skopeo inspect --raw --command-timeout 5m --retry-times 5 "docker://${new_tag}"
 
             # empty to get newline
             echo ""
@@ -731,16 +707,13 @@ jobs:
       - prepare-variables
       - docker-build
       - docker-publish
-    # a skipped deb-build behind docker-publish would skip this job too, so the result is checked explicitly
-    # Check if the event is not triggered by a fork
+    # skipping `deb-build` makes the default `success()` false, even when `docker-publish` succeeds
     if: |
       !cancelled() &&
-      needs.docker-publish.result == 'success' &&
-      github.event.pull_request.head.repo.full_name == github.repository &&
-      github.event_name == 'pull_request'
+      needs.docker-publish.result == 'success'
     steps:
       - name: Set up Docker
-        uses: docker/setup-docker-action@2bf61fb9464cc67f0cbdeabed6aa0380accd1c70 # v5.5.0
+        uses: docker/setup-docker-action@v5.7.0
         with:
           daemon-config: |
             {
@@ -750,48 +723,98 @@ jobs:
             }
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+        uses: docker/setup-buildx-action@v4.4.1
 
       - name: Log into registry ${{ needs.prepare-variables.outputs.registry }}
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        uses: docker/login-action@v4.8.0
         with:
           registry: ${{ needs.prepare-variables.outputs.registry }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # note that we use the digest of the local image
-      # these digests don't change after pushing, but
-      # since we deal with tags (mutable), and the way to get a digest is to use the tag, I prefer
-      # sourcing the digest from the local registry we just spun up (trusted)
+      # the digest comes from the local registry spun up in this run (trusted): digests do not change after pushing, but a digest is only reachable through a tag, and tags are mutable
       - name: Generate artifact attestation
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        uses: actions/attest@v4.2.2
         id: attestation
         with:
           subject-name: ${{ needs.prepare-variables.outputs.full_image_name_remote_registry }}
           subject-digest: ${{ needs.docker-publish.outputs.digest }}
           push-to-registry: true
 
+      - name: Find the base commit's image
+        id: base_image
+        shell: bash
+        env:
+          BASE_SHA: ${{ env.PR_BASE_SHA }}
+          FULL_IMAGE_NAME: ${{ needs.prepare-variables.outputs.full_image_name_remote_registry }}
+        run: |
+          for suffix in actual retag; do
+            if docker buildx imagetools inspect "${FULL_IMAGE_NAME}:sha-${BASE_SHA}-${suffix}" > /dev/null; then
+              echo "image=${FULL_IMAGE_NAME}:sha-${BASE_SHA}-${suffix}" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
+          done
+
+          echo "::warning::No image found for base commit ${BASE_SHA}, skipping the Docker Scout comparison"
+
+      - name: Preload Docker Scout
+        if: steps.base_image.outputs.image != ''
+        uses: $/.github/actions/preload-docker-scout
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Docker Scout Compare (linux/amd64)
-        uses: docker/scout-action@221e7f4860634eeb1579e3bd7ca232e577bd1864 # v1.26.0
+        if: steps.base_image.outputs.image != ''
+        uses: docker/scout-action@v1.29.0
         with:
           command: compare
           image: "${{ needs.prepare-variables.outputs.full_image_name_remote_registry }}:pr-${{ github.event.pull_request.number }}-latest"
           platform: linux/amd64
-          to: "${{ needs.prepare-variables.outputs.full_image_name_remote_registry }}:edge"
+          to: "${{ steps.base_image.outputs.image }}"
           dockerhub-user: ${{ vars.DOCKERHUB_USERNAME }}
           dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
           organization: ${{ vars.DOCKERHUB_USERNAME }}
 
       - name: Docker Scout Compare (linux/arm64)
-        uses: docker/scout-action@221e7f4860634eeb1579e3bd7ca232e577bd1864 # v1.26.0
+        if: steps.base_image.outputs.image != ''
+        uses: docker/scout-action@v1.29.0
         with:
           command: compare
           image: "${{ needs.prepare-variables.outputs.full_image_name_remote_registry }}:pr-${{ github.event.pull_request.number }}-latest"
           platform: linux/arm64
-          to: "${{ needs.prepare-variables.outputs.full_image_name_remote_registry }}:edge"
+          to: "${{ steps.base_image.outputs.image }}"
           dockerhub-user: ${{ vars.DOCKERHUB_USERNAME }}
           dockerhub-password: ${{ secrets.DOCKERHUB_TOKEN }}
           organization: ${{ vars.DOCKERHUB_USERNAME }}
+
+  docker-size-report:
+    name: Report Docker container size
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+      id-token: write # the Codecov upload authenticates over OIDC
+      packages: read # pull the PR's image from ghcr.io
+    needs:
+      - prepare-variables
+      - docker-publish
+    # skipping `deb-build` makes the default `success()` false, even when `docker-publish` succeeds
+    if: |
+      !cancelled() &&
+      needs.docker-publish.result == 'success'
+    steps:
+      - *checkout
+
+      - name: Log into registry ${{ needs.prepare-variables.outputs.registry }}
+        uses: docker/login-action@v4.8.0
+        with:
+          registry: ${{ needs.prepare-variables.outputs.registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Report container size
+        uses: $/.github/actions/report-container-size
+        with:
+          image: ${{ needs.prepare-variables.outputs.full_image_name_remote_registry }}@${{ needs.docker-publish.outputs.digest }}
 
   deb-build:
     name: Build Debian package for ${{ matrix.arch }}
@@ -805,7 +828,7 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     # the runner's glibc is newer than Debian stable's, so the build runs in the Dockerfile's image
     container:
-      image: rust:1.99.0-slim-trixie@sha256:0952c7a429d2f53c7f1f5e0796190690e7d8db367ec4a66ce0419763b9e5e0d0
+      image: rust:1.99.1-slim-trixie@sha256:7eab7ce19273ce785e0ca7578bdf7bc1fcbae621775a8197379a04c9f6e03cd5
     permissions:
       artifact-metadata: write # actions/attest
       attestations: write # actions/attest
@@ -832,7 +855,7 @@ jobs:
       - *checkout
 
       - name: Set up mold
-        uses: rui314/setup-mold@10ca16bf91dc22e05ebdc935cad9c75ea248f621 # v1 # zizmor: ignore[ref-version-mismatch,stale-action-refs] v1 is a floating tag
+        uses: rui314/setup-mold@v1
 
       - name: Set up toolchain
         shell: bash
@@ -843,15 +866,15 @@ jobs:
           cargo --version
 
       - name: Set up sccache
-        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # v0.0.11
+        uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Install cargo-deb
-        uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: cargo-deb
 
       - name: Download version bump patch
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@v8.0.2
         with:
           name: version-bump-patch
           path: ${{ runner.temp }}
@@ -901,12 +924,12 @@ jobs:
       - name: Attest Debian package
         # fork PRs run without id-token
         if: github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4.2.2
+        uses: actions/attest@v4.2.2
         with:
           subject-path: target/debian/*.deb
 
       - name: Upload Debian package
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           if-no-files-found: error
           name: deb-${{ matrix.arch }}
@@ -925,7 +948,7 @@ jobs:
       - docker-build
       - rust-build
     # both artifacts or neither, see docker-publish
-    # Check if the event is not triggered by a fork
+    # the steps push the debs to ghcr.io with the `GITHUB_TOKEN`, which is read-only in pull requests from forks
     if: |
       !cancelled() &&
       needs.deb-build.result == 'success' &&
@@ -938,7 +961,7 @@ jobs:
       github.event_name == 'pull_request'
     steps:
       - name: Download Debian packages
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@v8.0.2
         id: artifact
         with:
           merge-multiple: true
@@ -946,7 +969,7 @@ jobs:
           pattern: deb-*
 
       - name: Set up ORAS
-        uses: oras-project/setup-oras@005458ad77f1c8facd38a094e4af2e69e5607ff4 # v2.0.2
+        uses: oras-project/setup-oras@v2.0.3
 
       - name: Log into registry ${{ needs.prepare-variables.outputs.registry }}
         shell: bash
@@ -996,6 +1019,7 @@ jobs:
       - docker-build
       - docker-publish
       - docker-attest
+      - docker-size-report
       - deb-build
       - deb-publish
       - release-base-artifacts
