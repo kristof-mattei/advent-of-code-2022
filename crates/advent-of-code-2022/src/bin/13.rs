@@ -141,8 +141,8 @@ fn determine_largest(left: &[Pair], right: &[Pair]) -> Ordering {
         (l, &[ref r @ Pair::Value(_)]) => determine_largest(l, &[Pair::Vec(vec![r.clone()])]),
         (&[ref l @ Pair::Value(_)], r) => determine_largest(&[Pair::Vec(vec![l.clone()])], r),
         (&[Pair::Vec(ref l)], &[Pair::Vec(ref r)]) => determine_largest(l, r),
-        (&[], &[_, ..]) => std::cmp::Ordering::Less,
-        (&[_, ..], &[]) => std::cmp::Ordering::Greater,
+        (&[], &[_, ..]) => Ordering::Less,
+        (&[_, ..], &[]) => Ordering::Greater,
         (&[ref l, ref l_rest @ ..], &[ref r, ref r_rest @ ..]) => {
             match determine_largest(slice::from_ref(l), slice::from_ref(r)) {
                 Ordering::Less => Ordering::Less,

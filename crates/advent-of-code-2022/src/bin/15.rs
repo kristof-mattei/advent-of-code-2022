@@ -20,7 +20,7 @@ enum Type {
     Impossible,
 }
 
-fn get_coordinate(captures: &Captures, name: &str) -> isize {
+fn get_coordinate(captures: &Captures<'_>, name: &str) -> isize {
     captures
         .name(name)
         .and_then(|v| v.as_str().parse().ok())

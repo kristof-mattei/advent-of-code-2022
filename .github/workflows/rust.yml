@@ -28,14 +28,14 @@ jobs:
       rust: ${{ steps.filter.outputs.rust }}
     steps:
       - name: Check out code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           # on push events dorny/paths-filter diffs against github.event.before over git and fetches it with the persisted credentials
           persist-credentials: true
           show-progress: false
 
       - name: Check if we actually made changes
-        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        uses: dorny/paths-filter@v4.0.3
         id: filter
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -47,14 +47,14 @@ jobs:
     steps:
       - &checkout
         name: Check out code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           show-progress: false
 
       - &set_up_mold
         name: Set up mold
-        uses: rui314/setup-mold@10ca16bf91dc22e05ebdc935cad9c75ea248f621 # v1 # zizmor: ignore[ref-version-mismatch,stale-action-refs] v1 is a floating tag
+        uses: rui314/setup-mold@v1
 
       - &set_up_toolchain
         name: Set up toolchain
@@ -73,7 +73,7 @@ jobs:
 
       - &set_up_sccache
         name: Set up sccache
-        uses: mozilla-actions/sccache-action@fc920bf0ec8de6ee65d409111f7ec508035751ba # v0.0.11
+        uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Build
         shell: bash
@@ -131,29 +131,20 @@ jobs:
           rustup update
 
       - name: Install nextest, custom test runner, with native support for junit and grcov
-        uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: cargo-nextest, grcov
 
       - name: Build with instrumentation support
         shell: bash
-        env:
-          CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "${{ env.CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS }} --allow=warnings -Cinstrument-coverage"
-          # build-* ones are not parsed by grcov
-          LLVM_PROFILE_FILE: "profiling/build-%p-%m.profraw"
         run: |
-          # shellcheck disable=SC2086 # CARGO_FEATURES can hold more than one flag
-          cargo build ${CARGO_FEATURES} --all-targets --locked --workspace
+          ./generate-test-report.sh build
 
       - name: Run nextest
         shell: bash
         id: tests
-        env:
-          CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS: "${{ env.CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUSTFLAGS }} --allow=warnings -Cinstrument-coverage"
-          LLVM_PROFILE_FILE: "profiling/profile-%p-%m.profraw"
         run: |
-          # shellcheck disable=SC2086 # CARGO_FEATURES can hold more than one flag
-          cargo nextest run --profile ci --no-fail-fast ${CARGO_FEATURES} --all-targets --workspace
+          ./generate-test-report.sh test
         continue-on-error: true
 
       - name: Upload test results
@@ -161,7 +152,7 @@ jobs:
         if: |
           github.event_name != 'pull_request' ||
           github.event.pull_request.head.repo.full_name == github.repository
-        uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+        uses: EnricoMi/publish-unit-test-result-action@v2.25.0
         with:
           check_name: Test results for Rust
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -170,22 +161,10 @@ jobs:
 
       - name: Run grcov
         shell: bash
+        env:
+          GRCOV_OUTPUT_TYPES: lcov
         run: |
-          mapfile -t profraw_files < <(find . -name "profile-*.profraw" -print)
-
-          grcov "${profraw_files[@]}" \
-            --binary-path ./target/debug/ \
-            --branch \
-            --excl-br-line "^\s*((debug_)?assert(_eq|_ne)?!)" \
-            --excl-br-start "mod tests \{" \
-            --excl-line "(#\\[derive\\()|(^\s*.await[;,]?$)" \
-            --excl-start "mod tests \{" \
-            --ignore-not-existing \
-            --keep-only "crates/**" \
-            --llvm \
-            --output-path ./reports/ \
-            --output-type lcov \
-            --source-dir .
+          ./generate-test-report.sh report
 
       - name: Record Rust version
         shell: bash
@@ -197,7 +176,7 @@ jobs:
         if: |
           github.event_name != 'pull_request' ||
           github.event.pull_request.head.repo.full_name == github.repository
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        uses: codecov/codecov-action@v7.1.1
         with:
           disable_search: true
           disable_telem: true
@@ -214,7 +193,7 @@ jobs:
         if: |
           github.event_name != 'pull_request' ||
           github.event.pull_request.head.repo.full_name == github.repository
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        uses: codecov/codecov-action@v7.1.1
         with:
           disable_search: true
           disable_telem: true
@@ -232,11 +211,7 @@ jobs:
         if: |
           steps.tests.outcome != 'success'
         run: |
-          # the test reporter we use (or any for that matter)
-          # all show a report. But we cannot depend on that report because
-          # we don't know which subsection it belongs in GitHub
-          # so we explicitly fail this one
-          # which will fail All Done
+          # the test report's check run can appear in any workflow's section on GitHub, so it cannot gate All Done, this step fails the job instead
           exit 1
 
   cargo-clippy-and-report:
@@ -257,9 +232,90 @@ jobs:
       - *set_up_sccache
 
       - name: Run Clippy for GitHub Actions report
-        uses: actions-rs-plus/clippy-check@b6399906ef5e3045fc878b34b63a155f9838a891 # v2.7.1
+        uses: actions-rs-plus/clippy-check@v2.8.0
         with:
           args: ${{ env.CARGO_FEATURES }} --all-targets --locked --workspace
+
+  cargo-semver-checks-baseline:
+    name: Calculate the semver-checks baseline
+    runs-on: ubuntu-slim
+    needs:
+      - changes
+    outputs:
+      latest-tag: ${{ steps.version.outputs.latest-tag }}
+      next-version: ${{ steps.version.outputs.next-version }}
+    if: |
+      github.event_name == 'pull_request' &&
+      vars.HAS_CRATE == 'true' &&
+      fromJSON(needs.changes.outputs.rust) == true
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          show-progress: false
+
+      - name: Install git-cliff to calculate the next version number
+        uses: taiki-e/install-action@v2.90.1
+        with:
+          tool: git-cliff
+
+      - name: Calculate next version
+        id: version
+        uses: $/.github/actions/calculate-next-version
+
+  cargo-semver-checks:
+    name: Cargo semver-checks
+    runs-on: ubuntu-26.04
+    needs:
+      - cargo-semver-checks-baseline
+    # before the first release there is no published API to break
+    if: |
+      needs.cargo-semver-checks-baseline.outputs.latest-tag != ''
+    steps:
+      - *checkout
+
+      - name: Check out the latest release
+        uses: actions/checkout@v7.0.1
+        with:
+          path: baseline
+          persist-credentials: false
+          ref: ${{ needs.cargo-semver-checks-baseline.outputs.latest-tag }}
+          show-progress: false
+
+      # if the baseline is inside the working directory, `cargo semver-checks` finds the package twice and fails
+      - name: Move the baseline out of the working directory
+        shell: bash
+        run: |
+          mv baseline "${RUNNER_TEMP}/baseline"
+
+      - *set_up_mold
+
+      - *set_up_toolchain
+
+      # `cargo-edit` builds from source through `RUSTC_WRAPPER`, so sccache has to be set up first
+      - *set_up_sccache
+
+      - name: Install cargo-semver-checks, and cargo-edit to do set-version
+        uses: taiki-e/install-action@v2.90.1
+        with:
+          tool: cargo-semver-checks,cargo-edit
+
+      - name: Set the released and the next version in Cargo.toml / Cargo.lock
+        shell: bash
+        env:
+          LATEST_TAG: ${{ needs.cargo-semver-checks-baseline.outputs.latest-tag }}
+          NEXT_VERSION: ${{ needs.cargo-semver-checks-baseline.outputs.next-version }}
+        run: |
+          # the version is not committed, and `cargo semver-checks` derives the allowed changes from the baseline and current versions
+          cargo set-version --manifest-path "${RUNNER_TEMP}/baseline/Cargo.toml" "${LATEST_TAG#v}"
+          cargo set-version "${NEXT_VERSION}"
+
+      - name: Check the public API against the latest release
+        shell: bash
+        run: |
+          cargo semver-checks --baseline-root "${RUNNER_TEMP}/baseline"
 
   all-done:
     name: Rust All done
@@ -275,6 +331,8 @@ jobs:
       - cargo-build
       - cargo-clippy-and-report
       - cargo-fmt
+      - cargo-semver-checks
+      - cargo-semver-checks-baseline
       - cargo-test-and-report
     if: |
       !cancelled()

@@ -22,7 +22,6 @@ body = """
 
 {% macro print_commit(commit) -%}
     - {% if commit.scope %}*({{ commit.scope }})* {% endif %}\
-        {% if commit.breaking %}[**breaking**] {% endif %}\
         {{ commit.message | split(pat="\n") | first | trim | upper_first }}\
         {% if commit.remote.username %} by [@{{ commit.remote.username }}](https://github.com/{{ commit.remote.username }}){%- endif %}\
         {% if commit.remote.pr_number %} in #{{ commit.remote.pr_number }}{%- endif %}\
@@ -39,25 +38,23 @@ body = """
 {% else %}\
     ## [unreleased]
 {% endif %}\
-{% for entry in commits | commit_groups(groups=commit_parsers_groups) %}
-    {#- Renovate bumps the same crate multiple times per release. The version is the last word of the message, key on the rest and keep the newest. -#}
-    {%- set_global seen = [] -%}
-    {%- set_global dropped = [] -%}
-    {%- for commit in entry.commits | filter(attribute="scope", value="deps") | filter(attribute="author.name", value="renovate[bot]") | reverse -%}
-        {%- set key = commit.message | split(pat=" ") | slice(end=-1) | join(sep=" ") -%}
-        {%- if key in seen -%}
-            {%- set_global dropped = dropped | concat(with=commit.id) -%}
-        {%- else -%}
-            {%- set_global seen = seen | concat(with=key) -%}
-        {%- endif -%}
-    {%- endfor %}
+{% set breaking = commits | filter(attribute="breaking", value=true) %}\
+{% if breaking | length > 0 %}
+    ### ⚠️ Breaking Changes
+
+    {% for commit in breaking -%}
+        {{ self::print_commit(commit=commit) }}
+        {% for footer in commit.footers | filter(attribute="breaking", value=true) %}
+            {% set description = footer.value | upper_first %}{{ "  " ~ description }}
+        {% endfor -%}
+    {% endfor -%}
+{% endif %}\
+{% for entry in commits | filter(attribute="breaking", value=false) | commit_groups(groups=commit_parsers_groups) %}
     ### {{ entry.group | striptags | trim | upper_first }}
     {% for commit in entry.commits
     | filter(attribute="scope")
     | sort(attribute="scope") %}
-        {%- if commit.id not in dropped %}
-            {{ self::print_commit(commit=commit) }}
-        {%- endif %}
+        {{ self::print_commit(commit=commit) }}
     {%- endfor %}
     {% for commit in entry.commits %}
         {%- if not commit.scope -%}

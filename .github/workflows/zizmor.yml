@@ -20,21 +20,20 @@ jobs:
     if: ${{ !startsWith(github.head_ref, 'release/') }}
     steps:
       - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
           show-progress: false
 
       - name: Install zizmor
-        uses: taiki-e/install-action@183e4297cca2404691e9380e1307288dced5c82a # v2.87.25
+        uses: taiki-e/install-action@v2.90.1
         with:
           tool: zizmor
 
       - name: Run zizmor
         shell: bash
         env:
-          # a token switches zizmor out of offline mode, enabling the audits that
-          # query GitHub (known-vulnerable actions, ref resolution)
+          # a token switches zizmor out of offline mode, enabling the audits that query GitHub (known-vulnerable actions, ref resolution)
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           zizmor --persona=pedantic .github

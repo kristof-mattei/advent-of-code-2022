@@ -8,11 +8,13 @@
         "spellcheck:update": ": > project-words.txt && cspell --no-progress --words-only --unique \"**\" | tr '[:upper:]' '[:lower:]' | LC_ALL=en_US.UTF8 sort --unique > project-words.txt"
     },
     "devDependencies": {
-        "cspell": "10.3.6",
-        "oxfmt": "0.71.0"
+        "@codecov/bundle-analyzer": "2.0.1",
+        "cspell": "10.4.0",
+        "oxfmt": "0.76.0",
+        "tar": "7.5.22"
     },
     "engines": {
-        "node": "26.10.0"
+        "node": "26.13.0"
     },
-    "packageManager": "pnpm@12.9.1+sha512.06b055fff5cd20dc12781de173ced3310ce0951bf2ec620211a16045d5444d5c93a663210764ef29a653a610459ba0368f0e74f84d80c54723cf95aae7bc0d6d"
+    "packageManager": "pnpm@12.18.0+sha512.9d7882d5dc82147ecfc4e062aa34834e0ad0296710a1837a1115ae012127d36b7109e321ac1598a1dd0a65597681b1e99917e12ed0d749eae91187943363beb3"
 }
