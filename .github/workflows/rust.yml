@@ -52,28 +52,29 @@ jobs:
           persist-credentials: false
           show-progress: false
 
-      - &set_up_mold
-        name: Set up mold
-        uses: rui314/setup-mold@v1
+      - parallel:
+          - &set_up_mold
+            name: Set up mold
+            uses: rui314/setup-mold@v1
 
-      - &set_up_toolchain
-        name: Set up toolchain
-        shell: bash
-        run: |
-          rm "${HOME}/.cargo/bin/cargo-fmt"
-          rm "${HOME}/.cargo/bin/rust-analyzer"
-          rm "${HOME}/.cargo/bin/rustfmt"
+          - &set_up_toolchain
+            name: Set up toolchain
+            shell: bash
+            run: |
+              rm "${HOME}/.cargo/bin/cargo-fmt"
+              rm "${HOME}/.cargo/bin/rust-analyzer"
+              rm "${HOME}/.cargo/bin/rustfmt"
 
-          rustup self update
-          rustup update
-          rustup show active-toolchain || rustup toolchain install
-          rustup show
+              rustup self update
+              rustup update
+              rustup show active-toolchain || rustup toolchain install
+              rustup show
 
-          cargo --version
+              cargo --version
 
-      - &set_up_sccache
-        name: Set up sccache
-        uses: mozilla-actions/sccache-action@v0.0.11
+          - &set_up_sccache
+            name: Set up sccache
+            uses: mozilla-actions/sccache-action@v0.0.11
 
       - name: Build
         shell: bash
@@ -110,17 +111,18 @@ jobs:
     permissions:
       checks: write # publish-unit-test-result-action creates a check run
       contents: read
-      id-token: write # codecov-action authenticates over OIDC
+      id-token: write # codecov-action and qlty-action authenticate over OIDC
       issues: read # publish-unit-test-result-action needs this in private repos
       pull-requests: write # publish-unit-test-result-action comments the test summary
     steps:
       - *checkout
 
-      - *set_up_mold
+      - parallel:
+          - *set_up_mold
 
-      - *set_up_toolchain
+          - *set_up_toolchain
 
-      - *set_up_sccache
+          - *set_up_sccache
 
       - name: Install llvm-tools
         shell: bash
@@ -147,64 +149,79 @@ jobs:
           ./generate-test-report.sh test
         continue-on-error: true
 
-      - name: Upload test results
-        # fork PRs run with a read-only token, which cannot create check runs or PR comments
-        if: |
-          github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository
-        uses: EnricoMi/publish-unit-test-result-action@v2.26.0
-        with:
-          check_name: Test results for Rust
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: |
-            reports/results.xml
-
-      - name: Run grcov
-        shell: bash
-        env:
-          GRCOV_OUTPUT_TYPES: lcov
-        run: |
-          ./generate-test-report.sh report
-
       - name: Record Rust version
         shell: bash
         run: |
           echo "RUST=$(rustc --version)" >> "$GITHUB_ENV"
 
-      - name: Upload coverage results (to Codecov.io)
-        # fork PRs run without id-token, so OIDC upload cannot work. Push runs must keep uploading to preserve base coverage
-        if: |
-          github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository
-        uses: codecov/codecov-action@v7.1.1
-        with:
-          disable_search: true
-          disable_telem: true
-          env_vars: RUNNER_OS,RUST
-          fail_ci_if_error: true
-          # flags: tests
-          files: reports/lcov
-          name: code-coverage
-          plugins: noop
-          report_type: "coverage"
-          use_oidc: true
+      - parallel:
+          - name: Upload test results
+            # fork PRs run with a read-only token, which cannot create check runs or PR comments
+            if: |
+              github.event_name != 'pull_request' ||
+              github.event.pull_request.head.repo.full_name == github.repository
+            uses: EnricoMi/publish-unit-test-result-action@v2.26.0
+            with:
+              check_name: Test results for Rust
+              github_token: ${{ secrets.GITHUB_TOKEN }}
+              files: |
+                reports/results.xml
 
-      - name: Upload test results (to Codecov.io)
-        if: |
-          github.event_name != 'pull_request' ||
-          github.event.pull_request.head.repo.full_name == github.repository
-        uses: codecov/codecov-action@v7.1.1
-        with:
-          disable_search: true
-          disable_telem: true
-          env_vars: RUNNER_OS,RUST
-          fail_ci_if_error: true
-          # flags: tests
-          files: reports/results.xml
-          name: test-results
-          plugins: noop
-          report_type: "test_results"
-          use_oidc: true
+          - name: Run grcov
+            shell: bash
+            env:
+              GRCOV_OUTPUT_TYPES: lcov
+            run: |
+              ./generate-test-report.sh report
+
+          - name: Upload test results (to Codecov.io)
+            if: |
+              github.event_name != 'pull_request' ||
+              github.event.pull_request.head.repo.full_name == github.repository
+            uses: codecov/codecov-action@v7.1.1
+            with:
+              disable_search: true
+              disable_telem: true
+              env_vars: RUNNER_OS,RUST
+              fail_ci_if_error: true
+              flags: tests
+              files: reports/results.xml
+              name: test-results
+              plugins: noop
+              report_type: "test_results"
+              use_oidc: true
+
+      # the two Codecov.io uploads fail when run in parallel
+      - parallel:
+          - name: Upload coverage results (to Codecov.io)
+            # fork PRs run without id-token, so OIDC upload cannot work. Push runs must keep uploading to preserve base coverage
+            if: |
+              github.event_name != 'pull_request' ||
+              github.event.pull_request.head.repo.full_name == github.repository
+            uses: codecov/codecov-action@v7.1.1
+            with:
+              disable_search: true
+              disable_telem: true
+              env_vars: RUNNER_OS,RUST
+              fail_ci_if_error: true
+              flags: tests
+              files: reports/lcov
+              name: code-coverage
+              plugins: noop
+              report_type: "coverage"
+              use_oidc: true
+
+          - name: Upload coverage results (to Qlty)
+            if: |
+              github.event_name != 'pull_request' ||
+              github.event.pull_request.head.repo.full_name == github.repository
+            uses: qltysh/qlty-action/coverage@v2.6.0
+            with:
+              files: reports/lcov
+              format: lcov
+              oidc: true
+              skip-errors: false
+              tag: tests
 
       - name: Fail if tests failed
         shell: bash
@@ -225,11 +242,12 @@ jobs:
     steps:
       - *checkout
 
-      - *set_up_mold
+      - parallel:
+          - *set_up_mold
 
-      - *set_up_toolchain
+          - *set_up_toolchain
 
-      - *set_up_sccache
+          - *set_up_sccache
 
       - name: Run Clippy for GitHub Actions report
         uses: actions-rs-plus/clippy-check@v2.8.0
@@ -290,12 +308,13 @@ jobs:
         run: |
           mv baseline "${RUNNER_TEMP}/baseline"
 
-      - *set_up_mold
+      - parallel:
+          - *set_up_mold
 
-      - *set_up_toolchain
+          - *set_up_toolchain
 
-      # `cargo-edit` builds from source through `RUSTC_WRAPPER`, so sccache has to be set up first
-      - *set_up_sccache
+          # `cargo-edit` builds from source through `RUSTC_WRAPPER`, so sccache has to be set up first
+          - *set_up_sccache
 
       - name: Install cargo-semver-checks, and cargo-edit to do set-version
         uses: taiki-e/install-action@v2.90.3

@@ -41,7 +41,7 @@ report() {
         --excl-start "mod tests \{" \
         --excl-stop "^}$" \
         --ignore-not-existing \
-        --keep-only "crates/**" \
+        --keep-only "src/**" \
         --llvm \
         --output-path ./reports/ \
         --output-type "${grcov_output_types}" \
