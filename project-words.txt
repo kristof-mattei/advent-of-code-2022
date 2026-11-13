@@ -19,6 +19,7 @@ grcov
 headgreen
 humn
 idents
+kjanat
 kristof
 lctqfbvzv
 lintian
@@ -37,11 +38,11 @@ postprocessors
 profraw
 pyflakes
 qlty
+qltysh
 rawfile
 retag
 retagging
 retags
-rhysd
 rposition
 rustflags
 samply

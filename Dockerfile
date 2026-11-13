@@ -73,7 +73,7 @@ RUN rustup target add "${TARGET}"
 
 # building an empty app with only the manifests and Cargo.lock puts the dependencies in their own layer, which Docker's layer cache reuses while they do not change
 WORKDIR /build
-RUN cargo init --bin --vcs none --name ${APPLICATION_NAME}
+RUN cargo init --bin --vcs none --name "${APPLICATION_NAME}"
 COPY ./.cargo ./.cargo
 COPY ./Cargo.toml ./Cargo.lock ./
 
