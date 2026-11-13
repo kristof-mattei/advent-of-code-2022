@@ -1,5 +1,7 @@
 use std::ops::{Deref, DerefMut, Index, IndexMut};
 
+use hashbrown::HashSet;
+
 use super::{
     GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDiagonalNeighbors,
     HorizontalVerticalDirection, HorizontalVerticalNeighbors, Neighbors,
@@ -40,25 +42,26 @@ impl<T: Clone> Clone for Grid<T> {
 impl<T> Grid<T> {
     /// Builds a new grid.
     ///
-    /// # Panics
+    /// # Errors
     /// When rows are not equal length.
-    #[must_use]
-    #[expect(clippy::disallowed_macros, reason = "No pretty needed here")]
-    pub fn new(data: Vec<Vec<T>>) -> Self {
-        for w in data.array_windows::<2>() {
-            assert_eq!(w[0].len(), w[1].len(), "Row length differs");
+    #[must_use = "Error value has original data"]
+    pub fn new(data: Vec<Vec<T>>) -> Result<Self, Vec<Vec<T>>> {
+        for &[ref w1, ref w2] in data.array_windows::<2>() {
+            if w1.len() != w2.len() {
+                return Err(data);
+            }
         }
 
         let rows = data.len();
         let columns = data[0].len();
 
-        Self {
+        Ok(Self {
             data: data.into_iter().map(|r| Row(r)).collect(),
             row_len: rows,
             column_len: columns,
             // max_row: rows - 1,
             // max_column: columns - 1,
-        }
+        })
     }
 }
 
@@ -124,7 +127,7 @@ impl<T> Neighbors for Grid<T> {
         row_index: Self::Index,
         column_index: Self::Index,
     ) -> HorizontalVerticalNeighbors<Self::Index> {
-        let mut neighbors = vec![];
+        let mut neighbors = HashSet::with_capacity(4);
 
         let up = row_index.checked_sub(1);
         let down = {
@@ -141,19 +144,19 @@ impl<T> Neighbors for Grid<T> {
         };
 
         if let Some(up) = up {
-            neighbors.push(((up, column_index), HorizontalVerticalDirection::Up));
+            neighbors.insert(((up, column_index), HorizontalVerticalDirection::Up));
         }
 
         if let Some(right) = right {
-            neighbors.push(((row_index, right), HorizontalVerticalDirection::Right));
+            neighbors.insert(((row_index, right), HorizontalVerticalDirection::Right));
         }
 
         if let Some(down) = down {
-            neighbors.push(((down, column_index), HorizontalVerticalDirection::Down));
+            neighbors.insert(((down, column_index), HorizontalVerticalDirection::Down));
         }
 
         if let Some(left) = left {
-            neighbors.push(((row_index, left), HorizontalVerticalDirection::Left));
+            neighbors.insert(((row_index, left), HorizontalVerticalDirection::Left));
         }
 
         neighbors
@@ -164,7 +167,7 @@ impl<T> Neighbors for Grid<T> {
         row_index: Self::Index,
         column_index: Self::Index,
     ) -> HorizontalVerticalDiagonalNeighbors<Self::Index> {
-        let mut neighbors = vec![];
+        let mut neighbors = HashSet::with_capacity(8);
 
         let up = row_index.checked_sub(1);
         let down = {
@@ -181,44 +184,44 @@ impl<T> Neighbors for Grid<T> {
         };
 
         if let Some(up) = up {
-            neighbors.push(((up, column_index), HorizontalVerticalDiagonalDirection::Up));
+            neighbors.insert(((up, column_index), HorizontalVerticalDiagonalDirection::Up));
         }
 
         if let (Some(up), Some(right)) = (up, right) {
-            neighbors.push(((up, right), HorizontalVerticalDiagonalDirection::UpRight));
+            neighbors.insert(((up, right), HorizontalVerticalDiagonalDirection::UpRight));
         }
 
         if let Some(right) = right {
-            neighbors.push((
+            neighbors.insert((
                 (row_index, right),
                 HorizontalVerticalDiagonalDirection::Right,
             ));
         }
 
         if let (Some(down), Some(right)) = (down, right) {
-            neighbors.push((
+            neighbors.insert((
                 (down, right),
                 HorizontalVerticalDiagonalDirection::DownRight,
             ));
         }
 
         if let Some(down) = down {
-            neighbors.push((
+            neighbors.insert((
                 (down, column_index),
                 HorizontalVerticalDiagonalDirection::Down,
             ));
         }
 
         if let (Some(down), Some(left)) = (down, left) {
-            neighbors.push(((down, left), HorizontalVerticalDiagonalDirection::DownLeft));
+            neighbors.insert(((down, left), HorizontalVerticalDiagonalDirection::DownLeft));
         }
 
         if let Some(left) = left {
-            neighbors.push(((row_index, left), HorizontalVerticalDiagonalDirection::Left));
+            neighbors.insert(((row_index, left), HorizontalVerticalDiagonalDirection::Left));
         }
 
         if let (Some(up), Some(left)) = (up, left) {
-            neighbors.push(((up, left), HorizontalVerticalDiagonalDirection::UpLeft));
+            neighbors.insert(((up, left), HorizontalVerticalDiagonalDirection::UpLeft));
         }
 
         neighbors
@@ -276,6 +279,7 @@ impl<T> IndexMut<usize> for Grid<T> {
 
 #[cfg(test)]
 mod tests {
+    use hashbrown::HashSet;
     use pretty_assertions::assert_eq;
 
     use super::Grid;
@@ -290,7 +294,8 @@ mod tests {
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
             vec!['g', 'h', 'i'],
-        ]);
+        ])
+        .unwrap();
 
         let rows = g.data.iter().collect::<Vec<_>>();
 
@@ -303,7 +308,8 @@ mod tests {
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
             vec!['g', 'h', 'i'],
-        ]);
+        ])
+        .unwrap();
 
         let columns = vec![
             vec![&'a', &'d', &'g'],
@@ -322,7 +328,8 @@ mod tests {
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
             vec!['g', 'h', 'i'],
-        ]);
+        ])
+        .unwrap();
 
         let v = vec![
             ((0, 0), &'a'),
@@ -345,14 +352,17 @@ mod tests {
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
             vec!['g', 'h', 'i'],
-        ]);
+        ])
+        .unwrap();
 
-        let v = vec![
+        let v = [
             ((0, 1), HorizontalVerticalDirection::Up),
             ((1, 2), HorizontalVerticalDirection::Right),
             ((2, 1), HorizontalVerticalDirection::Down),
             ((1, 0), HorizontalVerticalDirection::Left),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hv_neighbors(1, 1));
     }
@@ -363,12 +373,15 @@ mod tests {
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
             vec!['g', 'h', 'i'],
-        ]);
+        ])
+        .unwrap();
 
-        let v = vec![
+        let v = [
             ((0, 1), HorizontalVerticalDirection::Right),
             ((1, 0), HorizontalVerticalDirection::Down),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hv_neighbors(0, 0));
     }
@@ -379,9 +392,10 @@ mod tests {
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
             vec!['g', 'h', 'i'],
-        ]);
+        ])
+        .unwrap();
 
-        let v = vec![
+        let v = [
             ((0, 1), HorizontalVerticalDiagonalDirection::Up),
             ((0, 2), HorizontalVerticalDiagonalDirection::UpRight),
             ((1, 2), HorizontalVerticalDiagonalDirection::Right),
@@ -390,7 +404,9 @@ mod tests {
             ((2, 0), HorizontalVerticalDiagonalDirection::DownLeft),
             ((1, 0), HorizontalVerticalDiagonalDirection::Left),
             ((0, 0), HorizontalVerticalDiagonalDirection::UpLeft),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hvd_neighbors(1, 1));
     }
@@ -401,13 +417,16 @@ mod tests {
             vec!['a', 'b', 'c'],
             vec!['d', 'e', 'f'],
             vec!['g', 'h', 'i'],
-        ]);
+        ])
+        .unwrap();
 
-        let v = vec![
+        let v = [
             ((0, 1), HorizontalVerticalDiagonalDirection::Right),
             ((1, 1), HorizontalVerticalDiagonalDirection::DownRight),
             ((1, 0), HorizontalVerticalDiagonalDirection::Down),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hvd_neighbors(0, 0));
     }

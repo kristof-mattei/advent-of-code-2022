@@ -5,5 +5,5 @@
 !/.cargo
 !/Cargo.lock
 !/Cargo.toml
-!/crates
+!/src
 !/version-bump.patch

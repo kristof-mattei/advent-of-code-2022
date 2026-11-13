@@ -13,13 +13,10 @@ impl Parts for Solution {
 }
 
 #[cfg(test)]
-mod tests {
-    use pretty_assertions::assert_eq;
-
+mod test {
     mod part_1 {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts as _};
-        use pretty_assertions::assert_eq;
 
         use crate::{DAY, Solution};
 
@@ -43,7 +40,6 @@ mod tests {
     mod part_2 {
         use advent_of_code_2022::shared::solution::read_file;
         use advent_of_code_2022::shared::{PartSolution, Parts as _};
-        use pretty_assertions::assert_eq;
 
         use crate::{DAY, Solution};
 

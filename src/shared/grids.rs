@@ -5,7 +5,9 @@ use std::cmp::PartialEq;
 use std::ops::Index;
 use std::slice::Iter;
 
-#[derive(PartialEq, Eq, Debug)]
+use hashbrown::HashSet;
+
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Hash)]
 pub enum HorizontalVerticalDirection {
     Up,
     Right,
@@ -13,7 +15,20 @@ pub enum HorizontalVerticalDirection {
     Left,
 }
 
-#[derive(PartialEq, Eq, Debug)]
+impl std::ops::Not for HorizontalVerticalDirection {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        match self {
+            Self::Up => Self::Down,
+            Self::Right => Self::Left,
+            Self::Down => Self::Up,
+            Self::Left => Self::Right,
+        }
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq, Debug, Hash)]
 pub enum HorizontalVerticalDiagonalDirection {
     Up,
     UpRight,
@@ -25,8 +40,26 @@ pub enum HorizontalVerticalDiagonalDirection {
     UpLeft,
 }
 
-type HorizontalVerticalNeighbors<T> = Vec<((T, T), HorizontalVerticalDirection)>;
-type HorizontalVerticalDiagonalNeighbors<T> = Vec<((T, T), HorizontalVerticalDiagonalDirection)>;
+impl std::ops::Not for HorizontalVerticalDiagonalDirection {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        match self {
+            Self::Up => Self::Down,
+            Self::UpRight => Self::DownLeft,
+            Self::Right => Self::Left,
+            Self::DownRight => Self::UpLeft,
+            Self::Down => Self::Up,
+            Self::DownLeft => Self::UpRight,
+            Self::Left => Self::Right,
+            Self::UpLeft => Self::DownRight,
+        }
+    }
+}
+
+type HorizontalVerticalNeighbors<T> = HashSet<((T, T), HorizontalVerticalDirection)>;
+type HorizontalVerticalDiagonalNeighbors<T> =
+    HashSet<((T, T), HorizontalVerticalDiagonalDirection)>;
 
 pub trait Neighbors {
     type Index: GridIndex;
@@ -53,7 +86,7 @@ pub trait GridIter {
     fn get_row_length(&self) -> usize;
     fn get_column_length(&self) -> usize;
 
-    fn row_iter(&self) -> Iter<'_, Self::GridRow> {
+    fn row_iter(&'_ self) -> Iter<'_, Self::GridRow> {
         self.get_grid().iter()
     }
 

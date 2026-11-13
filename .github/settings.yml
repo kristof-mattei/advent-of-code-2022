@@ -8,7 +8,7 @@ repository:
   # Keys match the body of https://docs.github.com/en/rest/repos/repos#update-a-repository.
 
   # When `name` differs from the current name, the sync renames the repository.
-  # name: repo-name
+  # name: advent-of-code-2022
   # description: description of repo
   # homepage: https://example.github.io/
   # Takes one comma-separated string, not a list.

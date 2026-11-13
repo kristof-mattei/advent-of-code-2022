@@ -5,17 +5,16 @@ use super::day::Day;
 
 fn read_file_base(filepath: impl AsRef<Path>) -> String {
     let f = fs::read_to_string(&filepath);
-
     f.unwrap_or_else(|error| {
         panic!(
-            "Error reading file \"{}\": {error:?}",
-            filepath.as_ref().to_str().unwrap()
+            "Error reading file \"{}\": {:?}",
+            filepath.as_ref().to_str().unwrap(),
+            error
         )
     })
 }
 
 /// Helper function that reads a text file to a string.
-///
 /// # Panics
 ///
 /// if the file does not exist or cannot be read.
@@ -28,7 +27,6 @@ pub fn read_file(folder: &str, day: &Day) -> String {
 }
 
 /// Helper function that reads a text file to string, appending a part suffix. E.g. like `01-2.txt`.
-///
 /// # Panics
 ///
 /// if the file does not exist or cannot be read.
@@ -67,7 +65,6 @@ macro_rules! solution {
                 std::str::FromStr::from_str(file_stem).expect("Could not convert input to Day")
             });
 
-        #[expect(clippy::disallowed_macros, reason = "No pretty needed here")]
         fn main() {
             // use advent_of_code_2022::template::runner::*;
             let input = $crate::shared::solution::read_file("inputs", &DAY);

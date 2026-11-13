@@ -894,7 +894,7 @@ jobs:
           maintainer=$(cargo metadata --format-version 1 --no-deps | jq --raw-output --arg name "${APPLICATION_NAME}" '.packages[] | select(.name == $name) | .metadata.deb.maintainer')
           date=$(git log -1 --format=%aD)
 
-          cat > "crates/${APPLICATION_NAME}/packaging/changelog" <<EOF
+          cat > "packaging/changelog" <<EOF
           ${APPLICATION_NAME} (${VERSION}-1) unstable; urgency=medium
 
             * See https://github.com/${GITHUB_REPOSITORY}/releases
@@ -903,7 +903,7 @@ jobs:
            -- ${maintainer}  ${date}
           EOF
 
-          cat "crates/${APPLICATION_NAME}/packaging/changelog"
+          cat "packaging/changelog"
 
       - name: Build Debian package
         shell: bash

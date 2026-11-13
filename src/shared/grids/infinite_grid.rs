@@ -1,5 +1,7 @@
 use std::ops::{Deref, DerefMut, Index};
 
+use hashbrown::HashSet;
+
 use super::{
     GridIter, HorizontalVerticalDiagonalDirection, HorizontalVerticalDirection, Neighbors,
 };
@@ -86,9 +88,8 @@ impl<T> InfiniteGrid<T> {
     /// # Panics
     /// When rows are not equal length.
     #[must_use]
-    #[expect(clippy::disallowed_macros, reason = "No pretty needed here")]
     pub fn new(data: Vec<Vec<T>>) -> Self {
-        for w in data.array_windows::<2>() {
+        for w in data.windows(2) {
             assert_eq!(w[0].len(), w[1].len(), "Row length differs");
         }
 
@@ -129,8 +130,8 @@ impl<T> Neighbors for InfiniteGrid<T> {
         &self,
         row_index: Self::Index,
         column_index: Self::Index,
-    ) -> Vec<((Self::Index, Self::Index), HorizontalVerticalDirection)> {
-        vec![
+    ) -> HashSet<((Self::Index, Self::Index), HorizontalVerticalDirection)> {
+        [
             (
                 (row_index - 1, column_index),
                 HorizontalVerticalDirection::Up,
@@ -148,17 +149,19 @@ impl<T> Neighbors for InfiniteGrid<T> {
                 HorizontalVerticalDirection::Left,
             ),
         ]
+        .into_iter()
+        .collect()
     }
 
     fn hvd_neighbors(
         &self,
         row_index: Self::Index,
         column_index: Self::Index,
-    ) -> Vec<(
+    ) -> HashSet<(
         (Self::Index, Self::Index),
         HorizontalVerticalDiagonalDirection,
     )> {
-        vec![
+        [
             (
                 (row_index - 1, column_index),
                 HorizontalVerticalDiagonalDirection::Up,
@@ -192,6 +195,8 @@ impl<T> Neighbors for InfiniteGrid<T> {
                 HorizontalVerticalDiagonalDirection::UpLeft,
             ),
         ]
+        .into_iter()
+        .collect()
     }
 }
 
@@ -254,6 +259,7 @@ impl<T> Index<isize> for InfiniteGrid<T> {
 
 #[cfg(test)]
 mod tests {
+    use hashbrown::HashSet;
     use pretty_assertions::assert_eq;
 
     use crate::shared::grids::infinite_grid::InfiniteGrid;
@@ -282,12 +288,14 @@ mod tests {
             vec!['g', 'h', 'i'],
         ]);
 
-        let v = vec![
+        let v = [
             ((0, 1), HorizontalVerticalDirection::Up),
             ((1, 2), HorizontalVerticalDirection::Right),
             ((2, 1), HorizontalVerticalDirection::Down),
             ((1, 0), HorizontalVerticalDirection::Left),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hv_neighbors(1, 1));
     }
@@ -300,12 +308,14 @@ mod tests {
             vec!['g', 'h', 'i'],
         ]);
 
-        let v = vec![
+        let v = [
             ((-1, 0), HorizontalVerticalDirection::Up),
             ((0, 1), HorizontalVerticalDirection::Right),
             ((1, 0), HorizontalVerticalDirection::Down),
             ((0, -1), HorizontalVerticalDirection::Left),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hv_neighbors(0, 0));
     }
@@ -318,7 +328,7 @@ mod tests {
             vec!['g', 'h', 'i'],
         ]);
 
-        let v = vec![
+        let v = [
             ((0, 1), HorizontalVerticalDiagonalDirection::Up),
             ((0, 2), HorizontalVerticalDiagonalDirection::UpRight),
             ((1, 2), HorizontalVerticalDiagonalDirection::Right),
@@ -327,7 +337,9 @@ mod tests {
             ((2, 0), HorizontalVerticalDiagonalDirection::DownLeft),
             ((1, 0), HorizontalVerticalDiagonalDirection::Left),
             ((0, 0), HorizontalVerticalDiagonalDirection::UpLeft),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hvd_neighbors(1, 1));
     }
@@ -340,7 +352,7 @@ mod tests {
             vec!['g', 'h', 'i'],
         ]);
 
-        let v = vec![
+        let v = [
             ((-1, 0), HorizontalVerticalDiagonalDirection::Up),
             ((-1, 1), HorizontalVerticalDiagonalDirection::UpRight),
             ((0, 1), HorizontalVerticalDiagonalDirection::Right),
@@ -349,7 +361,9 @@ mod tests {
             ((1, -1), HorizontalVerticalDiagonalDirection::DownLeft),
             ((0, -1), HorizontalVerticalDiagonalDirection::Left),
             ((-1, -1), HorizontalVerticalDiagonalDirection::UpLeft),
-        ];
+        ]
+        .into_iter()
+        .collect::<HashSet<_>>();
 
         assert_eq!(v, g.hvd_neighbors(0, 0));
     }

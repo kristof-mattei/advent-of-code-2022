@@ -6,14 +6,20 @@
             "command": "check",
             "problemMatcher": ["$rustc"],
             "group": "build",
-            "label": "Rust: cargo check"
+            "label": "Rust: cargo check",
+            "presentation": {
+                "clear": true
+            }
         },
         {
             "type": "cargo",
             "command": "clean",
             "problemMatcher": ["$rustc"],
             "group": "build",
-            "label": "Rust: cargo clean"
+            "label": "Rust: cargo clean",
+            "presentation": {
+                "clear": true
+            }
         },
         {
             "type": "cargo",
@@ -21,7 +27,10 @@
             "args": ["--workspace", "--all-targets", "--all-features"],
             "problemMatcher": ["$rustc"],
             "group": "build",
-            "label": "Rust: cargo build"
+            "label": "Rust: cargo build",
+            "presentation": {
+                "clear": true
+            }
         },
         {
             "type": "cargo",
@@ -29,7 +38,10 @@
             "args": ["--all"],
             "problemMatcher": ["$rustc"],
             "group": "build",
-            "label": "Rust: cargo fmt"
+            "label": "Rust: cargo fmt",
+            "presentation": {
+                "clear": true
+            }
         },
         {
             "type": "cargo",
@@ -37,7 +49,10 @@
             "args": ["--workspace", "--all-targets", "--all-features"],
             "problemMatcher": ["$rustc"],
             "group": "build",
-            "label": "Rust: cargo clippy"
+            "label": "Rust: cargo clippy",
+            "presentation": {
+                "clear": true
+            }
         },
         {
             "type": "cargo",
@@ -45,7 +60,10 @@
             "args": [],
             "problemMatcher": ["$rustc"],
             "group": "test",
-            "label": "Rust: cargo test"
+            "label": "Rust: cargo test",
+            "presentation": {
+                "clear": true
+            }
         },
         {
             "type": "cargo",
@@ -53,7 +71,10 @@
             "args": ["--release"],
             "problemMatcher": ["$rustc"],
             "group": "test",
-            "label": "Rust: cargo test release"
+            "label": "Rust: cargo test release",
+            "presentation": {
+                "clear": true
+            }
         }
     ]
 }
